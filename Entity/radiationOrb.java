@@ -7,10 +7,7 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 
-import MeltdownMayhem.GamePanel;
-
 public class radiationOrb extends Enemy {
-	protected static final int SPEED_RESET_FACTOR = 200;
 	protected static final int SPEED_COEFFICIENT = 1;
 	protected static final int OSCILLATION_FACTOR = 2;
 	
@@ -54,47 +51,15 @@ public class radiationOrb extends Enemy {
 			}
 		}
 		g.drawImage(image, x - enemyRadius, y - enemyRadius, enemySize, enemySize, null);
+		
+		// Show hitboxes
 		g.setColor(new Color(255,0,0));
-		g.drawOval(x - enemyRadius, y - enemyRadius, enemySize, enemySize);
+		g.drawOval(x - (int)(enemyRadius*0.7), y - (int)(enemyRadius*0.7), (int)(enemySize * 0.7), (int)(enemySize * 0.7));
 		g.setColor(new Color(0,0,255));
 		g.fillOval(x, y, 3, 3);
 	}
 	
-	public void stayInField() {
-		/*
-		De functie kijkt na of de coördinaten van een enemy nog wel binnenin het speelveld blijven.
-		Indien de enemy het speelveld aan het verlaten is, wordt hij terug in het veld geplaatst. 
-		Hierbij wordt hij terug het veld in gestuurd, verwijderd van de rand van het speelveld
-		(langs de binnenkant van het veld) met een even grote afstand dan hij uit het veld gegaan is.
-		Ook wordt het teken van de snelheid in de betreffende richting omgewisseld.
-		*/
-		
-		// Vertical Board borders collision
-		if (this.x > GamePanel.BOARD_END - margin) {
-			this.vx *= -1;
-			this.timeSinceReset_x = 0;
-			this.x = 2 * (GamePanel.BOARD_END - margin) - this.x;
-		} else if(this.x < GamePanel.BOARD_START + margin) {
-			this.vx *= -1;
-			this.timeSinceReset_x = 0;
-			this.x = 2 * (GamePanel.BOARD_START + margin) - this.x;
-		}
-		
-		// Horizontal Board borders collision
-		if (this.y > GamePanel.BOARD_HEIGHT - margin) {
-			this.vy *= -1;
-			this.timeSinceReset_y = 0;
-			this.y = 2 * (GamePanel.BOARD_HEIGHT - margin) - this.y;
-		} else if (!this.appearing && this.spawning && this.y < enemyRadius) {
-			this.vy *= -1;
-			this.timeSinceReset_y = 0;
-			this.y = 2 * enemyRadius - this.y;
-		} else if(!this.spawning && this.y < UPPER_BORDER + enemyRadius) {
-			this.vy *= -1;
-			this.timeSinceReset_y = 0;
-			this.y = 2 * (UPPER_BORDER + enemyRadius) - this.y;
-		}
-	}
+	
 
 	public void update() {
 		
@@ -115,37 +80,11 @@ public class radiationOrb extends Enemy {
 			}
 		}
 		
-		/*
-		Een enemy is uit zijn appearingfase als hij boven de bovenkant van het scherm geraakt.
-		
-		Een enemy is uit zijn spawnfase als hij onder de UPPER_BORDER geraakt. Vanaf dan kan hij niet meer boven
-		de UPPERBORDER geraken om plaats te maken voor het spawnen van andere enemies.
-		*/
-		if (this.appearing && this.y > enemyRadius) {
-			this.appearing = false;
-		} else if (this.spawning && this.y > UPPER_BORDER + enemyRadius) {
-			this.spawning = false;
-		}
+		spawnPriority();
 		
 		stayInField();
 		
-		// Volgende code laat de snelheid van de enenmies om de zoveel tijd (met enige randomisatie) veranderen
-		if (timeSinceReset_x / SPEED_RESET_FACTOR > rng.nextDouble()) {
-			this.vx = rng.nextInt(3) * Math.pow(-1, rng.nextInt(2));
-			this.timeSinceReset_x = 0;
-		} else {
-			this.timeSinceReset_x++;
-		}
-				
-		if (!this.spawning && (timeSinceReset_y / SPEED_RESET_FACTOR > rng.nextDouble())) {
-			this.vy = rng.nextInt(3) * Math.pow(-1, rng.nextInt(2));
-			this.timeSinceReset_y = 0;
-		} else {
-			this.timeSinceReset_y++;
-		}
+		randomSpeedChange();
 		
-		// Volgende 2 lijnen laten de enemies oscilleren
-		//this.x += OSCILLATION_FACTOR * rng.nextDouble() * Math.pow(-1, rng.nextInt(2));
-		//this.y += OSCILLATION_FACTOR * rng.nextDouble() * Math.pow(-1, rng.nextInt(2));
 	}
 }
