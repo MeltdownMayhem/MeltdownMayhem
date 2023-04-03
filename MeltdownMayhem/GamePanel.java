@@ -13,6 +13,7 @@ import javax.swing.JPanel;
 
 import Entity.Ammunition;
 import Entity.Barrel;
+import Entity.Drone;
 import Entity.Enemy;
 import Entity.Human;
 
@@ -21,8 +22,9 @@ public class GamePanel extends JPanel{
 	public static final int PANEL_WIDTH = 1940; // Panel sizes are for the window
 	public static final int PANEL_HEIGHT =1080;
 	public static final int BOARD_WIDTH = 1188; // Board sizes are for the playable area
-	public static final int BOARD_HEIGHT = PANEL_HEIGHT-120;
-	public static final int BOARD_START = (PANEL_WIDTH-BOARD_WIDTH)/2;
+	public static final int BOARD_HEIGHT = PANEL_HEIGHT-250;
+	public static final int BOARD_START = 0;
+			//(PANEL_WIDTH-BOARD_WIDTH)/2;
 	public static final int BOARD_END = (PANEL_WIDTH-BOARD_WIDTH)/2 + BOARD_WIDTH;
 	
 	// Game variables
@@ -42,6 +44,7 @@ public class GamePanel extends JPanel{
 	
 	// Objects and lists
 	public static Human human = new Human();
+	public static Drone drone = new Drone();
 	public static GUI gui = new GUI();
 	public static ArrayList<Ammunition> ammoList;
 	public static ArrayList <Enemy> enemyList;
@@ -82,6 +85,7 @@ public class GamePanel extends JPanel{
 				update();
 				checkCollision();
 				repaint();
+				
 			}
 		}
 	}
@@ -89,6 +93,7 @@ public class GamePanel extends JPanel{
 	public void update() {
 		// Update Characters
 		human.update();
+		drone.update();
 		
 		// Update Enemies
 		if (! enemyList.isEmpty()) {
@@ -177,6 +182,7 @@ public class GamePanel extends JPanel{
         }
 		
 		human.draw(g);
+		drone.draw(g);
 		
 		for (Barrel barrel:barrelList) {
 			barrel.draw(g);
