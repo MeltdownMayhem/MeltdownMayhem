@@ -16,7 +16,7 @@ public class Human extends Character {
 		this.width = 78;
 		this.depth = 129;
 		
-		this.x = GamePanel.PANEL_WIDTH/2-this.width/2;
+		this.x = GamePanel.PANEL_WIDTH/2-this.width/2 - 128;
 		this.y = GamePanel.BOARD_HEIGHT-this.depth-GamePanel.BOARD_HEIGHT/15;
 		this.vx = 3.5;
 		this.vy = 4;

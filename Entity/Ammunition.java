@@ -9,6 +9,7 @@ import javax.imageio.ImageIO;
 public class Ammunition {
 	
 	private int width = 30, height = 55;
+	public static int hitboxradius = 15;
 	public int x,y,v;
 	
 	public BufferedImage blueBullet;
