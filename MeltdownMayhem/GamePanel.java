@@ -47,6 +47,7 @@ public class GamePanel extends JPanel{
 	public Cursor transparentCursor =
 			Toolkit.getDefaultToolkit().createCustomCursor(noCursor, getLocation(), "transparentCursor");
 	//Credit to Réal Gagnon for code on how to hide the cursor
+	
 	// Objects and lists
 	public static Human human = new Human();
 	public static Drone drone = new Drone();
@@ -90,18 +91,17 @@ public class GamePanel extends JPanel{
 		@Override
 		public void run() {
 			if (gameOver == false) {
+				checkGameOver();
 				update();
-				checkBarrelCollision();
+				for (Barrel barrel: barrelList) {
+				barrel.checkBarrelCollision();
+				}
 				try {
-					checkDroneCollision();
+					drone.checkDroneCollision();
 				} catch (AWTException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 				repaint();
-				
-				
-				
 			}
 		}
 	}
@@ -109,20 +109,30 @@ public class GamePanel extends JPanel{
 	public void update() {
 		// Update Characters
 		human.update();
-		//if (dronefreeze == false) {
 		drone.update();
-		//}
+		
+		if (GamePanel.enemyList.size() < GamePanel.max_enemies && rng.nextDouble() * Math.exp(GamePanel.score) >= SPAWN_CHANCE) {
+			Event.spawnEnemy();
+		}
+		if (! enemyList.isEmpty()) {
+			for(Ammunition bullet: ammoList) {
+				int enemyIndexCounter = 0;
+				for(Enemy enemy: enemyList) {
+					enemy.checkBulletCollision(bullet, enemyIndexCounter);
+					if (Enemy.enemyKilled == true) {
+						bullet.y = -1; //at y = -1 the bullet will automatically be removed
+						break; //needed, or else enemyIndexCounter will get broken, restarts the for loop making it check on enemy #0 again
+					}	
+				}
+				Enemy.enemyKilled = false;
+			}
+		}
 		// Update Enemies
 		if (! enemyList.isEmpty()) {
 			for (Enemy enemy:enemyList) {
 				enemy.update();
 			}
 		}
-		
-		if (GamePanel.enemyList.size() < GamePanel.max_enemies && rng.nextDouble() * Math.exp(GamePanel.score) >= SPAWN_CHANCE) {
-			Event.spawnEnemy();
-		}
-		
 		enemiesInCollision = Event.getEnemiesInCollision();
 		Event.avoidEnemyCollision(enemiesInCollision);
 		
@@ -161,7 +171,14 @@ public class GamePanel extends JPanel{
 			}
 		}
 	}
-	
+	public void checkGameOver() {
+		if (human.lives == 0) {
+			gameOver = true;
+			System.out.println("GAME OVER!");
+			setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+		}
+	}
+	/* MOVED THIS TO BARREL CLASS - JULIAN
 	public void checkBarrelCollision() {
 		for (Barrel barrel:barrelList) {
 			if (human.x > barrel.x - barrel.width*3/4 && human.x < barrel.x + barrel.width && human.y < barrel.y + barrel.height && human.y > barrel.y) {
@@ -175,8 +192,8 @@ public class GamePanel extends JPanel{
 				}
 			}
 		}
-	}
-	
+	} */
+	/* MOVED THIS TO DRONE CLASS - JULIAN
 	public void checkDroneCollision() throws AWTException{ //needed for Robot class
 		final int DroneRespawnX = PANEL_WIDTH/2- drone.width/2 + 128;
 		final int DroneRespawnY = BOARD_HEIGHT- drone.depth-BOARD_HEIGHT/15;
@@ -192,7 +209,7 @@ public class GamePanel extends JPanel{
 				
 		}
 	}
-	
+	*/
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
 		
