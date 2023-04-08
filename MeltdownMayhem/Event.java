@@ -63,13 +63,8 @@ public class Event {
 				}
 			}
 		}
-		
 		return enemiesInCollision;
-		
 	}
-	
-	
-	
 	/* 
 	Algoritme voor botsingen: Enemies die binnen elkaars 'botsingsgebied' liggen komen in eenzelfde ArrayList.
 	Nadien gaan alle ballen weg van het zwaartepunt van de enemies in elke ArrayList.
@@ -78,7 +73,6 @@ public class Event {
 	public static void avoidEnemyCollision(ArrayList<ArrayList<Enemy>> enemiesInCollision) {
 		int center_x, center_y;
 		int speedAfterCollision;
-		
 		
 		for (ArrayList<Enemy> L: enemiesInCollision) {
 			center_x = 0;

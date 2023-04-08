@@ -20,6 +20,7 @@ import Entity.Human;
 
 public class GamePanel extends JPanel{
 	
+	private static final long serialVersionUID = 1L;
 	public static final int PANEL_WIDTH = 1940; // Panel sizes are for the window
 	public static final int PANEL_HEIGHT =1080;
 	public static final int BOARD_WIDTH = 1188; // Board sizes are for the playable area
@@ -93,56 +94,36 @@ public class GamePanel extends JPanel{
 			if (gameOver == false) {
 				checkGameOver();
 				update();
-				for (Barrel barrel: barrelList) {
-				barrel.checkBarrelCollision();
-				}
-				try {
-					drone.checkDroneCollision();
-				} catch (AWTException e) {
-					e.printStackTrace();
-				}
 				repaint();
 			}
 		}
 	}
-	
-	public void update() {
-		// Update Characters
-		human.update();
-		drone.update();
-		
-		if (GamePanel.enemyList.size() < GamePanel.max_enemies && rng.nextDouble() * Math.exp(GamePanel.score) >= SPAWN_CHANCE) {
-			Event.spawnEnemy();
-		}
+	//-----------------------------------ENEMY OPERATIONS-----------------------------------
+	public void bulletInteractWithEnemy() {
 		if (! enemyList.isEmpty()) {
 			for(Ammunition bullet: ammoList) {
 				int enemyIndexCounter = 0;
 				for(Enemy enemy: enemyList) {
 					enemy.checkBulletCollision(bullet, enemyIndexCounter);
+					enemyIndexCounter += 1;
 					if (Enemy.enemyKilled == true) {
 						bullet.y = -1; //at y = -1 the bullet will automatically be removed
 						break; //needed, or else enemyIndexCounter will get broken, restarts the for loop making it check on enemy #0 again
 					}	
 				}
+				enemyIndexCounter += 1;
 				Enemy.enemyKilled = false;
 			}
 		}
-		// Update Enemies
-		if (! enemyList.isEmpty()) {
-			for (Enemy enemy:enemyList) {
-				enemy.update();
-			}
+	}
+	//-----------------------------------BARREL OPERATIONS-----------------------------------
+	public void spawnBarrel() {
+		final double barrelSpawnChance = 0.005;
+		if (rng.nextDouble() >= 1 - barrelSpawnChance && GamePanel.barrelList.size() < GamePanel.max_barrels) {
+			GamePanel.barrelList.add(new Barrel());
 		}
-		enemiesInCollision = Event.getEnemiesInCollision();
-		Event.avoidEnemyCollision(enemiesInCollision);
-		
-		// Chance to add Barrels to the Game
-		Random rng = new Random();
-		if (rng.nextDouble() >= 0.995 && barrelList.size() < max_barrels) {
-			barrelList.add(new Barrel());
-		}
-		
-		// Update Barrels + remove/delete Barrel when out Panel
+	}
+	public void updateBarrel() {
 		if (! barrelList.isEmpty()) {
 			for (Barrel barrel:barrelList) {
 				barrel.update();
@@ -151,7 +132,9 @@ public class GamePanel extends JPanel{
 				barrelList.remove(0);
 			}
 		}
-		
+	}
+	//-----------------------------------BULLET OPERATIONS-----------------------------------
+	public void shootBullet() {
 		if (shooting == true && ammo > 0) {
 			shootingCooldown--;
 			if (shootingCooldown < 0) {
@@ -160,8 +143,8 @@ public class GamePanel extends JPanel{
 				shootingCooldown = 15;
 			}
 		}
-		
-		// Update Bullets + remove/delete Bullet when out Panel
+	}
+	public void updateBullet() {
 		if (! ammoList.isEmpty()) {
 			for (Ammunition ammo:ammoList) {
 				ammo.update();
@@ -171,6 +154,50 @@ public class GamePanel extends JPanel{
 			}
 		}
 	}
+	
+	public void update() {
+//Character stuff
+		// Update Characters
+		human.update();
+		drone.update();	
+		// checks if drone has been hit by an enemy
+		try {
+			drone.checkDroneCollision();
+		} catch (AWTException e) {
+			e.printStackTrace();
+		}
+//Enemy stuff		
+		// spawns in new enemies
+		Random radiationOrbSpawnChance = new Random();
+		if (GamePanel.enemyList.size() < GamePanel.max_enemies && radiationOrbSpawnChance.nextDouble() * Math.exp(GamePanel.score) >= SPAWN_CHANCE) {
+			Event.spawnEnemy();
+		}
+		// lets enemies interact with bullets
+		bulletInteractWithEnemy();	
+		// Update Enemies
+		if (! enemyList.isEmpty()) {
+			for (Enemy enemy:enemyList) {
+				enemy.update();
+			}
+		}
+		// makes enemies avoid each other
+		enemiesInCollision = Event.getEnemiesInCollision();
+		Event.avoidEnemyCollision(enemiesInCollision);
+//Barrel stuff	
+		//checks if human has been hit by a barrel
+		for (Barrel barrel: barrelList) {
+		barrel.checkBarrelCollision();
+		}
+		// Chance to add Barrels to the Game
+		spawnBarrel();
+		// Update Barrels + remove/delete Barrel when out Panel
+		updateBarrel();
+//Bullet stuff
+		// shoots bullets
+		shootBullet();
+		// Update Bullets + remove/delete Bullet when out Panel
+		updateBullet();
+	}
 	public void checkGameOver() {
 		if (human.lives == 0) {
 			gameOver = true;
@@ -178,38 +205,7 @@ public class GamePanel extends JPanel{
 			setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
 		}
 	}
-	/* MOVED THIS TO BARREL CLASS - JULIAN
-	public void checkBarrelCollision() {
-		for (Barrel barrel:barrelList) {
-			if (human.x > barrel.x - barrel.width*3/4 && human.x < barrel.x + barrel.width && human.y < barrel.y + barrel.height && human.y > barrel.y) {
-				human.lives -= 1;		//3/4 factor is because of the human hitbox
-				human.x = PANEL_WIDTH/2 - human.width/2;
-				human.y = BOARD_HEIGHT - human.depth - BOARD_HEIGHT/15;
-				if (human.lives == 0) {
-					gameOver = true;
-					System.out.println("GAME OVER!");
-					setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
-				}
-			}
-		}
-	} */
-	/* MOVED THIS TO DRONE CLASS - JULIAN
-	public void checkDroneCollision() throws AWTException{ //needed for Robot class
-		final int DroneRespawnX = PANEL_WIDTH/2- drone.width/2 + 128;
-		final int DroneRespawnY = BOARD_HEIGHT- drone.depth-BOARD_HEIGHT/15;
-		for (Enemy enemy: enemyList) {
-			if(drone.x > enemy.x - enemy.enemyRadius && drone.x < enemy.x +enemy.enemyRadius && drone.y > enemy.y - enemy.enemyRadius && drone.y < enemy.y + enemy.enemyRadius) {
-				drone.lives -= 1;
-			if (drone.lives == 0) {
-				Robot robot = new Robot();
-				robot.mouseMove(DroneRespawnX, DroneRespawnY);
-				drone.lives = 1;
-					}
-			}
-				
-		}
-	}
-	*/
+	
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
 		
@@ -234,6 +230,7 @@ public class GamePanel extends JPanel{
 		for (Enemy enemy: enemyList) {
 			enemy.draw(g);
 		}
+		
 		drone.draw(g); //drone needs to be on top of barrels etc.
 		
         // Board border lines
