@@ -14,15 +14,14 @@ import javax.imageio.ImageIO;
 
 import MeltdownMayhem.Extra;
 import MeltdownMayhem.GamePanel;
-import MeltdownMayhem.GamePanel.UpdateTimerTask;
 
 public class Drone extends Character {
-	public Point2D MousePos =  MouseInfo.getPointerInfo().getLocation();
-	public double MouseX = MousePos.getX();
-	public double MouseY = MousePos.getY(); 
+	public Point2D MousePos;
 	public boolean droneFrozen = false;
 	Extra rotor = new Extra();
 	Timer respawnTimer = new Timer();
+	private final int DroneRespawnX = GamePanel.PANEL_WIDTH/2- width/2 + 128;
+	private final int DroneRespawnY = GamePanel.BOARD_HEIGHT- depth-GamePanel.BOARD_HEIGHT/15;
 	
 	
 	public Drone() {
@@ -56,12 +55,18 @@ public class Drone extends Character {
 	g.drawImage(image, x - width/2, y - depth/2, width, depth, null);
 }
 	
-	public void mouseMove() {
-		this.MousePos =  MouseInfo.getPointerInfo().getLocation();
-		MouseX = MousePos.getX();
-		MouseY = MousePos.getY();
-		x = (int) MouseX;
-		y = (int) MouseY;
+	public void mouseMove() throws AWTException{
+		Robot robot = new Robot();
+		if (droneFrozen ==  false) {
+			this.MousePos =  MouseInfo.getPointerInfo().getLocation();
+			x = (int) MousePos.getX();
+			y = (int) MousePos.getY();
+		}
+		else {
+			robot.mouseMove(DroneRespawnX, DroneRespawnY);
+			x = DroneRespawnX;
+			y = DroneRespawnY; //needed to move the model
+		}
 	}
 	public class SpawnFreeze extends TimerTask{
 		@Override
@@ -72,8 +77,6 @@ public class Drone extends Character {
 		
 	}
 	public void checkDroneCollision() throws AWTException{ //needed for Robot class
-		final int DroneRespawnX = GamePanel.PANEL_WIDTH/2- width/2 + 128;
-		final int DroneRespawnY = GamePanel.BOARD_HEIGHT- depth-GamePanel.BOARD_HEIGHT/15;
 		for (Enemy enemy: GamePanel.enemyList) {
 			if (x > enemy.x - Enemy.enemyRadius && x < enemy.x +Enemy.enemyRadius && y > enemy.y - Enemy.enemyRadius && y < enemy.y + Enemy.enemyRadius) {
 				lives -= 1;
@@ -81,8 +84,6 @@ public class Drone extends Character {
 				Robot robot = new Robot();
 				robot.mouseMove(DroneRespawnX, DroneRespawnY); //needed to start moving from the respawn point
 				droneFrozen = true; //freezes the drone until respawnTimer runs out
-				x = DroneRespawnX;
-				y = DroneRespawnY; //needed to move the model
 				respawnTimer.schedule(new SpawnFreeze(), 2000);
 				}
 			}
@@ -90,8 +91,10 @@ public class Drone extends Character {
 	}
 	public void update() {
 		rotor.updateGraphs(5, 1);
-		if (droneFrozen ==  false) {
-		mouseMove();
-		}
+			try {
+				mouseMove();
+			} catch (AWTException e) {
+				e.printStackTrace();
+			}
 	}
 }

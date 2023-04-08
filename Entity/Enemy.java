@@ -1,8 +1,6 @@
 package Entity;
 
 import java.awt.Graphics;
-import java.util.ArrayList;
-import java.util.Random;
 
 import MeltdownMayhem.Extra;
 import MeltdownMayhem.GamePanel;
@@ -27,10 +25,9 @@ public abstract class Enemy extends Entity{
 	
 	
 	public Enemy() {
-
 	}
 	public void checkBulletCollision(Ammunition bullet, int hitEnemyIndex) {
-		if (Extra.distance(bullet.x, bullet.y, x, y) < Ammunition.hitboxradius) {
+		if (Extra.distance(bullet.x, bullet.y, x, y) < Ammunition.hitboxradius + enemyRadius) {
 			killEnemy(hitEnemyIndex);
 			enemyKilled = true;
 		}

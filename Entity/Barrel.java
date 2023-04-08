@@ -1,6 +1,5 @@
 package Entity;
 
-import java.awt.Cursor;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -30,16 +29,15 @@ public class Barrel {
 		
 		getBarrelImage();
 	}
-	
+	// TODO: THIS DOES NOTHING, CAN IT BE DELETED?
 	// Constructor to place a barrel on specific position and certain speed
-	public Barrel(int x, int y, int vy) {
+	/*public Barrel(int x, int y, int vy) {
 		this.x = x;
 		this.y = y;
 		this.vy = vy;
-	}
+	}*/ 
 	
 	public void getBarrelImage() { // Credits to RyiSnow for explaining how to draw a sprite from source files
-		
 		try {
 			barrel1 = ImageIO.read(getClass().getResourceAsStream("/Barrel/barrel1.png"));
 		} catch(IOException e) {
@@ -54,6 +52,7 @@ public class Barrel {
 			GamePanel.human.y = GamePanel.BOARD_HEIGHT -GamePanel. human.depth - GamePanel.BOARD_HEIGHT/15;
 		}
 	}
+	
 	public void draw(Graphics g) {
 		BufferedImage image;
 		image = barrel1;
@@ -64,5 +63,10 @@ public class Barrel {
 	// make the barrel roll down
 	public void update() {
 		y += vy;
+	}
+
+	public void updateBarrels1(Barrel barrel) {
+		// TODO Auto-generated method stub
+		
 	}
 }
