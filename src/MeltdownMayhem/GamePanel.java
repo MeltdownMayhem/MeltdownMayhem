@@ -17,14 +17,16 @@ import Entity.Barrel;
 import Entity.Drone;
 import Entity.Enemy;
 import Entity.Human;
+import Entity.Rage;
 
 public class GamePanel extends JPanel{
 
 	public static final int PANEL_WIDTH = 1940; // Panel sizes are for the window
 	public static final int PANEL_HEIGHT =1080;
 	public static final int BOARD_WIDTH = 1188; // Board sizes are for the playable area
-	public static final int BOARD_HEIGHT = PANEL_HEIGHT-30;
-	public static final int BOARD_START = (PANEL_WIDTH-BOARD_WIDTH)/2;
+	public static final int BOARD_HEIGHT = PANEL_HEIGHT-250;
+	public static final int BOARD_START = 0;
+			//(PANEL_WIDTH-BOARD_WIDTH)/2;
 	public static final int BOARD_END = (PANEL_WIDTH-BOARD_WIDTH)/2 + BOARD_WIDTH;
 	
 	// Game variables
@@ -169,7 +171,9 @@ public class GamePanel extends JPanel{
 		} else if (GamePanel.enemyList.size() < GamePanel.max_enemies && rng.nextDouble() * Math.exp(GamePanel.score) >= Enemy.SPAWN_CHANCE) {
 			Event.spawnEnemy();
 		}
-		
+		for (Enemy enemy: enemyList) {
+			enemy.HumanCollision();
+		}
 		// Enemy collision with Bullets from Human
 		bulletInteractWithEnemy();	
 		
@@ -190,7 +194,7 @@ public class GamePanel extends JPanel{
 
 		// Human collision with Barrels
 		for (Barrel barrel: barrelList) {
-		barrel.checkBarrelCollision();
+			barrel.checkBarrelCollision();
 		}
 		
 		// Barrel Spawning
