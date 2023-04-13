@@ -47,9 +47,7 @@ public class Barrel {
 	
 	public void checkBarrelCollision() {
 		if (GamePanel.human.x > x - width*3/4 && GamePanel.human.x < x + width && GamePanel.human.y < y + height && GamePanel.human.y > y) {
-			GamePanel.human.lives -= 1;		//3/4 factor is because of the human hitbox
-			GamePanel.human.x = GamePanel.PANEL_WIDTH/2 - GamePanel.human.width/2;
-			GamePanel.human.y = GamePanel.BOARD_HEIGHT -GamePanel. human.depth - GamePanel.BOARD_HEIGHT/15;
+				GamePanel.human.loseLife();		//3/4 factor is because of the human hitbox
 		}
 	}
 	

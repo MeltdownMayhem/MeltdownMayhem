@@ -28,10 +28,10 @@ public class RadiationOrb extends Enemy {
 	public void getOrbImage() { // Credits to RyiSnow for explaining how to draw a sprite from source files
 		
 		try {
-			orbLeft1 = ImageIO.read(getClass().getResourceAsStream("/radiation_orb/orbLeft1.png"));
-			orbLeft2 = ImageIO.read(getClass().getResourceAsStream("/radiation_orb/orbLeft2.png"));
-			orbRight1 = ImageIO.read(getClass().getResourceAsStream("/radiation_orb/orbRight1.png"));
-			orbRight2 = ImageIO.read(getClass().getResourceAsStream("/radiation_orb/orbRight2.png"));
+			orbLeft1 = ImageIO.read(getClass().getResourceAsStream("/RadiationOrb/orbLeft1.png"));
+			orbLeft2 = ImageIO.read(getClass().getResourceAsStream("/RadiationOrb/orbLeft2.png"));
+			orbRight1 = ImageIO.read(getClass().getResourceAsStream("/RadiationOrb/orbRight1.png"));
+			orbRight2 = ImageIO.read(getClass().getResourceAsStream("/RadiationOrb/orbRight2.png"));
 			
 			leftImageList.add(orbLeft1);
 			leftImageList.add(orbLeft2);

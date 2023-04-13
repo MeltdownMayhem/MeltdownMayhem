@@ -7,6 +7,7 @@ import java.util.ArrayList;
 
 import javax.imageio.ImageIO;
 
+import MeltdownMayhem.Extra;
 import MeltdownMayhem.GamePanel;
 
 public class Rage extends Enemy {
@@ -39,14 +40,14 @@ public class Rage extends Enemy {
 	public void getRageImage() { // Credits to RyiSnow for explaining how to draw a sprite from source files
 		
 		try {
-			rageLeft1 = ImageIO.read(getClass().getResourceAsStream("/rage/rageLeft1.png"));
-			rageRight1 = ImageIO.read(getClass().getResourceAsStream("/rage/rageRight1.png"));
-			rageLeft2 = ImageIO.read(getClass().getResourceAsStream("/rage/rageLeft2.png"));
-			rageRight2 = ImageIO.read(getClass().getResourceAsStream("/rage/rageRight2.png"));
-			rageOffLeft1 = ImageIO.read(getClass().getResourceAsStream("/rage/rageOffLeft1.png"));
-			rageOffRight1 = ImageIO.read(getClass().getResourceAsStream("/rage/rageOffRight1.png"));
-			rageOffLeft2 = ImageIO.read(getClass().getResourceAsStream("/rage/rageOffLeft2.png"));
-			rageOffRight2 = ImageIO.read(getClass().getResourceAsStream("/rage/rageOffRight2.png"));
+			rageLeft1 = ImageIO.read(getClass().getResourceAsStream("/Rage/rageLeft1.png"));
+			rageRight1 = ImageIO.read(getClass().getResourceAsStream("/Rage/rageRight1.png"));
+			rageLeft2 = ImageIO.read(getClass().getResourceAsStream("/Rage/rageLeft2.png"));
+			rageRight2 = ImageIO.read(getClass().getResourceAsStream("/Rage/rageRight2.png"));
+			rageOffLeft1 = ImageIO.read(getClass().getResourceAsStream("/Rage/rageOffLeft1.png"));
+			rageOffRight1 = ImageIO.read(getClass().getResourceAsStream("/Rage/rageOffRight1.png"));
+			rageOffLeft2 = ImageIO.read(getClass().getResourceAsStream("/Rage/rageOffLeft2.png"));
+			rageOffRight2 = ImageIO.read(getClass().getResourceAsStream("/Rage/rageOffRight2.png"));
 			
 			leftImageList.add(rageLeft1);
 			leftImageList.add(rageLeft2);

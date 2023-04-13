@@ -1,6 +1,8 @@
 package Entity;
 
 import java.awt.Graphics;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import MeltdownMayhem.Extra;
 import MeltdownMayhem.GamePanel;
@@ -24,19 +26,17 @@ public abstract class Enemy extends Entity{
 	boolean appearing = true;
 	public boolean spawning = true;
 	public static boolean enemyKilled = false;
+	public static Timer respawnTimer = new Timer();
 	
 	public boolean rampage = false;
 	
 	public Enemy() {
-		
 	}
 	
 	public void update() {
-		
 	}
 	
 	public void draw(Graphics g) {
-		
 	}
 	
 	public void checkBulletCollision(Ammunition bullet, int hitEnemyIndex) {
@@ -49,7 +49,16 @@ public abstract class Enemy extends Entity{
 	public void killEnemy(int hitEnemyIndex) {
 		GamePanel.enemyList.remove(hitEnemyIndex);
 	}
-	
+	public void HumanCollision() {
+			if (Extra.distance(GamePanel.human.x + GamePanel.human.width/2, GamePanel.human.y + GamePanel.human.depth/2, x + enemyRadius/2, y + enemyRadius/2) < Human.hitboxRadius + enemyRadius) {
+				if (Human.humanSpawnProtection == false) {
+					AttackHuman();
+				}
+			}
+	}
+	public void AttackHuman() {
+		GamePanel.human.loseLife();
+	}
 	public void stayInField() {
 		/*s
 		De functie kijkt na of de coördinaten van een enemy nog wel binnenin het speelveld blijven.
