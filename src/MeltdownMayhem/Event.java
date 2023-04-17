@@ -12,18 +12,19 @@ public class Event {
 	
 	// Enemy Spawning
 	public static void spawnEnemy() {
-		boolean enoughSpaceToSpawn = false;
+		boolean enoughSpaceToSpawn = true;
 		int spawning_x = 0;
 		
-		while (enoughSpaceToSpawn) {
+		do {
+			enoughSpaceToSpawn = true;
 			spawning_x = 2 * Enemy.margin + rng.nextInt(GamePanel.BOARD_WIDTH - 4 * Enemy.margin) + GamePanel.BOARD_START;
 			for (Enemy E: GamePanel.enemyList) {
-				if (Extra.distance(spawning_x, -20, E.x, E.y) > 4 * Enemy.enemyRadius) {
-					enoughSpaceToSpawn = true;
+				if (Extra.distance(spawning_x, -20, E.x, E.y) < 4 * Enemy.enemyRadius) {
+					enoughSpaceToSpawn = false;
 					break;
 				}
 			}
-		}
+		} while (!enoughSpaceToSpawn);
 		if (rng.nextDouble()> 0.85) {
 			GamePanel.enemyList.add(new Rage(spawning_x));
 		} else {

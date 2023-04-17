@@ -92,7 +92,7 @@ public class Rage extends Enemy {
 		// Checking for Appearing and/or Spawning 
 		if (this.appearing && this.y > enemyRadius) {
 			this.appearing = false;
-		} else if (this.spawning && this.y > UPPER_BORDER + enemyRadius) {
+		} else if (this.spawning && this.y > ENEMYBOARD_UPPERBORDER + enemyRadius) {
 			this.spawning = false;
 		}
 		

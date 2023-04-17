@@ -60,6 +60,8 @@ public class RadiationOrb extends Enemy {
 	
 	public void update() {
 		
+		this.shootCooldown++;
+		
 		this.x += (int) SPEED_COEFFICIENT * this.vx;
 		this.y += (int) SPEED_COEFFICIENT * this.vy;
 		
@@ -71,9 +73,11 @@ public class RadiationOrb extends Enemy {
 		*/
 		if (this.appearing && this.y > enemyRadius) {
 			this.appearing = false;
-		} else if (this.spawning && this.y > UPPER_BORDER + enemyRadius) {
+		} else if (this.spawning && this.y > ENEMYBOARD_UPPERBORDER + enemyRadius) {
 			this.spawning = false;
 		}
+		
+		spawnPriority();
 		
 		stayInField();
 		

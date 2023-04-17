@@ -39,6 +39,7 @@ public class GamePanel extends JPanel{
 	
 	// Technical variables
 	private static final double barrelSpawnChance = 0.005;
+	private static final double shootChance = 0.05;
 	static int shootingCooldown = 0; // Start on 0, to shoot instantly when tapping
 	static boolean shooting = false;
 	KeyHandler keyH = new KeyHandler();
@@ -54,6 +55,8 @@ public class GamePanel extends JPanel{
 	public static Drone drone = new Drone();
 	public static GUI gui = new GUI();
 	public static ArrayList<Ammunition> ammoList;
+	public static ArrayList<Ammunition> projectileList; // Enemy ammo
+	public static ArrayList<Ammunition> delProjectileList; // Enemy ammo to delete
 	public static ArrayList <Enemy> enemyList;
 	public static ArrayList <ArrayList<Enemy>> enemiesInCollision;
 	public static ArrayList<Barrel> barrelList;
@@ -74,6 +77,8 @@ public class GamePanel extends JPanel{
 		enemyList = new ArrayList<Enemy>();
 		enemiesInCollision = new ArrayList<ArrayList<Enemy>>();
 		ammoList = new ArrayList<Ammunition>();
+		projectileList = new ArrayList<Ammunition>();
+		delProjectileList = new ArrayList<Ammunition>();
 		
 		// FPS
 		Timer t = new Timer();
@@ -114,6 +119,15 @@ public class GamePanel extends JPanel{
 			}
 		}
 	}
+	public void enemyFire() {
+		for (Enemy e: enemyList) {
+			if (e.shootCooldown > 150 && rng.nextDouble() < shootChance) {
+				System.out.println("Shot!");
+				e.aimAndShoot(e, human.x, human.y);
+				e.shootCooldown = 0;
+			}
+		}
+	}
 	//-----------------------------------BARREL OPERATIONS-----------------------------------
 	public void spawnBarrel() {
 		if (rng.nextDouble() <= barrelSpawnChance && GamePanel.barrelList.size() < GamePanel.max_barrels) {
@@ -151,6 +165,24 @@ public class GamePanel extends JPanel{
 			}
 		}
 	}
+	public void updateProjectile() {
+	if (!projectileList.isEmpty()) {
+		for (Ammunition p: projectileList) {
+			p.update();
+			if (p.out()) {
+				delProjectileList.add(p);
+			} else if (Extra.distance(p.x, p.y, (int)(human.x - 10 + human.width * 0.6), (int)(human.y + human.width * 1.15)) < human.width / 2 + p.width / 2) {
+				human.loseLife();
+				delProjectileList.add(p);
+			}
+		}
+	}
+	for (Ammunition a: delProjectileList) {
+		projectileList.remove(a);
+	}
+	delProjectileList.clear();
+	
+}
 	//-----------------------------------------------------------------------------------------
 	
 	public void update() {
@@ -208,6 +240,12 @@ public class GamePanel extends JPanel{
 		
 		// Bullet Updates
 		updateBullet();
+		
+		//enemy shoot
+		enemyFire();
+				
+		// Update Enemy ammo + remove if outside board + check if hit Human
+		updateProjectile();
 	}
 	
 	public void checkGameOver() {
@@ -234,6 +272,10 @@ public class GamePanel extends JPanel{
 			ammo.draw(g);
         }
 		human.draw(g);
+		
+		for (Ammunition p:projectileList) {
+			p.draw(g);
+		}
 		
 		for (Barrel barrel:barrelList) {
 			barrel.draw(g);
