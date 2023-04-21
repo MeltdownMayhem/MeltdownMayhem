@@ -8,36 +8,26 @@ import java.util.Random;
 import javax.imageio.ImageIO;
 
 import MeltdownMayhem.GamePanel;
+/**
+ * De Barrel class maakt de Barrels aan die naar beneden 'rollen' op het scherm.
+ * Zijn doel is een obstakel te zijn in de weg van de Human.
+ * De Drone vliegt en heeft dus geen collision met de Barrels.
+ * Momenteel is er nog geen collision tussen de ammo van de Human en de Barrels, maar het wordt overwogen om later toe te voegen.
+ */
+public class Barrel extends Entity {
 
-public class Barrel {
-	
-	public int x,y;
-	public double vy;
-	public int width = 130;
-	public int height = 70;
-	
-	public BufferedImage barrel1;
-	
+	public int width = 130, height = 70;
+	BufferedImage barrel1;
 	Random rng = new Random();
 	
 	// General Constructor
 	public Barrel() {
-		int x = rng.nextInt(GamePanel.BOARD_START, GamePanel.BOARD_END - width);
-		this.x = x;
+		this.x = rng.nextInt(GamePanel.BOARD_START, GamePanel.BOARD_END - width);
 		this.y = -height;
+		this.vx = 0;
 		this.vy = 2 * rng.nextDouble() + 3;
 		
-		getBarrelImage();
-	}
-	// TODO: THIS DOES NOTHING, CAN IT BE DELETED?
-	// Constructor to place a barrel on specific position and certain speed
-	/*public Barrel(int x, int y, int vy) {
-		this.x = x;
-		this.y = y;
-		this.vy = vy;
-	}*/ 
-	
-	public void getBarrelImage() { // Credits to RyiSnow for explaining how to draw a sprite from source files
+		// Retrieve barrel image <Credits to RyiSnow>
 		try {
 			barrel1 = ImageIO.read(getClass().getResourceAsStream("/barrel/barrel1.png"));
 		} catch(IOException e) {
@@ -46,25 +36,12 @@ public class Barrel {
 	}
 	
 	public void checkBarrelCollision() {
-		if (GamePanel.human.x > x - width*3/4 && GamePanel.human.x < x + width && GamePanel.human.y < y + height && GamePanel.human.y > y) {
-				GamePanel.human.loseLife();		//3/4 factor is because of the human hitbox
+		if (GamePanel.human.x + GamePanel.human.width - 5 > x && GamePanel.human.x < x + width - 5 && GamePanel.human.y < y + height*3/4 && GamePanel.human.y + GamePanel.human.height*3/4 > y) {
+			GamePanel.human.takeDamage();		// 3/4 factor because of barrel hitbox
 		}
 	}
 	
 	public void draw(Graphics g) {
-		BufferedImage image;
-		image = barrel1;
-		
-		g.drawImage(image, x, y, width, height, null);
-	}
-	
-	// make the barrel roll down
-	public void update() {
-		y += (int) Entity.SPEED_COEFFICIENT * vy;
-	}
-
-	public void updateBarrels1(Barrel barrel) {
-		// TODO Auto-generated method stub
-		
+		g.drawImage(barrel1, x, y, width, height, null);
 	}
 }

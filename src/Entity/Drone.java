@@ -15,24 +15,33 @@ import javax.imageio.ImageIO;
 
 import MeltdownMayhem.Extra;
 import MeltdownMayhem.GamePanel;
+/**
+ * De Drone is de tweede speler van dit spel, met een belangrijke rol.
+ * Tot nu toe kan de Drone nog niet veel doen.
+ * In de toekomst zal het Barrels kunnen verplaatsen en Ammo kunnen opnemen die Enemies droppen.
+ * De Drone vliegt boven de Barrels en heeft dus geen collision ermee.
+ * Het wordt gecontroleerd via de muis.
+ */
+public class Drone extends Entity {
 
-public class Drone extends Character {
-	
 	public Point2D MousePos;
 	public boolean droneFrozen = false;
 	Extra rotor = new Extra();
 	Timer respawnTimer = new Timer();
 	private final int DroneRespawnX = GamePanel.PANEL_WIDTH/2- width/2 + 128;
-	private final int DroneRespawnY = GamePanel.BOARD_HEIGHT- depth-GamePanel.BOARD_HEIGHT/15;
+	private final int DroneRespawnY = GamePanel.BOARD_HEIGHT- height-GamePanel.BOARD_HEIGHT/15;
 	
 	ArrayList<BufferedImage> imageList = new ArrayList<BufferedImage>();
 	ArrayList<Integer> timeIntervalList = new ArrayList<Integer>();
 	
+	BufferedImage drone1;
+	BufferedImage drone2;
+	
 	public Drone() {
 		this.width = 64;
-		this.depth = 64;
+		this.height = 64;
 		this.x = GamePanel.PANEL_WIDTH/2-this.width/2 + 128;
-		this.y = GamePanel.BOARD_HEIGHT-this.depth-GamePanel.BOARD_HEIGHT/15;
+		this.y = GamePanel.BOARD_HEIGHT-this.height-GamePanel.BOARD_HEIGHT/15;
 		this.lives = 1;
 		this.vx = 20;
 		this.vy = 17.5;
@@ -60,7 +69,7 @@ public class Drone extends Character {
 		BufferedImage image = null;
 		image = this.getImage(imageList,timeIntervalList);
 		
-		g.drawImage(image, x - width/2, y - depth/2, width, depth, null);
+		g.drawImage(image, x - width/2, y - height/2, width, height, null);
 	}
 	
 	public void mouseMove() throws AWTException{
@@ -87,7 +96,7 @@ public class Drone extends Character {
 	
 	public void checkDroneCollision() throws AWTException{ //needed for Robot class
 		for (Enemy enemy: GamePanel.enemyList) {
-			if (x > enemy.x - Enemy.enemyRadius && x < enemy.x +Enemy.enemyRadius && y > enemy.y - Enemy.enemyRadius && y < enemy.y + Enemy.enemyRadius) {
+			if (x > enemy.x - enemy.enemyRadius && x < enemy.x + enemy.enemyRadius && y > enemy.y - enemy.enemyRadius && y < enemy.y + enemy.enemyRadius) {
 				lives -= 1;
 			if (lives == 0) {
 				Robot robot = new Robot();
@@ -99,8 +108,8 @@ public class Drone extends Character {
 		}
 	}
 	
+	@Override
 	public void update() {
-		rotor.updateGraphs(5, 1);
 		try {
 			mouseMove();
 		} catch (AWTException e) {

@@ -6,16 +6,21 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import javax.imageio.ImageIO;
-
-import MeltdownMayhem.GamePanel;
-
+/**
+ * De RadiationOrb is een groene Enemy type dat willekeurig rondvliegt.
+ * Ability: projectielen schieten naar de player.
+ */
 public class RadiationOrb extends Enemy {
-	
+
 	ArrayList<BufferedImage> leftImageList = new ArrayList<BufferedImage>();
 	ArrayList<BufferedImage> rightImageList = new ArrayList<BufferedImage>();
 	ArrayList<Integer> timeIntervalList = new ArrayList<Integer>();
 	
 	public RadiationOrb(int x) {
+		enemySize = 80;
+		enemyRadius = enemySize/2; // 40 pixels
+		killScore = 100;
+		
 		this.x = x;
 		this.y = -enemySize/2; // -20 pixels
 		
@@ -25,13 +30,13 @@ public class RadiationOrb extends Enemy {
 		getOrbImage();
 	}
 	
-	public void getOrbImage() { // Credits to RyiSnow for explaining how to draw a sprite from source files
+	public void getOrbImage() { // <Credits to RyiSnow>
 		
 		try {
-			orbLeft1 = ImageIO.read(getClass().getResourceAsStream("/RadiationOrb/orbLeft1.png"));
-			orbLeft2 = ImageIO.read(getClass().getResourceAsStream("/RadiationOrb/orbLeft2.png"));
-			orbRight1 = ImageIO.read(getClass().getResourceAsStream("/RadiationOrb/orbRight1.png"));
-			orbRight2 = ImageIO.read(getClass().getResourceAsStream("/RadiationOrb/orbRight2.png"));
+			orbLeft1 = ImageIO.read(getClass().getResourceAsStream("/radiation_orb/orbLeft1.png"));
+			orbLeft2 = ImageIO.read(getClass().getResourceAsStream("/radiation_orb/orbLeft2.png"));
+			orbRight1 = ImageIO.read(getClass().getResourceAsStream("/radiation_orb/orbRight1.png"));
+			orbRight2 = ImageIO.read(getClass().getResourceAsStream("/radiation_orb/orbRight2.png"));
 			
 			leftImageList.add(orbLeft1);
 			leftImageList.add(orbLeft2);
@@ -58,6 +63,7 @@ public class RadiationOrb extends Enemy {
 		g.drawImage(image, x - enemyRadius, y - enemyRadius, enemySize, enemySize, null);
 	}
 	
+	@Override
 	public void update() {
 		
 		this.shootCooldown++;

@@ -2,24 +2,24 @@ package Entity;
 
 import java.awt.Graphics;
 import java.util.Timer;
-import java.util.TimerTask;
 
 import MeltdownMayhem.Extra;
 import MeltdownMayhem.GamePanel;
-
+/**
+ * De Enemy class is een Subclass van de Entity class en een Superclass voor de RadiationOrb en Rage class.
+ */
 public abstract class Enemy extends Entity{
-	
+
 	protected static final int ENEMYBOARD_UPPERBORDER = 125;
 	protected static final double ENEMYBOARD_BOTTOMBORDER = 0.8 * GamePanel.BOARD_HEIGHT;
 	public static final double COLLISION_AREA_FACTOR = 2.5;
 	public static final double SPAWN_CHANCE = 0.995;
 	
 	protected static final int SPEED_RESET_FACTOR = 200;
-	protected static int OSCILLATION_FACTOR = 2;
+	protected static final int OSCILLATION_FACTOR = 2;
 	
-	protected static int enemySize = 80;
-	public static int enemyRadius = enemySize/2; // 40 pixels
-	public static int margin = 10 + enemyRadius; // 50 pixels
+	public int enemySize, enemyRadius;
+	public static int margin = 50;
 	
 	int timeSinceReset_x = 0;
 	int timeSinceReset_y = 0;
@@ -30,40 +30,32 @@ public abstract class Enemy extends Entity{
 	
 	boolean appearing = true;
 	public boolean spawning = true;
-	public static boolean enemyKilled = false;
 	public static Timer respawnTimer = new Timer();
 	
 	public boolean rampage = false;
+	public int killScore = 100;
 	
 	public Enemy() {
-	}
-	
-	public void update() {
 	}
 	
 	public void draw(Graphics g) {
 	}
 	
-	public void checkBulletCollision(Ammunition bullet, int hitEnemyIndex) {
+	public void bulletCollision(Ammunition bullet) {
 		if (Extra.distance(bullet.x, bullet.y, x, y) < Ammunition.hitboxRadius + enemyRadius) {
-			killEnemy(hitEnemyIndex);
-			enemyKilled = true;
+			//GamePanel.score += killScore;
+			GamePanel.enemyList.remove(this);
+		}
+	}
+
+	public void humanCollision() {
+		if (Extra.distance(GamePanel.human.x + GamePanel.human.width/2, GamePanel.human.y + GamePanel.human.height/2, x + enemyRadius/2, y + enemyRadius/2) < Human.hitboxRadius + enemyRadius) {
+			if (Human.hasSpawnProtection == false) {
+				GamePanel.human.takeDamage();
+			}
 		}
 	}
 	
-	public void killEnemy(int hitEnemyIndex) {
-		GamePanel.enemyList.remove(hitEnemyIndex);
-	}
-	public void HumanCollision() {
-			if (Extra.distance(GamePanel.human.x + GamePanel.human.width/2, GamePanel.human.y + GamePanel.human.depth/2, x + enemyRadius/2, y + enemyRadius/2) < Human.hitboxRadius + enemyRadius) {
-				if (Human.humanSpawnProtection == false) {
-					AttackHuman();
-				}
-			}
-	}
-	public void AttackHuman() {
-		GamePanel.human.loseLife();
-	}
 	public void spawnPriority() {
 		/*
 		Een enemy is uit zijn appearingsfase als hij onder de bovenkant van het scherm geraakt.
@@ -74,7 +66,6 @@ public abstract class Enemy extends Entity{
 		Of een enemy zich al dan niet in zijn appearingsfase of spawnfase bevindt, heeft een invloed op zijn gedrag
 		bij het veranderen van zijn snelheid (en bij botsingen).
 		*/
-		
 		if (this.appearing && this.y > enemyRadius) {
 			this.appearing = false;
 			System.out.println("Status changed to spawning");
@@ -83,8 +74,9 @@ public abstract class Enemy extends Entity{
 			System.out.println("Status changed to fully spawned");
 		}
 	}
+	
 	public void stayInField() {
-		/*s
+		/*
 		De functie kijkt na of de coördinaten van een enemy nog wel binnenin het speelveld blijven.
 		Indien de enemy het speelveld aan het verlaten is, wordt hij terug in het veld geplaatst. 
 		Hierbij wordt hij terug het veld in gestuurd, verwijderd van de rand van het speelveld
@@ -104,11 +96,19 @@ public abstract class Enemy extends Entity{
 		}
 		
 		// Horizontal Board borders collision
-		if (this.y > ENEMYBOARD_BOTTOMBORDER - margin) {
+		if (this instanceof Rage) {
+			if (this.y > GamePanel.BOARD_HEIGHT - margin) {
+				this.vy *= -1;
+				this.timeSinceReset_y = 0;
+				this.y = 2 * (GamePanel.BOARD_HEIGHT - margin) - this.y;
+			}
+		} else if (this.y > ENEMYBOARD_BOTTOMBORDER - margin){
 			this.vy *= -1;
 			this.timeSinceReset_y = 0;
 			this.y = (int) (2 * (ENEMYBOARD_BOTTOMBORDER - margin) - this.y);
-		} else if (!this.appearing && this.spawning && this.y < enemyRadius) {
+		}
+		
+		if (!this.appearing && this.spawning && this.y < enemyRadius) {
 			this.vy *= -1;
 			this.timeSinceReset_y = 0;
 			this.y = 2 * enemyRadius - this.y;

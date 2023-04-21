@@ -7,11 +7,16 @@ import java.util.ArrayList;
 
 import javax.imageio.ImageIO;
 
-import MeltdownMayhem.Extra;
 import MeltdownMayhem.GamePanel;
-
+/**
+ * De Rage is een grijze en rode Enemy soort.
+ * Als de Rage grijs is beweegt het willekeurig rond zoals een RadiationOrb.
+ * Ability: Rampage
+ * 	        Wanneer de Rage in een Rampage gaat, kleurt hij rood en vliegt het rechtstreeks naar de human's locatie.
+ * 	        Op zijn weg duwt hij de andere Enemies lichtjes opzij om ongehinderd door te kunnen.
+ */
 public class Rage extends Enemy {
-	
+
 	// Rampage Variables
 	protected static int rampageDuration = 120;
 	protected static double rampageChance = 0.995;
@@ -20,7 +25,7 @@ public class Rage extends Enemy {
 	protected int rampageCounter = 50; // Counter to know when to activate rampage
 	protected int rampageNum = 0; // Number of times it did a rampage
 	
-	// Image-Lists to send to the getImage(ArrayList, ArrayList) function
+	// Image-lists for the getImage(ArrayList, ArrayList) method
 	ArrayList<BufferedImage> leftImageList = new ArrayList<BufferedImage>();
 	ArrayList<BufferedImage> rightImageList = new ArrayList<BufferedImage>();
 	ArrayList<BufferedImage> leftOffImageList = new ArrayList<BufferedImage>();
@@ -28,6 +33,10 @@ public class Rage extends Enemy {
 	ArrayList<Integer> timeIntervalList = new ArrayList<Integer>();
 	
 	public Rage(int x) {
+		enemySize = 80;
+		enemyRadius = enemySize/2; // 40 pixels
+		killScore = 200;
+		
 		this.x = x;
 		this.y = -enemySize/2; // -20 pixels
 		
@@ -37,33 +46,30 @@ public class Rage extends Enemy {
 		getRageImage();
 	}
 	
-	public void getRageImage() { // Credits to RyiSnow for explaining how to draw a sprite from source files
+	public void getRageImage() { // <Credits to RyiSnow>
 		
 		try {
-			rageLeft1 = ImageIO.read(getClass().getResourceAsStream("/Rage/rageLeft1.png"));
-			rageRight1 = ImageIO.read(getClass().getResourceAsStream("/Rage/rageRight1.png"));
-			rageLeft2 = ImageIO.read(getClass().getResourceAsStream("/Rage/rageLeft2.png"));
-			rageRight2 = ImageIO.read(getClass().getResourceAsStream("/Rage/rageRight2.png"));
-			rageOffLeft1 = ImageIO.read(getClass().getResourceAsStream("/Rage/rageOffLeft1.png"));
-			rageOffRight1 = ImageIO.read(getClass().getResourceAsStream("/Rage/rageOffRight1.png"));
-			rageOffLeft2 = ImageIO.read(getClass().getResourceAsStream("/Rage/rageOffLeft2.png"));
-			rageOffRight2 = ImageIO.read(getClass().getResourceAsStream("/Rage/rageOffRight2.png"));
+			rageLeft1 = ImageIO.read(getClass().getResourceAsStream("/rage/rageLeft1.png"));
+			rageRight1 = ImageIO.read(getClass().getResourceAsStream("/rage/rageRight1.png"));
+			rageLeft2 = ImageIO.read(getClass().getResourceAsStream("/rage/rageLeft2.png"));
+			rageRight2 = ImageIO.read(getClass().getResourceAsStream("/rage/rageRight2.png"));
+			rageOffLeft1 = ImageIO.read(getClass().getResourceAsStream("/rage/rageOffLeft1.png"));
+			rageOffRight1 = ImageIO.read(getClass().getResourceAsStream("/rage/rageOffRight1.png"));
+			rageOffLeft2 = ImageIO.read(getClass().getResourceAsStream("/rage/rageOffLeft2.png"));
+			rageOffRight2 = ImageIO.read(getClass().getResourceAsStream("/rage/rageOffRight2.png"));
 			
 			leftImageList.add(rageLeft1);
 			leftImageList.add(rageLeft2);
-			
 			rightImageList.add(rageRight1);
 			rightImageList.add(rageRight2);
 			
 			leftOffImageList.add(rageOffLeft1);
 			leftOffImageList.add(rageOffLeft2);
-			
 			rightOffImageList.add(rageOffRight1);
 			rightOffImageList.add(rageOffRight2);
 			
 			timeIntervalList.add(100);
 			timeIntervalList.add(40);
-			
 		} catch(IOException e) {
 			e.printStackTrace();
 		}
@@ -88,6 +94,7 @@ public class Rage extends Enemy {
 		g.drawImage(image, x - enemyRadius, y - enemyRadius, enemySize, enemySize, null);
 	}
 	
+	@Override
 	public void update() {
 		// Checking for Appearing and/or Spawning 
 		if (this.appearing && this.y > enemyRadius) {
@@ -106,11 +113,12 @@ public class Rage extends Enemy {
 			// Rampage skill activation
 			if (rampageCounter >= rampageCooldown - (0.15 * rampageNum * rampageCooldown) && rng.nextDouble() > rampageChance) {
 				rampage = true;
+				enemySize += 10;
 				rampageCounter = 0;
 				rampageNum += 1;
 				
 				double x_direction = GamePanel.human.x + GamePanel.human.width/2 - (double) x;
-				double y_direction = GamePanel.human.y + GamePanel.human.depth/2  - (double) y;
+				double y_direction = GamePanel.human.y + GamePanel.human.height/2  - (double) y;
 				double norm = Math.sqrt(Math.pow(x_direction,2) + Math.pow(y_direction,2));
 				vx = (x_direction/norm) * rampageSpeed;
 				vy = (y_direction/norm) * rampageSpeed;
@@ -123,6 +131,7 @@ public class Rage extends Enemy {
 			// Rampage skill deactivation
 			if (rampageCounter >= rampageDuration) {
 				rampage = false;
+				enemySize -= 10;
 				rampageCounter = 0;
 
 				vx = rng.nextInt(3)*Math.pow(-1, rng.nextInt(2));
