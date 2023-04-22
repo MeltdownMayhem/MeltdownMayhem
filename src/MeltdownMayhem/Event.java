@@ -4,56 +4,36 @@ import java.util.ArrayList;
 import java.util.Random;
 
 import Entity.Enemy;
-import Entity.RadiationOrb;
-import Entity.Rage;
-
+/**
+ * De Event class behandeld momenteel de spawning van de Enemies en zijn Pathfinding.
+ * Er is een kans dat deze classe zal verdwijnen in de toekomst.
+ */
 public class Event {
+
 	static Random rng = new Random();
 	
-	// Enemy Spawning
-	public static void spawnEnemy() {
-		boolean enoughSpaceToSpawn = true;
-		int spawning_x = 0;
-		
-		do {
-			enoughSpaceToSpawn = true;
-			spawning_x = 2 * Enemy.margin + rng.nextInt(GamePanel.BOARD_WIDTH - 4 * Enemy.margin) + GamePanel.BOARD_START;
-			for (Enemy E: GamePanel.enemyList) {
-				if (Extra.distance(spawning_x, -20, E.x, E.y) < 4 * Enemy.enemyRadius) {
-					enoughSpaceToSpawn = false;
-					break;
-				}
-			}
-		} while (!enoughSpaceToSpawn);
-		if (rng.nextDouble()> 0.85) {
-			GamePanel.enemyList.add(new Rage(spawning_x));
-		} else {
-			GamePanel.enemyList.add(new RadiationOrb(spawning_x));
-		}
-	}
-	
 	// Enemy collision with other Enemies go together in an nested ArrayList
-	public static ArrayList<ArrayList<Enemy>> getEnemiesInCollision() {
+	public static ArrayList<ArrayList<Enemy>> getEnemiesInCollision(ArrayList<Enemy> enemyList) {
 		ArrayList <ArrayList<Enemy>> enemiesInCollision = new ArrayList<ArrayList<Enemy>>();
 		boolean isEnemyInCollision = false;
 		
-		for (int n = 0; n < GamePanel.enemyList.size(); n ++) {
-			for (int m = n + 1; m < GamePanel.enemyList.size(); m ++) {
+		for (int n = 0; n < enemyList.size(); n ++) {
+			for (int m = n + 1; m < enemyList.size(); m ++) {
 				isEnemyInCollision = false;
 				
-				if (Extra.distance(GamePanel.enemyList.get(n).x, GamePanel.enemyList.get(n).y, GamePanel.enemyList.get(m).x, GamePanel.enemyList.get(m).y) < Enemy.COLLISION_AREA_FACTOR * Enemy.enemyRadius) {
+				if (Extra.distance(enemyList.get(n).x, enemyList.get(n).y, enemyList.get(m).x, enemyList.get(m).y) < Enemy.COLLISION_AREA_FACTOR * (Enemy.margin-10)) {
 					
 					for (ArrayList<Enemy> L: enemiesInCollision) {
-						if (L.contains(GamePanel.enemyList.get(n))) {
-							if (L.contains(GamePanel.enemyList.get(m))) {
+						if (L.contains(enemyList.get(n))) {
+							if (L.contains(enemyList.get(m))) {
 								isEnemyInCollision = true;
 								break;
 							}
-							L.add(GamePanel.enemyList.get(m));
+							L.add(enemyList.get(m));
 							isEnemyInCollision = true;
 							break;
-						} else if (L.contains(GamePanel.enemyList.get(m))) {
-							L.add(GamePanel.enemyList.get(n));
+						} else if (L.contains(enemyList.get(m))) {
+							L.add(enemyList.get(n));
 							isEnemyInCollision = true;
 							break;
 						}
@@ -62,8 +42,8 @@ public class Event {
 					if (!isEnemyInCollision) {
 						// Maak een nieuwe rij in de geneste ArrayList enemiesInCollision
 						enemiesInCollision.add(new ArrayList<Enemy>());
-						enemiesInCollision.get(enemiesInCollision.size() - 1).add(GamePanel.enemyList.get(n));
-						enemiesInCollision.get(enemiesInCollision.size() - 1).add(GamePanel.enemyList.get(m));
+						enemiesInCollision.get(enemiesInCollision.size() - 1).add(enemyList.get(n));
+						enemiesInCollision.get(enemiesInCollision.size() - 1).add(enemyList.get(m));
 					}
 				}
 			}
@@ -71,7 +51,7 @@ public class Event {
 		return enemiesInCollision;
 	}
 	
-	// Push Enemies away from each other to avoid Collision (except if the Enemy is in a rampage, then IT pushes others away)
+	// Push Enemies away from each other to avoid Collision (except if the Enemy is in a rampage, then it pushes others away)
 	public static void avoidEnemyCollision(ArrayList<ArrayList<Enemy>> enemiesInCollision) {
 		int center_x, center_y;
 		int speedAfterCollision;

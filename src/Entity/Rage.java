@@ -4,10 +4,10 @@ import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import javax.imageio.ImageIO;
-
-import MeltdownMayhem.GamePanel;
 /**
  * De Rage is een grijze en rode Enemy soort.
  * Als de Rage grijs is beweegt het willekeurig rond zoals een RadiationOrb.
@@ -18,35 +18,46 @@ import MeltdownMayhem.GamePanel;
 public class Rage extends Enemy {
 
 	// Rampage Variables
-	protected static int rampageDuration = 120;
-	protected static double rampageChance = 0.995;
-	protected static int rampageCooldown = 240;
-	protected static double rampageSpeed = 9;
+	protected int rampageDuration = 120;
+	protected double rampageChance = 0.994;
+	protected int rampageCooldown = 230;
+	protected double rampageSpeed = 9;
 	protected int rampageCounter = 50; // Counter to know when to activate rampage
-	protected int rampageNum = 0; // Number of times it did a rampage
+	protected int rampageNum = 0; // Number of times it went on a rampage
+	
+	// Rage images
+	BufferedImage rageLeft1;
+	BufferedImage rageLeft2;
+	BufferedImage rageRight1;
+	BufferedImage rageRight2;
+	BufferedImage rageOffLeft1;
+	BufferedImage rageOffLeft2;
+	BufferedImage rageOffRight1;
+	BufferedImage rageOffRight2;
 	
 	// Image-lists for the getImage(ArrayList, ArrayList) method
-	ArrayList<BufferedImage> leftImageList = new ArrayList<BufferedImage>();
-	ArrayList<BufferedImage> rightImageList = new ArrayList<BufferedImage>();
-	ArrayList<BufferedImage> leftOffImageList = new ArrayList<BufferedImage>();
-	ArrayList<BufferedImage> rightOffImageList = new ArrayList<BufferedImage>();
-	ArrayList<Integer> timeIntervalList = new ArrayList<Integer>();
+	List<BufferedImage> leftImageList = new ArrayList<BufferedImage>();
+	List<BufferedImage> rightImageList = new ArrayList<BufferedImage>();
+	List<BufferedImage> leftOffImageList = new ArrayList<BufferedImage>();
+	List<BufferedImage> rightOffImageList = new ArrayList<BufferedImage>();
+	List<Integer> timeIntervalList = new ArrayList<Integer>();
 	
 	public Rage(int x) {
-		enemySize = 80;
+		enemySize = 85;
 		enemyRadius = enemySize/2; // 40 pixels
-		killScore = 200;
+		killScore = 15;
 		
 		this.x = x;
 		this.y = -enemySize/2; // -20 pixels
-		
 		this.vx = rng.nextInt(3)*Math.pow(-1, rng.nextInt(2));
 		this.vy = 1 + rng.nextInt(2); // y-speed can't be negative when spawning
+		
+		this.hitboxRadius = 30;
 		
 		getRageImage();
 	}
 	
-	public void getRageImage() { // <Credits to RyiSnow>
+	public void getRageImage() { // <Credits to RyiSnow | https://www.youtube.com/@RyiSnow>
 		
 		try {
 			rageLeft1 = ImageIO.read(getClass().getResourceAsStream("/rage/rageLeft1.png"));
@@ -58,18 +69,12 @@ public class Rage extends Enemy {
 			rageOffLeft2 = ImageIO.read(getClass().getResourceAsStream("/rage/rageOffLeft2.png"));
 			rageOffRight2 = ImageIO.read(getClass().getResourceAsStream("/rage/rageOffRight2.png"));
 			
-			leftImageList.add(rageLeft1);
-			leftImageList.add(rageLeft2);
-			rightImageList.add(rageRight1);
-			rightImageList.add(rageRight2);
+			leftImageList = Arrays.asList(rageLeft1,rageLeft2);
+			rightImageList = Arrays.asList(rageRight1,rageRight2);
+			leftOffImageList = Arrays.asList(rageOffLeft1,rageOffLeft2);
+			rightOffImageList = Arrays.asList(rageOffRight1,rageOffRight2);
+			timeIntervalList = Arrays.asList(100,40);
 			
-			leftOffImageList.add(rageOffLeft1);
-			leftOffImageList.add(rageOffLeft2);
-			rightOffImageList.add(rageOffRight1);
-			rightOffImageList.add(rageOffRight2);
-			
-			timeIntervalList.add(100);
-			timeIntervalList.add(40);
 		} catch(IOException e) {
 			e.printStackTrace();
 		}
@@ -92,16 +97,11 @@ public class Rage extends Enemy {
 			}
 		}
 		g.drawImage(image, x - enemyRadius, y - enemyRadius, enemySize, enemySize, null);
+		//g.drawOval(x - hitboxRadius, y - hitboxRadius, hitboxRadius*2, hitboxRadius*2);
 	}
 	
 	@Override
-	public void update() {
-		// Checking for Appearing and/or Spawning 
-		if (this.appearing && this.y > enemyRadius) {
-			this.appearing = false;
-		} else if (this.spawning && this.y > ENEMYBOARD_UPPERBORDER + enemyRadius) {
-			this.spawning = false;
-		}
+	public void update(Human human) {
 		
 		// When rampage is inactive, the Rage just wanders around
 		if (rampage == false) {
@@ -114,11 +114,12 @@ public class Rage extends Enemy {
 			if (rampageCounter >= rampageCooldown - (0.15 * rampageNum * rampageCooldown) && rng.nextDouble() > rampageChance) {
 				rampage = true;
 				enemySize += 10;
+				hitboxRadius += 5;
 				rampageCounter = 0;
-				rampageNum += 1;
+				rampageNum ++;
 				
-				double x_direction = GamePanel.human.x + GamePanel.human.width/2 - (double) x;
-				double y_direction = GamePanel.human.y + GamePanel.human.height/2  - (double) y;
+				double x_direction = human.x + human.width/2 - (double) x;
+				double y_direction = human.y + human.height/2  - (double) y;
 				double norm = Math.sqrt(Math.pow(x_direction,2) + Math.pow(y_direction,2));
 				vx = (x_direction/norm) * rampageSpeed;
 				vy = (y_direction/norm) * rampageSpeed;
@@ -132,6 +133,7 @@ public class Rage extends Enemy {
 			if (rampageCounter >= rampageDuration) {
 				rampage = false;
 				enemySize -= 10;
+				hitboxRadius -= 5;
 				rampageCounter = 0;
 
 				vx = rng.nextInt(3)*Math.pow(-1, rng.nextInt(2));

@@ -1,9 +1,10 @@
 package Entity;
 
 import java.awt.Graphics;
+import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.util.Random;
+import java.util.ArrayList;
 
 import javax.imageio.ImageIO;
 
@@ -16,18 +17,20 @@ import MeltdownMayhem.GamePanel;
  */
 public class Barrel extends Entity {
 
-	public int width = 130, height = 70;
 	BufferedImage barrel1;
-	Random rng = new Random();
 	
-	// General Constructor
 	public Barrel() {
+		this.width = 140;
+		this.height = 75;
+		
 		this.x = rng.nextInt(GamePanel.BOARD_START, GamePanel.BOARD_END - width);
 		this.y = -height;
 		this.vx = 0;
 		this.vy = 2 * rng.nextDouble() + 3;
 		
-		// Retrieve barrel image <Credits to RyiSnow>
+		this.hitbox = new Rectangle(x, y + 5, width, height - 10);
+		
+		// Retrieve barrel image <Credits to RyiSnow | https://www.youtube.com/@RyiSnow>
 		try {
 			barrel1 = ImageIO.read(getClass().getResourceAsStream("/barrel/barrel1.png"));
 		} catch(IOException e) {
@@ -35,13 +38,19 @@ public class Barrel extends Entity {
 		}
 	}
 	
-	public void checkBarrelCollision() {
-		if (GamePanel.human.x + GamePanel.human.width - 5 > x && GamePanel.human.x < x + width - 5 && GamePanel.human.y < y + height*3/4 && GamePanel.human.y + GamePanel.human.height*3/4 > y) {
-			GamePanel.human.takeDamage();		// 3/4 factor because of barrel hitbox
+	// Barrel Collisions
+	public void barrelCollisions(ArrayList<Barrel> barrelList, ArrayList<Ammunition> ammoList) {
+		for (Ammunition bullet: ammoList) {
+			for (Barrel barrel: barrelList) {
+				if (bullet.collision(barrel)) {
+					bullet.y = -1;
+				}
+			}
 		}
 	}
 	
 	public void draw(Graphics g) {
 		g.drawImage(barrel1, x, y, width, height, null);
+		//g.drawRect(x, y + 5, width, height - 10);
 	}
 }

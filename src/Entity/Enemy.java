@@ -1,19 +1,18 @@
 package Entity;
 
 import java.awt.Graphics;
-import java.util.Timer;
+import java.util.ArrayList;
 
 import MeltdownMayhem.Extra;
 import MeltdownMayhem.GamePanel;
 /**
  * De Enemy class is een Subclass van de Entity class en een Superclass voor de RadiationOrb en Rage class.
  */
-public abstract class Enemy extends Entity{
+public abstract class Enemy extends Entity {
 
 	protected static final int ENEMYBOARD_UPPERBORDER = 125;
 	protected static final double ENEMYBOARD_BOTTOMBORDER = 0.8 * GamePanel.BOARD_HEIGHT;
 	public static final double COLLISION_AREA_FACTOR = 2.5;
-	public static final double SPAWN_CHANCE = 0.995;
 	
 	protected static final int SPEED_RESET_FACTOR = 200;
 	protected static final int OSCILLATION_FACTOR = 2;
@@ -23,66 +22,37 @@ public abstract class Enemy extends Entity{
 	
 	int timeSinceReset_x = 0;
 	int timeSinceReset_y = 0;
-	public int shootCooldown = 0;
 	
+	protected int shootingCooldown = 0;
+	protected final double shootingChance = 0.045;
 	protected static double shootingAngle, shootingDistance;
 	protected static int distanceOffTarget, shootingTarget_x, shootingTarget_y;
 	
 	boolean appearing = true;
 	public boolean spawning = true;
-	public static Timer respawnTimer = new Timer();
-	
 	public boolean rampage = false;
-	public int killScore = 100;
 	
-	public Enemy() {
-	}
+	public int killScore;
 	
-	public void draw(Graphics g) {
-	}
 	
-	public void bulletCollision(Ammunition bullet) {
-		if (Extra.distance(bullet.x, bullet.y, x, y) < Ammunition.hitboxRadius + enemyRadius) {
-			//GamePanel.score += killScore;
-			GamePanel.enemyList.remove(this);
-		}
-	}
-
-	public void humanCollision() {
-		if (Extra.distance(GamePanel.human.x + GamePanel.human.width/2, GamePanel.human.y + GamePanel.human.height/2, x + enemyRadius/2, y + enemyRadius/2) < Human.hitboxRadius + enemyRadius) {
-			if (Human.hasSpawnProtection == false) {
-				GamePanel.human.takeDamage();
-			}
-		}
-	}
+	public abstract void update(Human human);
+	
+	public abstract void draw(Graphics g);
 	
 	public void spawnPriority() {
-		/*
-		Een enemy is uit zijn appearingsfase als hij onder de bovenkant van het scherm geraakt.
+		/* Appearing: when above the screen (higher than the visible Board)
+		 * Spawning: when above the ENEMY_UPPERBORDER (once spawning is done, it can't go back up again) */
 		
-		Een enemy is uit zijn spawnfase als hij onder de ENEMYBOARD_UPPERBORDER geraakt. Vanaf dan kan hij niet
-		meer boven de UPPERBORDER geraken om plaats te maken voor het spawnen van andere enemies.
-		
-		Of een enemy zich al dan niet in zijn appearingsfase of spawnfase bevindt, heeft een invloed op zijn gedrag
-		bij het veranderen van zijn snelheid (en bij botsingen).
-		*/
 		if (this.appearing && this.y > enemyRadius) {
 			this.appearing = false;
-			System.out.println("Status changed to spawning");
 		} else if (this.spawning && this.y > ENEMYBOARD_UPPERBORDER + enemyRadius) {
 			this.spawning = false;
-			System.out.println("Status changed to fully spawned");
 		}
 	}
 	
 	public void stayInField() {
-		/*
-		De functie kijkt na of de coördinaten van een enemy nog wel binnenin het speelveld blijven.
-		Indien de enemy het speelveld aan het verlaten is, wordt hij terug in het veld geplaatst. 
-		Hierbij wordt hij terug het veld in gestuurd, verwijderd van de rand van het speelveld
-		(langs de binnenkant van het veld) met een even grote afstand dan hij uit het veld gegaan is.
-		Ook wordt het teken van de snelheid in de betreffende richting omgewisseld.
-		*/
+		/* This function checks if the Enemies are in the playable area.
+		 * If this isn't the case, then their position and speed gets modified to get back on the Board. */
 		
 		// Vertical Board borders collision
 		if (this.x > GamePanel.BOARD_END - margin) {
@@ -95,19 +65,18 @@ public abstract class Enemy extends Entity{
 			this.x = 2 * (GamePanel.BOARD_START + margin) - this.x;
 		}
 		
-		// Horizontal Board borders collision
-		if (this instanceof Rage) {
+		// Bottom horizontal Board border collision
+		if (this.rampage == true) {
 			if (this.y > GamePanel.BOARD_HEIGHT - margin) {
 				this.vy *= -1;
 				this.timeSinceReset_y = 0;
-				this.y = 2 * (GamePanel.BOARD_HEIGHT - margin) - this.y;
+				this.y = (int) (2 * (GamePanel.BOARD_HEIGHT - margin) - this.y);
 			}
-		} else if (this.y > ENEMYBOARD_BOTTOMBORDER - margin){
+		} else if ((this.y > ENEMYBOARD_BOTTOMBORDER - margin) && (vy >= 0)){
 			this.vy *= -1;
 			this.timeSinceReset_y = 0;
-			this.y = (int) (2 * (ENEMYBOARD_BOTTOMBORDER - margin) - this.y);
 		}
-		
+		// Top horizontal Board border collision
 		if (!this.appearing && this.spawning && this.y < enemyRadius) {
 			this.vy *= -1;
 			this.timeSinceReset_y = 0;
@@ -119,8 +88,8 @@ public abstract class Enemy extends Entity{
 		}
 	}
 	
+	// Random speed modifications
 	public void randomSpeed() {
-		// Random speed modifications
 		if (timeSinceReset_x / SPEED_RESET_FACTOR > rng.nextDouble()) {
 			this.vx = rng.nextInt(3) * Math.pow(-1, rng.nextInt(2));
 			this.timeSinceReset_x = 0;
@@ -135,17 +104,59 @@ public abstract class Enemy extends Entity{
 		}
 	}
 	
-	public void aimAndShoot(Enemy e, int human_x, int human_y) {
+	// Enemy Spawning
+	public static void spawnEnemy(ArrayList<Enemy> enemyList, GamePanel gp) {
+		boolean enoughSpaceToSpawn = true;
+		int spawning_x = 0;
+			
+		do {
+			enoughSpaceToSpawn = true;
+			spawning_x = 2 * margin + rng.nextInt(GamePanel.BOARD_WIDTH - 4 * margin) + GamePanel.BOARD_START;
+			for (Enemy E: enemyList) {
+				if (Extra.distance(spawning_x, -20, E.x, E.y) < 4 * E.enemyRadius) {
+					enoughSpaceToSpawn = false;
+					break;
+				}
+			}
+		} while (!enoughSpaceToSpawn);
+		if (gp.score > 1000 && rng.nextDouble() > 0.85) {
+			enemyList.add(new Rage(spawning_x));
+		} else {
+			enemyList.add(new RadiationOrb(spawning_x));
+		}
+	}
+	
+	// Enemy Shooting
+	public void shootBullet(ArrayList<Ammunition> projectileList, Human human) {
+		if (this.shootingCooldown > 150 && rng.nextDouble() < shootingChance) {
+			this.aimAndShoot(projectileList, human);
+			this.shootingCooldown = 0;
+		}
+	}
+	
+	public void aimAndShoot(ArrayList<Ammunition> projectileList, Human human) {
 		if (!rampage) {
 			shootingAngle = rng.nextDouble() * 2 * Math.PI;
 			distanceOffTarget = rng.nextInt(300);
-			shootingTarget_x = (int) (human_x + distanceOffTarget * Math.cos(shootingAngle));
-			shootingTarget_y = (int) (human_y + distanceOffTarget * Math.sin(shootingAngle));
-			shootingDistance = Extra.distance(e.x, e.y, (int)(shootingTarget_x), (int)(shootingTarget_y));
-			vx = (shootingTarget_x - e.x)/shootingDistance * 5;
-			vy = (shootingTarget_y - e.y)/shootingDistance * 5;
-			GamePanel.projectileList.add(new Ammunition(e.x, e.y, vx, vy));
-			e.shootCooldown = 0;
+			shootingTarget_x = (int) (human.x + distanceOffTarget * Math.cos(shootingAngle));
+			shootingTarget_y = (int) (human.y + distanceOffTarget * Math.sin(shootingAngle));
+			shootingDistance = Extra.distance(this.x, this.y, (int)(shootingTarget_x), (int)(shootingTarget_y));
+			vx = (shootingTarget_x - this.x)/shootingDistance * 5;
+			vy = (shootingTarget_y - this.y)/shootingDistance * 5;
+			projectileList.add(new Ammunition(this.x, this.y, vx, vy));
+			this.shootingCooldown = 0;
 		}
+	}
+	
+	// Enemy Collisions
+	public boolean enemyCollisions(ArrayList<Enemy> enemyList, ArrayList<Ammunition> ammoList, GamePanel gp) {
+		for(Ammunition bullet: ammoList) {
+			if (this.collision(bullet)) {
+				gp.score += this.killScore;
+				bullet.y = -1; // at y = -1 the bullet is automatically removed
+				return true;
+			}
+		}
+		return false;
 	}
 }

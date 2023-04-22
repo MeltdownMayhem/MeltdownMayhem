@@ -3,6 +3,7 @@ package Entity;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.ArrayList;
 
 import javax.imageio.ImageIO;
 
@@ -11,20 +12,21 @@ import MeltdownMayhem.GamePanel;
  * De Ammunition class is een verzamelclasse voor al de soorten kogels en projectielen dat het spel bevat.
  * Tot nu toe is er de ammo voor de Human en projectiles voor de RadiationOrbs.
  */
-public class Ammunition extends Entity{
+public class Ammunition extends Entity {
 
-	public static int hitboxRadius = 15;
 	BufferedImage ammoImage;
 	
 	// players ammo
 	public Ammunition(int x, int y) {
+		this.width = 22;
+		this.height = 32;
+		
 		this.x = x;
 		this.y = y;
 		this.vx = 0;
 		this.vy = -20;
 		
-		this.width = 30;
-		this.height = 55;
+		this.hitboxRadius = 10;
 		
 		// Retrieve ammo image <Credits to RyiSnow>
 		try {
@@ -41,10 +43,12 @@ public class Ammunition extends Entity{
 		this.vx = vx;
 		this.vy = vy;
 		
-		this.width = 35;
-		this.height = 35;
+		this.width = 22;
+		this.height = 22;
 		
-		// Retrieve ammo Image <Credits to RyiSnow>
+		this.hitboxRadius = 11;
+		
+		// Retrieve enemy ammo image <Credits to RyiSnow>
 		try {
 			ammoImage = ImageIO.read(getClass().getResourceAsStream("/ammo/enemyAmmo.png"));
 		} catch(IOException e) {
@@ -52,8 +56,14 @@ public class Ammunition extends Entity{
 		}
 	}
 	
-	public void draw(Graphics g) {
-		g.drawImage(ammoImage, x - width/2, y - height/2, width, height, null);
+	//Ammunition Collisions
+	public void ammoCollisions(ArrayList<Ammunition> ammoList, GamePanel gp) {
+		for (Ammunition bullet: ammoList) {
+			if (this.collision(bullet)) {
+				bullet.y = -1;
+				gp.delProjectileList.add(this);
+			}
+		}
 	}
 	
 	public boolean isOutBoard() {
@@ -61,5 +71,10 @@ public class Ammunition extends Entity{
 			return true;
 		}
 		return false;
+	}
+	
+	public void draw(Graphics g) {
+		g.drawImage(ammoImage, x - width/2, y - height/2, width, height, null);
+		//g.drawOval(x - hitboxRadius, y - hitboxRadius, hitboxRadius*2, hitboxRadius*2);
 	}
 }

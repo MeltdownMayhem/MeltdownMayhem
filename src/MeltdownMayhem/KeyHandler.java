@@ -3,10 +3,20 @@ package MeltdownMayhem;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
-import Entity.Barrel;
 import Entity.Human;
-
+import MeltdownMayhem.GamePanel.Phase;
+/**
+ * De KeyHandler class 'handelt' de 'keys'.
+ * De volledige toetsenbord in 1 classe verzamelt.
+ * (De cheat keys zullen later verwijderd worden)
+ */
 public class KeyHandler implements KeyListener{
+	
+	Human human;
+	
+	public KeyHandler(Human man) {
+		human = man;
+	}
 	
 	@Override
 	public void keyTyped(KeyEvent e) {
@@ -17,35 +27,41 @@ public class KeyHandler implements KeyListener{
 	public void keyPressed(KeyEvent e) {
 		int key = e.getKeyCode();
 
-		// WASD and ARROW movement of Human
+		// WASD and ARROW keys - movement of Human
 		if (key == 81 || key == 37) {
-			GamePanel.human.moveLeft = true;
+			human.moveLeft = true;
 		}
 		if (key == 68 || key == 39) {
-			GamePanel.human.moveRight = true;
+			human.moveRight = true;
 		}
 		if (key == 90 || key == 38) {
-			GamePanel.human.moveUp = true;
+			human.moveUp = true;
 		}
 		if (key == 83 || key == 40) {
-			GamePanel.human.moveDown = true;
+			human.moveDown = true;
 		}
-		// spaceBar - to shoot a bullet
+		// spaceBar - shoot a bullet
 		if (e.getKeyCode() == 32) {
-			GamePanel.shooting = true;
+			human.isShooting = true;
 		}
-		// DEVELOPER CHEAT KEYS //
-		// '+' - Add barrel
-		if (e.getKeyCode() == 107) {
-			GamePanel.barrelList.add(new Barrel());
+		
+		// escape_key - pause game
+		if (e.getKeyCode() == 27) {
+			if (GamePanel.phaseOfGame == Phase.PLAY) {
+				GamePanel.phaseOfGame = Phase.PAUSE;
+			} else if(GamePanel.phaseOfGame == Phase.PAUSE) {
+				GamePanel.phaseOfGame = Phase.PLAY;
+			}
 		}
-		// 'f' - Refill ammo
-		if (e.getKeyCode() == 70) {
-			GamePanel.ammo = GamePanel.max_ammo;
+		
+		// DEVELOPER'S CHEATING KEYS //
+		// 'r' - refill ammo
+		if (e.getKeyCode() == 82) {
+			human.ammo = human.max_ammo;
 		}
-		// 'h' - Refill lives
+		// 'h' - heal human
 		if (e.getKeyCode() == 72) {
-			GamePanel.human.lives = Human.max_lives;
+			human.lives = human.max_lives;
 		}
 	}
 
@@ -53,23 +69,23 @@ public class KeyHandler implements KeyListener{
 	public void keyReleased(KeyEvent e) {
 		int key = e.getKeyCode();
 		
-		// Stop Human movement when key is released
+		// WASD and ARROW keys - stop moving when released
 		if (key == 81 || key == 37) {
-			GamePanel.human.moveLeft = false;
+			human.moveLeft = false;
 		}
 		if (key == 68 || key == 39) {
-			GamePanel.human.moveRight = false;
+			human.moveRight = false;
 		}
 		if (key == 90 || key == 38) {
-			GamePanel.human.moveUp = false;
+			human.moveUp = false;
 		}
 		if (key == 83 || key == 40) {
-			GamePanel.human.moveDown = false;
+			human.moveDown = false;
 		}
-		// spaceBar - release to stop shooting bullets
+		// space_bar - stop shooting when released
 		if (e.getKeyCode() == 32) {
-			GamePanel.shooting = false;
-			GamePanel.shootingCooldown = 0; // Reset on 0 to shoot instantly when tapping
+			human.isShooting = false;
+			human.shootingCooldown = 0; // reset to 0 for no delay
 		}
 	}
 }

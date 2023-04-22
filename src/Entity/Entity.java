@@ -1,57 +1,52 @@
 package Entity;
 
+import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 import java.util.Timer;
+
+import MeltdownMayhem.Extra;
 
 /**
  * De Entity class is een Superclass waarvan de Subclasses allemaal een vorm van beweging bevatten (een positie x,y en een snelheid vx,vy).
  * Subclasses: Enemy, Human, Drone, Ammunition en Barrel
  */
-public class Entity {
+public abstract class Entity {
 
 	public int x, y;
 	public double vx, vy;
 	public int width, height, lives;
-	protected static double SPEED_COEFFICIENT = 1; // Changing the speed of the entire game
+	protected double SPEED_COEFFICIENT = 1; // Changing the speed of all non-player entities
 	
-	// RadiationOrb images
-	public BufferedImage orbLeft1;
-	public BufferedImage orbLeft2;
-	public BufferedImage orbRight1;
-	public BufferedImage orbRight2;
+	// Hitbox
+	public Rectangle hitbox;
+	public int hitboxRadius = 0; // If 0, not a circle-shaped-hitbox, so the collision will look for a Rectangle.
+	protected boolean hasSpawnProtection;
 	
-	// Rage Images
-	public BufferedImage rageLeft1;
-	public BufferedImage rageLeft2;
-	public BufferedImage rageRight1;
-	public BufferedImage rageRight2;
-	public BufferedImage rageOffLeft1;
-	public BufferedImage rageOffLeft2;
-	public BufferedImage rageOffRight1;
-	public BufferedImage rageOffRight2;
-	
-	// Every entity has its own counter and number for the getImage function
+	// Every entity has its own counter and number for the getImage function (image_animations)
 	int spriteCounter = 0;
 	int spriteNum = 0;
 	
 	// Technical variables
-	Random rng = new Random();
+	static Random rng = new Random();
 	Timer respawnTimer = new Timer();
 	
-	public Entity () {
-		this.lives = 1;
-	}
 	
 	// Default update method when not overwritten in subclasses
 	public void update() {
-		this.x += (int)(Entity.SPEED_COEFFICIENT * vx);
-		this.y += (int)(Entity.SPEED_COEFFICIENT * vy);
+		this.x += (int)(SPEED_COEFFICIENT * vx);
+		this.y += (int)(SPEED_COEFFICIENT * vy);
+		
+		if (hitboxRadius == 0) {
+			hitbox.x = x;
+			hitbox.y = y + 5;
+		}
 	}
 	
+	//-----------------------------------IMAGE_ANIMATIONS-----------------------------------
 	// Give it a list of images and a list of time-intervals, and it will return you the image that needs to be drawn
-	public BufferedImage getImage(ArrayList<BufferedImage> imageList, ArrayList<Integer> timeIntervalList) {
+	public BufferedImage getImage(List<BufferedImage> imageList, List<Integer> timeIntervalList) {
 		spriteCounter++;
 
 		if (spriteCounter >= timeIntervalList.get(spriteNum)) {
@@ -62,5 +57,36 @@ public class Entity {
 			}
 		}
 		return imageList.get(spriteNum);
+	}
+	
+	//------------------------------------ENTITY_COLLISIONS----------------------------------
+	// Between 2 rectangles
+	public boolean rectCollision(Entity entity) {
+		return this.hitbox.intersects(entity.hitbox);
+	}
+	// Between 2 circles
+	public boolean radiusCollision(Entity entity) {
+		return Extra.distance(entity.x, entity.y, this.x, this.y) < this.hitboxRadius + entity.hitboxRadius;
+	}
+	// Between a circle and a rectangle
+	public boolean radiusRectCollision(Entity entity) {
+		return (this.x - this.hitboxRadius < entity.hitbox.x + entity.hitbox.width && this.x + this.hitboxRadius > entity.hitbox.x && this.y - this.hitboxRadius < entity.hitbox.y + entity.hitbox.height && this.y + this.hitboxRadius > entity.hitbox.y);
+	}
+	
+	// Decides what shapes the Entity-hitboxes are and checks for Collision
+	public boolean collision(Entity entity) {
+		if (this.hitboxRadius == 0) {
+			if (entity.hitboxRadius == 0) {
+				return this.rectCollision(entity);
+			} else {
+				return entity.radiusRectCollision(this);
+			}
+		} else {
+			if (entity.hitboxRadius == 0) {
+				return this.radiusRectCollision(entity);
+			} else {
+				return this.radiusCollision(entity);
+			}
+		}
 	}
 }
