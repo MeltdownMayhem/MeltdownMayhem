@@ -1,10 +1,12 @@
 package Entity;
 
+import java.awt.AWTException;
 import java.awt.Graphics;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.TimerTask;
 
 import javax.imageio.ImageIO;
 
@@ -48,7 +50,12 @@ public class Barrel extends Entity {
 			}
 		}
 	}
-	
+	public class DestructingBarrel extends TimerTask {
+		@Override
+		public void run() {
+			y = GamePanel.BOARD_HEIGHT + 100;
+		}
+	}
 	public void draw(Graphics g) {
 		g.drawImage(barrel1, x, y, width, height, null);
 		//g.drawRect(x, y + 5, width, height - 10);

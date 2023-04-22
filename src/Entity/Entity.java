@@ -19,6 +19,7 @@ public abstract class Entity {
 	public int width, height, lives;
 	protected double SPEED_COEFFICIENT = 1; // Changing the speed of all non-player entities
 	
+	
 	// Hitbox
 	public Rectangle hitbox;
 	public int hitboxRadius = 0; // If 0, not a circle-shaped-hitbox, so the collision will look for a Rectangle.
