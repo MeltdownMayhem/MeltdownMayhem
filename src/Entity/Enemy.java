@@ -119,7 +119,7 @@ public abstract class Enemy extends Entity {
 				}
 			}
 		} while (!enoughSpaceToSpawn);
-		if (gp.score > 1000 && rng.nextDouble() > 0.85) {
+		if (gp.score > 100 && rng.nextDouble() > 0.85) {
 			enemyList.add(new Rage(spawning_x));
 		} else {
 			enemyList.add(new RadiationOrb(spawning_x));

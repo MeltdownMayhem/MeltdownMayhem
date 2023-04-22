@@ -26,10 +26,14 @@ import MeltdownMayhem.GamePanel;
 public class Drone extends Entity {
 
 	public Point2D MousePos;
-	private boolean droneFrozen = false;
+	public boolean droneFrozen = false;
+	private boolean xOutOfBounds = false;
+	private boolean yOutOfBounds = false;
 	private Timer respawnTimer = new Timer();
 	private final int DroneRespawnX = GamePanel.screenSize.width/2 - width/2 + 128;
 	private final int DroneRespawnY = GamePanel.BOARD_HEIGHT - height - GamePanel.BOARD_HEIGHT/15;
+	private int MouseX = DroneRespawnX;
+	private int MouseY = DroneRespawnY;
 	
 	List<BufferedImage> imageList = new ArrayList<BufferedImage>();
 	List<Integer> timeIntervalList = new ArrayList<Integer>();
@@ -65,24 +69,73 @@ public class Drone extends Entity {
 			e.printStackTrace();
 		}
 	}
-	
-	public void mouseMove() throws AWTException {
+	public void freeze(int duration) {
+		droneFrozen = true;
+		respawnTimer.schedule(new SpawnFreeze(), duration);
+	}
+	public void respawn() throws AWTException{
 		Robot robot = new Robot();
-		if (droneFrozen ==  false) {
-			this.MousePos =  MouseInfo.getPointerInfo().getLocation();
-			x = (int) MousePos.getX();
-			y = (int) MousePos.getY();
+		freeze(2000);
+		lives += 1;
+		robot.mouseMove(DroneRespawnX, DroneRespawnY);
+		x = DroneRespawnX; //needed to move the model
+		y = DroneRespawnY;
+	}
+	public void checkInBounds() {
+		if (MouseX < GamePanel.BOARD_START + width/2 || MouseX > GamePanel.BOARD_END - width/2) {
+			xOutOfBounds = true;
+			// if statements push drone hitbox back into boundaries in case mouse was moving too fast
+			if (x < GamePanel.BOARD_START + width/2) {
+				x = GamePanel.BOARD_START + width/2;
+			}
+			if (x > GamePanel.BOARD_END - width/2) {
+				x = GamePanel.BOARD_END - width/2;
+			}
 		}
 		else {
-			robot.mouseMove(DroneRespawnX, DroneRespawnY);
-			x = DroneRespawnX;
-			y = DroneRespawnY; //needed to move the model
+			xOutOfBounds = false;
+		}
+		if (MouseY < height/2 || MouseY > GamePanel.BOARD_HEIGHT - height/2) {
+			yOutOfBounds = true;
+			// if statements push drone hitbox back into boundaries in case mouse was moving too fast
+			if (y < height/2) {
+				y = height/2;
+			}
+			if (y > GamePanel.BOARD_HEIGHT - height/2) {
+				y = GamePanel.BOARD_HEIGHT - height/2;
+			}
+		}
+		else {
+			yOutOfBounds = false;
 		}
 	}
-	
+	public void mouseMove() {
+		this.MousePos =  MouseInfo.getPointerInfo().getLocation();
+		MouseX = (int) MousePos.getX();
+		MouseY = (int) MousePos.getY();
+		if (droneFrozen == false) {
+			if (xOutOfBounds == false) {
+				x = MouseX;
+			}
+			if (yOutOfBounds == false) {
+				y = MouseY;
+			}
+		}
+	}
+	public void teleportMouse(int x, int y) throws AWTException {
+		Robot robot = new Robot();
+		robot.mouseMove(x, y);
+	}
 	public class SpawnFreeze extends TimerTask {
+		int lastX = x;
+		int lastY = y;
 		@Override
 		public void run() {
+			try {
+				teleportMouse(x, y);
+			} catch (AWTException e) {
+				e.printStackTrace();
+			}
 			droneFrozen = false;
 			lives = 1;
 		}
@@ -113,20 +166,13 @@ public class Drone extends Entity {
 			}
 		}
 		if (lives == 0) {
-			Robot robot = new Robot();
-			robot.mouseMove(DroneRespawnX, DroneRespawnY); // needed to start moving from the respawn point
-			droneFrozen = true; // freezes the drone until respawnTimer runs out
-			respawnTimer.schedule(new SpawnFreeze(), 2000);
-		}
+			respawn();
+		}	
 	}
-	
 	@Override
 	public void update() {
-		try {
-			mouseMove();
-		} catch (AWTException e) {
-			e.printStackTrace();
-		}
+		mouseMove();
+		checkInBounds();
 	}
 	
 	public void draw(Graphics g) {
