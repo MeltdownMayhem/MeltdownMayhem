@@ -1,8 +1,10 @@
 package MeltdownMayhem;
 
+import java.awt.AWTException;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
+import Entity.Drone;
 import Entity.Human;
 import MeltdownMayhem.GamePanel.Phase;
 /**
@@ -11,11 +13,13 @@ import MeltdownMayhem.GamePanel.Phase;
  * (De cheat keys zullen later verwijderd worden)
  */
 public class KeyHandler implements KeyListener{
-	
+
+	Drone drone;
 	Human human;
 	
-	public KeyHandler(Human man) {
+	public KeyHandler(Human man, Drone ron) {
 		human = man;
+		drone = ron;
 	}
 	
 	@Override
@@ -51,6 +55,11 @@ public class KeyHandler implements KeyListener{
 				GamePanel.phaseOfGame = Phase.PAUSE;
 			} else if(GamePanel.phaseOfGame == Phase.PAUSE) {
 				GamePanel.phaseOfGame = Phase.PLAY;
+				try {
+					drone.teleportMouse(drone.x, drone.y);
+				} catch (AWTException e1) {
+					e1.printStackTrace();
+				}
 			}
 		}
 		

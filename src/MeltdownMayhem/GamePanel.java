@@ -51,7 +51,7 @@ public class GamePanel extends JPanel{
 	public Drone drone = new Drone();
 	
 	GUI gui = new GUI();
-	KeyHandler keyH = new KeyHandler(human);
+	KeyHandler keyH = new KeyHandler(human, drone);
 	Random rng = new Random();
 	BufferedImage background1;
 	
@@ -98,6 +98,13 @@ public class GamePanel extends JPanel{
 			if (phaseOfGame == Phase.PLAY) {
 				checkGameOver();
 				update();
+				setCursor(transparentCursor);
+			}
+			else if (phaseOfGame == Phase.PAUSE) {
+				if (drone.droneFrozen == true) {
+				drone.freeze(2000);
+				}
+				setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
 			}
 			repaint();
 		}
@@ -110,7 +117,6 @@ public class GamePanel extends JPanel{
 			setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
 		}
 	}
-	
 	//-------------------------------------UPDATE-------------------------------------
 	public void update() {
 		// Entity Spawning
