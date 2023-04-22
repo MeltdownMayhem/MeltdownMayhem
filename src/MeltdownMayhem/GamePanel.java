@@ -62,6 +62,7 @@ public class GamePanel extends JPanel{
 	public ArrayList<Barrel> barrelList;
 	public ArrayList<Enemy> enemyList; // All different Enemy types in 1 list
 	public ArrayList<ArrayList<Enemy>> enemiesInCollision;
+	public ArrayList<AmmoDrop> ammoDropList;
 	
 	public GamePanel() {
 		// Basic Panel settings
@@ -69,6 +70,7 @@ public class GamePanel extends JPanel{
 		this.setBackground(new Color(215,215,215)); // Light-Gray
 		this.setDoubleBuffered(true);
 		this.addKeyListener(keyH);
+		this.addMouseListener(keyH);
 		this.setFocusable(true);
 		setCursor(transparentCursor);
 		
@@ -79,6 +81,7 @@ public class GamePanel extends JPanel{
 		barrelList = new ArrayList<Barrel>();
 		enemyList = new ArrayList<Enemy>();
 		enemiesInCollision = new ArrayList<ArrayList<Enemy>>();
+		ammoDropList = new ArrayList<AmmoDrop>();
 		
 		// FPS
 		Timer t = new Timer();
@@ -96,12 +99,12 @@ public class GamePanel extends JPanel{
 		@Override
 		public void run() {
 			if (phaseOfGame == Phase.PLAY) {
+				setCursor(transparentCursor);
 				checkGameOver();
 				update();
-				setCursor(transparentCursor);
 			}
 			else if (phaseOfGame == Phase.PAUSE) {
-				if (drone.droneFrozen == true) {
+				if (drone.droneFrozen == true) { //zorgt dat drone frozen blijft na een hit, om misbruik van pauze te vermijden
 				drone.freeze(2000);
 				}
 				setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
@@ -141,6 +144,12 @@ public class GamePanel extends JPanel{
 			e.printStackTrace();
 		}
 		
+		if (!barrelList.isEmpty() && drone.droneDestructsBarrel == true) {
+			for (Barrel barrel: barrelList) {
+				drone.destructBarrel(barrel, barrelList);
+				drone.droneDestructsBarrel = false;
+			}
+		}
 		// Enemy
 		if (!enemyList.isEmpty()) {
 			ArrayList<Enemy> killedEnemyList = new ArrayList<>();
@@ -170,7 +179,17 @@ public class GamePanel extends JPanel{
 		if (!barrelList.isEmpty() && barrelList.get(0).y > BOARD_HEIGHT + 30) {
 			barrelList.remove(0);
 		}
-
+		// Ammo Drops
+		if (drone.spawnNewAmmoDrop == true) {
+			AmmoDrop.spawnAmmoDrop(drone.destructedBarrel, ammoDropList);
+			drone.spawnNewAmmoDrop = false;
+		}
+		for (AmmoDrop ammoDrop: ammoDropList) {
+			ammoDrop.update(drone, ammoDropList, human, score);
+			if (ammoDrop.x <= 0 && ammoDropList.size() >1) {
+				ammoDropList.remove(ammoDrop);
+			}
+		}
 		// Human Ammo
 		human.shootBullet(ammoList);
 		
@@ -180,7 +199,6 @@ public class GamePanel extends JPanel{
 		if (!ammoList.isEmpty() && ammoList.get(0).y < 0) {
 			ammoList.remove(0);
 		}
-		
 		
 		// Enemy Ammo
 		for (Enemy enemy: enemyList) {
@@ -217,6 +235,9 @@ public class GamePanel extends JPanel{
         }
 		human.draw(g);
 		
+		for (AmmoDrop ammoDrop: ammoDropList) {
+			ammoDrop.draw(g);
+		}
 		for (Barrel barrel:barrelList) {
 			barrel.draw(g);
         }
@@ -226,6 +247,7 @@ public class GamePanel extends JPanel{
 		for (Enemy enemy: enemyList) {
 			enemy.draw(g);
 		}
+		
 		drone.draw(g);
 		
 		// GUI

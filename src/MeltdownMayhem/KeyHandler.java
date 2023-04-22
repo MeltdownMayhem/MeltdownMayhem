@@ -3,7 +3,10 @@ package MeltdownMayhem;
 import java.awt.AWTException;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 
+import Entity.Barrel;
 import Entity.Drone;
 import Entity.Human;
 import MeltdownMayhem.GamePanel.Phase;
@@ -12,7 +15,7 @@ import MeltdownMayhem.GamePanel.Phase;
  * De volledige toetsenbord in 1 classe verzamelt.
  * (De cheat keys zullen later verwijderd worden)
  */
-public class KeyHandler implements KeyListener{
+public class KeyHandler implements KeyListener, MouseListener{
 
 	Drone drone;
 	Human human;
@@ -96,5 +99,24 @@ public class KeyHandler implements KeyListener{
 			human.isShooting = false;
 			human.shootingCooldown = 0; // reset to 0 for no delay
 		}
+	}
+	public void mouseClicked(MouseEvent e) {
+	}
+	@Override
+	public void mousePressed(MouseEvent e) {
+		int mouseButton = e.getButton();
+		if (mouseButton == MouseEvent.BUTTON1) {
+			drone.droneDestructsBarrel = true;
+		}
+	}
+	@Override
+	public void mouseReleased(MouseEvent e) {
+		drone.droneDestructsBarrel = false;
+	}
+	@Override
+	public void mouseEntered(MouseEvent e) {
+	}
+	@Override
+	public void mouseExited(MouseEvent e) {
 	}
 }
