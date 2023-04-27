@@ -23,7 +23,7 @@ import Entity.*;
 public class GamePanel extends JPanel{
 
 	// Window settings
-	public static Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+	public static final Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 	public static final int BOARD_WIDTH = 1188; // Board refers to the playable area
 	public static final int BOARD_HEIGHT = screenSize.height - 30;
 	public static final int BOARD_START = (screenSize.width - BOARD_WIDTH)/2;
@@ -64,7 +64,7 @@ public class GamePanel extends JPanel{
 	public ArrayList<ArrayList<Enemy>> enemiesInCollision;
 	public ArrayList<AmmoDrop> ammoDropList;
 	
-	public GamePanel() {
+	public GamePanel(Window mainWindow) {
 		// Basic Panel settings
 		this.setPreferredSize(screenSize);
 		this.setBackground(new Color(215,215,215)); // Light-Gray
