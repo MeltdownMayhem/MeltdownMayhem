@@ -202,7 +202,10 @@ public class GamePanel extends JPanel{
 		
 		// Enemy Ammo
 		for (Enemy enemy: enemyList) {
-			enemy.shootBullet(projectileList, human);
+			if (enemy instanceof RadiationOrb) {
+				RadiationOrb orb = (RadiationOrb) enemy;
+				orb.shootBullet(projectileList, human);
+			}
 		}
 		for (Ammunition bullet: projectileList) {
 			bullet.update();
