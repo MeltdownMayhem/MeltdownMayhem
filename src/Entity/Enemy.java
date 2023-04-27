@@ -23,17 +23,24 @@ public abstract class Enemy extends Entity {
 	int timeSinceReset_x = 0;
 	int timeSinceReset_y = 0;
 	
-	protected int shootingCooldown = 0;
-	protected final double shootingChance = 0.045;
-	protected static double shootingAngle, shootingDistance;
-	protected static int distanceOffTarget, shootingTarget_x, shootingTarget_y;
-	
 	boolean appearing = true;
 	public boolean spawning = true;
 	public boolean rampage = false;
 	
 	public int killScore;
 	
+	Enemy(int x){
+		enemySize = 85;
+		enemyRadius = enemySize/2; // 43 pixels
+		
+		this.x = x;
+		this.y = -enemySize/2; // -20 pixels
+		
+		this.vx = rng.nextInt(3)*Math.pow(-1, rng.nextInt(2));
+		this.vy = 1 + rng.nextInt(2); // y-speed can't be negative when spawning
+		
+		this.hitboxRadius = 30;
+	}
 	
 	public abstract void update(Human human);
 	
@@ -122,29 +129,11 @@ public abstract class Enemy extends Entity {
 		if (gp.score > 100 && rng.nextDouble() > 0.85) {
 			enemyList.add(new Rage(spawning_x));
 		} else {
-			enemyList.add(new RadiationOrb(spawning_x));
-		}
-	}
-	
-	// Enemy Shooting
-	public void shootBullet(ArrayList<Ammunition> projectileList, Human human) {
-		if (this.shootingCooldown > 150 && rng.nextDouble() < shootingChance) {
-			this.aimAndShoot(projectileList, human);
-			this.shootingCooldown = 0;
-		}
-	}
-	
-	public void aimAndShoot(ArrayList<Ammunition> projectileList, Human human) {
-		if (!rampage) {
-			shootingAngle = rng.nextDouble() * 2 * Math.PI;
-			distanceOffTarget = rng.nextInt(300);
-			shootingTarget_x = (int) (human.x + distanceOffTarget * Math.cos(shootingAngle));
-			shootingTarget_y = (int) (human.y + distanceOffTarget * Math.sin(shootingAngle));
-			shootingDistance = Extra.distance(this.x, this.y, (int)(shootingTarget_x), (int)(shootingTarget_y));
-			vx = (shootingTarget_x - this.x)/shootingDistance * 5;
-			vy = (shootingTarget_y - this.y)/shootingDistance * 5;
-			projectileList.add(new Ammunition(this.x, this.y, vx, vy));
-			this.shootingCooldown = 0;
+			if (rng.nextDouble() < 0.5) {
+				enemyList.add(new RadiationOrb(spawning_x, true));
+			} else {
+				enemyList.add(new RadiationOrb(spawning_x, false));
+			}
 		}
 	}
 	
