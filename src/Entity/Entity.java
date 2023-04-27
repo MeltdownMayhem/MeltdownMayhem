@@ -4,13 +4,12 @@ import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.util.List;
 import java.util.Random;
-import java.util.Timer;
 
 import MeltdownMayhem.Extra;
 
 /**
- * De Entity class is een Superclass waarvan de Subclasses allemaal een vorm van beweging bevatten (een positie x,y en een snelheid vx,vy).
- * Subclasses: Enemy, Human, Drone, Ammunition en Barrel
+ * The Entity class is a Superclass for all classes with moving elements.
+ * Subclasses: Enemy, Human, Drone, Ammunition, Barrel, PowerUp
  */
 public abstract class Entity {
 
@@ -18,7 +17,6 @@ public abstract class Entity {
 	public double vx, vy;
 	public int width, height, lives;
 	protected double SPEED_COEFFICIENT = 1; // Changing the speed of all non-player entities
-	
 	
 	// Hitbox
 	public Rectangle hitbox;
@@ -31,18 +29,11 @@ public abstract class Entity {
 	
 	// Technical variables
 	static Random rng = new Random();
-	Timer respawnTimer = new Timer();
-	
 	
 	// Default update method when not overwritten in subclasses
 	public void update() {
 		this.x += (int)(SPEED_COEFFICIENT * vx);
 		this.y += (int)(SPEED_COEFFICIENT * vy);
-		
-		if (hitboxRadius == 0) {
-			hitbox.x = x;
-			hitbox.y = y + 5;
-		}
 	}
 	
 	//-----------------------------------IMAGE_ANIMATIONS-----------------------------------

@@ -5,6 +5,9 @@ import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Timer;
 import java.util.TimerTask;
 
 import javax.imageio.ImageIO;
@@ -19,18 +22,27 @@ public class Human extends Entity {
 
 	public boolean moveRight, moveLeft, moveUp, moveDown;
 	public int max_lives = 3;
-	boolean hasSpawnProtection;
+	boolean shieldActive;
+	boolean isTiny;
 	
-	public int ammo = 100;
-	public int max_ammo = 100;
+	public int ammo = 50;
+	public int max_ammo = 50;
 	public int shootingCooldown = 0; // Starts at 0, for instant shooting when tapping key
 	public boolean isShooting = false;
 	
-	BufferedImage human1;
+	BufferedImage hazmat;
+	BufferedImage hazmatForward1;
+	BufferedImage hazmatForward2;
+	BufferedImage shieldBubble;
+	
+	List<BufferedImage> horizontalImageList = new ArrayList<BufferedImage>();
+	List<Integer> timeIntervalList = new ArrayList<Integer>();
+	
+	Timer timer = new Timer();
 	
 	public Human() {
-		this.width = 82;
-		this.height = 135;
+		this.width = 90;
+		this.height = 165;
 		
 		this.x = GamePanel.screenSize.width/2 - this.width/2 - 128;
 		this.y = GamePanel.BOARD_HEIGHT - this.height - GamePanel.BOARD_HEIGHT/15;
@@ -39,33 +51,70 @@ public class Human extends Entity {
 		
 		this.lives = 3; // Starting amount of lives
 		
-		this.hitbox = new Rectangle(x + 10, y + 15, width - 15, height - 20);
+		this.hitbox = new Rectangle(x + 5, y + 45, width - 10, height - 60);
 		
 		getHumanImage();
 	}
 	
 	public void getHumanImage() { // <Credits to RyiSnow | https://www.youtube.com/@RyiSnow>
 		try {
-			human1 = ImageIO.read(getClass().getResourceAsStream("/human/human1.png"));
+			hazmat = ImageIO.read(getClass().getResourceAsStream("/human/hazmat.png"));
+			hazmatForward1 = ImageIO.read(getClass().getResourceAsStream("/human/hazmatForward1.png"));
+			hazmatForward2 = ImageIO.read(getClass().getResourceAsStream("/human/hazmatForward2.png"));
+			shieldBubble = ImageIO.read(getClass().getResourceAsStream("/human/shieldBubble.png"));
+			
+			horizontalImageList = Arrays.asList(hazmat,hazmatForward1,hazmat,hazmatForward2);
+			timeIntervalList = Arrays.asList(5,6,5,6);
+			
 		} catch(IOException e) {
 			e.printStackTrace();
 		}
 	}
 	
-	public class SpawnProtection extends TimerTask {
+	public class ShieldTimerTask extends TimerTask {
 		@Override
 		public void run() {
-			hasSpawnProtection = false;
+			shieldActive = false;
+		}
+	}
+	
+	public class TinyTimerTask extends TimerTask {
+		@Override
+		public void run() {
+			width = 90;
+			height = 165;
+			hitbox.width = width - 10;
+			hitbox.height = height - 60;
+			vx = 4;
+			vy = 4.3;
+			isTiny = false;
 		}
 	}
 	
 	public void takeDamage() {
-		if (hasSpawnProtection == false) {
+		if (shieldActive == false) {
 			lives --;
 			x = GamePanel.screenSize.width/2 - width/2;
 			y = GamePanel.BOARD_HEIGHT - height - GamePanel.BOARD_HEIGHT/15;
-			hasSpawnProtection = true;
-			respawnTimer.schedule(new SpawnProtection(), 2000);
+			activateShield(2500);
+		}
+	}
+	
+	public void activateShield(int time) {
+			shieldActive = true;
+			timer.schedule(new ShieldTimerTask(), time);
+	}
+	
+	public void shrink(int time, double shrinkFactor, double speedFactor) {
+		if (isTiny == false) {
+			width /= shrinkFactor;
+			height /= shrinkFactor;
+			hitbox.width /= shrinkFactor;
+			hitbox.height /= shrinkFactor;
+			vx *= speedFactor;
+			vy *= speedFactor;
+			isTiny = true;
+			timer.schedule(new TinyTimerTask(), time);
 		}
 	}
 	
@@ -117,15 +166,24 @@ public class Human extends Entity {
 		if (this.moveDown==true && y < GamePanel.BOARD_HEIGHT - height) {
 			y += vy + 1;
 		}
-		hitbox.x = x + 10;
-		hitbox.y = y + 15;
+		hitbox.x = x + 5;
+		hitbox.y = y + 45;
 	}
 	
 	public void draw(Graphics g) {
 		BufferedImage image;
-		image = human1;
+		if (moveUp == true && moveDown == false || moveUp == false && moveDown == true || moveRight == true && moveLeft == false || moveRight == false && moveLeft == true) {
+			image = this.getImage(horizontalImageList, timeIntervalList);
+		} else {
+			image = hazmat;
+		}
 		
 		g.drawImage(image, x, y, width, height, null);
-		//g.drawRect(x + 10, y + 15, width - 15, height - 20);
+		//g.drawRect(hitbox.x, hitbox.y, hitbox.width, hitbox.height);
+		
+		// Shield Bubble
+		if (shieldActive) {
+			g.drawImage(shieldBubble, x - (height - width)/2, y + height/8, height, height, null);
+		}
 	}
 }

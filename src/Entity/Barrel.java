@@ -1,6 +1,5 @@
 package Entity;
 
-import java.awt.AWTException;
 import java.awt.Graphics;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
@@ -12,16 +11,22 @@ import javax.imageio.ImageIO;
 
 import MeltdownMayhem.GamePanel;
 /**
- * De Barrel class maakt de Barrels aan die naar beneden 'rollen' op het scherm.
- * Zijn doel is een obstakel te zijn in de weg van de Human.
- * De Drone vliegt en heeft dus geen collision met de Barrels.
- * Momenteel is er nog geen collision tussen de ammo van de Human en de Barrels, maar het wordt overwogen om later toe te voegen.
+ * Class to create a moving Barrel on the Board.
+ * Serves as an obstacle to the Human and can be destroyed by the Drone.
+ * When destroyed, it has a chance to drop some Ammo.
  */
 public class Barrel extends Entity {
 
-	BufferedImage barrel1;
+	public boolean gettingDamaged = false;
 	
-	public Barrel() {
+	GamePanel gp;
+	Drone drone;
+	
+	BufferedImage barrel1;
+	BufferedImage barrel2;
+	BufferedImage barrel3;
+	
+	public Barrel(Drone ron, GamePanel panel) {
 		this.width = 140;
 		this.height = 75;
 		
@@ -30,11 +35,17 @@ public class Barrel extends Entity {
 		this.vx = 0;
 		this.vy = 2 * rng.nextDouble() + 3;
 		
+		this.lives = 3;
+		gp = panel;
+		drone = ron;
+		
 		this.hitbox = new Rectangle(x, y + 5, width, height - 10);
 		
 		// Retrieve barrel image <Credits to RyiSnow | https://www.youtube.com/@RyiSnow>
 		try {
 			barrel1 = ImageIO.read(getClass().getResourceAsStream("/barrel/barrel1.png"));
+			barrel2 = ImageIO.read(getClass().getResourceAsStream("/barrel/barrel2.png"));
+			barrel3 = ImageIO.read(getClass().getResourceAsStream("/barrel/barrel3.png"));
 		} catch(IOException e) {
 			e.printStackTrace();
 		}
@@ -50,14 +61,44 @@ public class Barrel extends Entity {
 			}
 		}
 	}
-	public class DestructingBarrel extends TimerTask {
+	
+	public class DestroyBarrelTimerTask extends TimerTask {
 		@Override
 		public void run() {
-			y = GamePanel.BOARD_HEIGHT + 100;
+			gettingDamaged = false;
+			if (collision(drone) && drone.damageBarrel == true) {
+				lives--;
+			} else {
+				vy = 2 * rng.nextDouble() + 3 - (3 - lives);
+				drone.barrelSlot = null;
+			}
 		}
 	}
+	
+	@Override
+	public void update() {
+		this.x += (int)(SPEED_COEFFICIENT * vx);
+		this.y += (int)(SPEED_COEFFICIENT * vy);
+		
+		if (lives == 0) {
+			PowerUp.spawnPowerUp(this, gp);
+			y = GamePanel.BOARD_HEIGHT + 100;
+		}
+		
+		if (hitboxRadius == 0) {
+			hitbox.x = x;
+			hitbox.y = y + 5;
+		}
+	}
+	
 	public void draw(Graphics g) {
-		g.drawImage(barrel1, x, y, width, height, null);
-		//g.drawRect(x, y + 5, width, height - 10);
+		if (lives == 3) {
+			g.drawImage(barrel1, x, y, width, height, null);
+		} else if (lives == 2) {
+			g.drawImage(barrel2, x, y, width, height, null);
+		} else {
+			g.drawImage(barrel3, x, y, width, height, null);
+		}
+		//g.drawRect(hitbox.x, hitbox.y, hitbox.width, hitbox.height);
 	}
 }

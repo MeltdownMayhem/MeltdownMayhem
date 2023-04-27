@@ -9,8 +9,8 @@ import javax.imageio.ImageIO;
 
 import MeltdownMayhem.GamePanel;
 /**
- * De Ammunition class is een verzamelclasse voor al de soorten kogels en projectielen dat het spel bevat.
- * Tot nu toe is er de ammo voor de Human en projectiles voor de RadiationOrbs.
+ * Class that serves to create a moving Bullet on the Board.
+ * It is possible to create both Human Bullets and Enemy Projectiles.
  */
 public class Ammunition extends Entity {
 

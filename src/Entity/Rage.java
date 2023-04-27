@@ -43,8 +43,17 @@ public class Rage extends Enemy {
 	List<Integer> timeIntervalList = new ArrayList<Integer>();
 	
 	public Rage(int x) {
-		super(x);
+		enemySize = 85;
+		enemyRadius = enemySize/2; // 40 pixels
 		killScore = 15;
+		
+		this.x = x;
+		this.y = -enemySize/2; // -20 pixels
+		this.vx = rng.nextInt(3)*Math.pow(-1, rng.nextInt(2));
+		this.vy = 1 + rng.nextInt(2); // y-speed can't be negative when spawning
+		
+		this.hitboxRadius = 30;
+		
 		getRageImage();
 	}
 	

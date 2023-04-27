@@ -4,7 +4,6 @@ import java.awt.AWTException;
 import java.awt.Graphics;
 import java.awt.MouseInfo;
 import java.awt.Robot;
-import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -18,25 +17,31 @@ import javax.imageio.ImageIO;
 
 import MeltdownMayhem.GamePanel;
 /**
- * De Drone is de tweede speler van dit spel, met een belangrijke rol.
- * In de toekomst zal het Barrels kunnen verplaatsen en Ammo kunnen opnemen die Enemies droppen.
- * De Drone vliegt boven de Barrels en heeft dus geen collision ermee.
- * Het wordt gecontroleerd via de muis.
+ * The Drone is the second player of the Game and is controlled with the Mouse.
+ * Skill: Destroy Barrels with Left-Click and move Ammo to the Human.
+ * It has collision with all Entities, except Human, HumanAmmo and Barrels.
  */
 public class Drone extends Entity {
 
 	public Point2D MousePos;
-	public boolean droneFrozen = false;
-	public boolean droneDestructsBarrel = false;
-	public boolean spawnNewAmmoDrop = false;
-	private boolean xOutOfBounds = false;
-	private boolean yOutOfBounds = false;
-	private Timer respawnTimer = new Timer();
-	private Timer destructionTimer = new Timer();
+	
 	private final int DroneRespawnX = GamePanel.screenSize.width/2 - width/2 + 128;
 	private final int DroneRespawnY = GamePanel.BOARD_HEIGHT - height - GamePanel.BOARD_HEIGHT/15;
+	
 	private int MouseX = DroneRespawnX;
 	private int MouseY = DroneRespawnY;
+	
+	public boolean droneFrozen = false;
+	public boolean damageBarrel = false;
+	public boolean spawnPowerUp = false;
+	private boolean xOutOfBounds = false;
+	private boolean yOutOfBounds = false;
+	
+	public PowerUp invSlot = null;
+	public Barrel barrelSlot = null;
+	
+	private Timer respawnTimer = new Timer();
+	private Timer destructionTimer = new Timer();
 	
 	List<BufferedImage> imageList = new ArrayList<BufferedImage>();
 	List<Integer> timeIntervalList = new ArrayList<Integer>();
@@ -45,8 +50,8 @@ public class Drone extends Entity {
 	BufferedImage drone2;
 	
 	public Drone() {
-		this.width = 64;
-		this.height = 64;
+		this.width = 65;
+		this.height = 65;
 		
 		this.x = GamePanel.screenSize.width/2 - this.width/2 + 128;
 		this.y = GamePanel.BOARD_HEIGHT - this.height - GamePanel.BOARD_HEIGHT/15;
@@ -70,22 +75,39 @@ public class Drone extends Entity {
 			e.printStackTrace();
 		}
 	}
+	
 	public void freeze(int duration) { //Freeze de drone
 		droneFrozen = true;
 		respawnTimer.schedule(new SpawnFreeze(), duration);
 	}
+	
+	public void pickUp(GamePanel gp) {
+		if (invSlot == null) {
+			for (PowerUp powerUp: gp.powerUpList) {
+				if (this.collision(powerUp)) {
+					invSlot = powerUp;
+					powerUp.pickedUp = true;
+				}
+			}
+		} else {
+			invSlot.pickedUp = false;
+			invSlot = null;
+		}
+	}
+	
 	public void respawn() throws AWTException{ // Freeze de drone + breng hem terug naar respawnpunt
 		Robot robot = new Robot();
 		freeze(2000);
 		lives += 1;
 		robot.mouseMove(DroneRespawnX, DroneRespawnY);
-		x = DroneRespawnX; //needed to move the model
+		x = DroneRespawnX; // needed to move the model
 		y = DroneRespawnY;
 	}
-	public void checkInBounds() { //Checkt of drone zich binnen het spelpaneel bevindt
+	
+	public void checkInBounds() { // Check if drone is in Board
 		if (MouseX < GamePanel.BOARD_START + width/2 || MouseX > GamePanel.BOARD_END - width/2) {
 			xOutOfBounds = true;
-			// if statements push drone hitbox back into boundaries in case mouse was moving too fast
+			// if statements to push drone back into boundaries in case mouse was moving too fast
 			if (x < GamePanel.BOARD_START + width/2) {
 				x = GamePanel.BOARD_START + width/2;
 			}
@@ -110,6 +132,7 @@ public class Drone extends Entity {
 			yOutOfBounds = false;
 		}
 	}
+	
 	public void mouseMove() { //beweegt de drone volgens de cursor, wanneer dat moet
 		this.MousePos =  MouseInfo.getPointerInfo().getLocation();
 		MouseX = (int) MousePos.getX();
@@ -123,11 +146,13 @@ public class Drone extends Entity {
 			}
 		}
 	}
+	
 	// Dit stuk vermijdt dat de drone teleporteert na pauzes/hits
 	public void teleportMouse(int x, int y) throws AWTException {
 		Robot robot = new Robot();
 		robot.mouseMove(x, y);
 	}
+	
 	public class SpawnFreeze extends TimerTask {
 		int lastX = x;
 		int lastY = y;
@@ -142,6 +167,7 @@ public class Drone extends Entity {
 			lives = 1;
 		}
 	}
+	
 	// Collision
 	public void droneCollisions(ArrayList<Enemy> enemyList, ArrayList<Ammunition> projectileList, GamePanel gp) throws AWTException { // needed for Robot class
 		for (Enemy enemy: enemyList) {
@@ -172,17 +198,15 @@ public class Drone extends Entity {
 		}	
 	}
 	
-	// Barrel destruction
-	public Barrel destructedBarrel;
-	public void destructBarrel(Barrel barrel, ArrayList<Barrel> barrelList) {
-		if (this.collision(barrel)) {
-			freeze(3000);
-			destructionTimer.schedule(barrel.new DestructingBarrel(), 3000); 
-			barrel.vy = 0;
-			droneDestructsBarrel = false;
-			spawnNewAmmoDrop = true;
-			destructedBarrel = barrel;
-		
+	// destroy Barrel skill
+	public void destroyBarrel(Barrel barrel, ArrayList<Barrel> barrelList, GamePanel gp) {
+		if (this.collision(barrel) && invSlot == null && (barrelSlot == null || barrelSlot == barrel)) {
+			if (barrel.gettingDamaged == false) {
+				barrelSlot = barrel;
+				barrel.gettingDamaged = true;
+				barrel.vy = 0;
+				destructionTimer.schedule(barrel.new DestroyBarrelTimerTask(), 800);
+			}
 		}
 	}
 	
@@ -193,8 +217,7 @@ public class Drone extends Entity {
 	}
 	
 	public void draw(Graphics g) {
-		BufferedImage image = null;
-		image = this.getImage(imageList,timeIntervalList);
+		BufferedImage image = this.getImage(imageList,timeIntervalList);
 		g.drawImage(image, x - width/2, y - height/2, width, height, null);
 		//g.drawOval(x - hitboxRadius, y - hitboxRadius, hitboxRadius*2, hitboxRadius*2);
 	}

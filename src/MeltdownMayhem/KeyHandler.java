@@ -6,23 +6,22 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
-import Entity.Barrel;
 import Entity.Drone;
 import Entity.Human;
 import MeltdownMayhem.GamePanel.Phase;
 /**
- * De KeyHandler class 'handelt' de 'keys'.
- * De volledige toetsenbord in 1 classe verzamelt.
- * (De cheat keys zullen later verwijderd worden)
+ * Class that 'handles' the actions of whatever 'key' is pressed/released.
  */
 public class KeyHandler implements KeyListener, MouseListener{
-
-	Drone drone;
-	Human human;
 	
-	public KeyHandler(Human man, Drone ron) {
+	Human human;
+	Drone drone;
+	GamePanel gp;
+	
+	public KeyHandler(Human man, Drone ron, GamePanel panel) {
 		human = man;
 		drone = ron;
+		gp = panel;
 	}
 	
 	@Override
@@ -58,6 +57,7 @@ public class KeyHandler implements KeyListener, MouseListener{
 				GamePanel.phaseOfGame = Phase.PAUSE;
 			} else if(GamePanel.phaseOfGame == Phase.PAUSE) {
 				GamePanel.phaseOfGame = Phase.PLAY;
+				gp.setCursor(gp.transparentCursor);
 				try {
 					drone.teleportMouse(drone.x, drone.y);
 				} catch (AWTException e1) {
@@ -100,23 +100,38 @@ public class KeyHandler implements KeyListener, MouseListener{
 			human.shootingCooldown = 0; // reset to 0 for no delay
 		}
 	}
+
+	@Override
 	public void mouseClicked(MouseEvent e) {
+		int mouseButton = e.getButton();
+		if (mouseButton == 3) {
+			drone.pickUp(gp);
+		}
 	}
+
 	@Override
 	public void mousePressed(MouseEvent e) {
 		int mouseButton = e.getButton();
 		if (mouseButton == MouseEvent.BUTTON1) {
-			drone.droneDestructsBarrel = true;
+			drone.damageBarrel = true;
 		}
 	}
+
 	@Override
 	public void mouseReleased(MouseEvent e) {
-		drone.droneDestructsBarrel = false;
+		int mouseButton = e.getButton();
+		if (mouseButton == MouseEvent.BUTTON1) {
+			drone.damageBarrel = false;
+		}
 	}
+
 	@Override
 	public void mouseEntered(MouseEvent e) {
+		// TODO Auto-generated method stub
 	}
+
 	@Override
 	public void mouseExited(MouseEvent e) {
+		// TODO Auto-generated method stub
 	}
 }

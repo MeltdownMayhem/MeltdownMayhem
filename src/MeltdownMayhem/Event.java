@@ -12,7 +12,10 @@ public class Event {
 
 	static Random rng = new Random();
 	
-	// Enemy collision with other Enemies go together in an nested ArrayList
+	/** 
+	 * Botsing-algoritme: Enemies in elkaars 'botsingsgebied' komen samen in een ArrayList.
+	 * Nadien worden de enemies weggeduuwt van hun zwaartepunt, voor elke gevormde ArrayList.
+	 */
 	public static ArrayList<ArrayList<Enemy>> getEnemiesInCollision(ArrayList<Enemy> enemyList) {
 		ArrayList <ArrayList<Enemy>> enemiesInCollision = new ArrayList<ArrayList<Enemy>>();
 		boolean isEnemyInCollision = false;
