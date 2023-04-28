@@ -18,17 +18,17 @@ import MeltdownMayhem.Extra;
 public class RadiationOrb extends Enemy {
 	
 	// RadiationOrb images
-	BufferedImage orbLeft1;
-	BufferedImage orbLeft2;
-	BufferedImage orbRight1;
-	BufferedImage orbRight2;
+	BufferedImage orbLeft1, orbLeft2, orbRight1, orbRight2;
+	BufferedImage sniperLeft1, sniperLeft2, sniperRight1, sniperRight2;
 	
 	// Image-lists for the getImage(ArrayList, ArrayList) method
-	List<BufferedImage> leftImageList = new ArrayList<BufferedImage>();
-	List<BufferedImage> rightImageList = new ArrayList<BufferedImage>();
+	List<BufferedImage> orbLeftImageList = new ArrayList<BufferedImage>();
+	List<BufferedImage> orbRightImageList = new ArrayList<BufferedImage>();
+	List<BufferedImage> sniperLeftImageList = new ArrayList<BufferedImage>();
+	List<BufferedImage> sniperRightImageList = new ArrayList<BufferedImage>();
 	List<Integer> timeIntervalList = new ArrayList<Integer>();
 	
-	enum Model{NORMAL, SNIPER};
+	enum Model{ORB, SNIPER};
 	Model type;
 	
 	private int shootingCooldown = 0;
@@ -43,7 +43,7 @@ public class RadiationOrb extends Enemy {
 		if (sniper) {
 			this.type = Model.SNIPER;
 		} else {
-			this.type = Model.NORMAL;
+			this.type = Model.ORB;
 		}
 	}
 	
@@ -55,8 +55,15 @@ public class RadiationOrb extends Enemy {
 			orbRight1 = ImageIO.read(getClass().getResourceAsStream("/radiation_orb/orbRight1.png"));
 			orbRight2 = ImageIO.read(getClass().getResourceAsStream("/radiation_orb/orbRight2.png"));
 			
-			leftImageList = Arrays.asList(orbLeft1,orbLeft2);
-			rightImageList = Arrays.asList(orbRight1,orbRight2);
+			sniperLeft1 = ImageIO.read(getClass().getResourceAsStream("/radiation_orb/sniperLeft1.png"));
+			sniperLeft2 = ImageIO.read(getClass().getResourceAsStream("/radiation_orb/sniperLeft2.png"));
+			sniperRight1 = ImageIO.read(getClass().getResourceAsStream("/radiation_orb/sniperRight1.png"));
+			sniperRight2 = ImageIO.read(getClass().getResourceAsStream("/radiation_orb/sniperRight2.png"));
+			
+			orbLeftImageList = Arrays.asList(orbLeft1,orbLeft2);
+			orbRightImageList = Arrays.asList(orbRight1,orbRight2);
+			sniperLeftImageList = Arrays.asList(sniperLeft1,sniperLeft2);
+			sniperRightImageList = Arrays.asList(sniperRight1,sniperRight2);
 			timeIntervalList = Arrays.asList(100,40);
 
 		} catch(IOException e) {
@@ -84,17 +91,21 @@ public class RadiationOrb extends Enemy {
 	public void draw(Graphics g) {
 		BufferedImage image = null;
 		
-		if (vx < 0) {
-			image = this.getImage(leftImageList,timeIntervalList);
+		if (this.type == Model.ORB) {
+			if (vx < 0) {
+				image = this.getImage(orbLeftImageList,timeIntervalList);
+			} else {
+				image = this.getImage(orbRightImageList,timeIntervalList);
+			}
+			g.drawImage(image, x - enemyRadius, y - enemyRadius, enemySize, enemySize, null);
+			//g.drawOval(x - hitboxRadius, y - hitboxRadius, hitboxRadius*2, hitboxRadius*2);
 		} else {
-			image = this.getImage(rightImageList,timeIntervalList);
-		}
-		g.drawImage(image, x - enemyRadius, y - enemyRadius, enemySize, enemySize, null);
-		//g.drawOval(x - hitboxRadius, y - hitboxRadius, hitboxRadius*2, hitboxRadius*2);
-		
-		if (this.type == Model.NORMAL) {
-			g.setColor(Color.red);
-			g.drawOval(this.x, this.y, 5, 5);
+			if (vx < 0) {
+				image = this.getImage(sniperLeftImageList,timeIntervalList);
+			} else {
+				image = this.getImage(sniperRightImageList,timeIntervalList);
+			}
+			g.drawImage(image, x - enemyRadius, y - enemyRadius, enemySize, enemySize, null);
 		}
 	}
 	

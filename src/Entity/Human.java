@@ -12,6 +12,7 @@ import java.util.TimerTask;
 
 import javax.imageio.ImageIO;
 import MeltdownMayhem.GamePanel;
+import MeltdownMayhem.StartPanel;
 /**
  * De Human is de belangrijkste speler van dit spel.
  * Wordt gecontroleerd volgens de pijljtes en kan plasma schieten met de space_bar.
@@ -130,10 +131,16 @@ public class Human extends Entity {
 	}
 	
 	// Human Collisions
-	public void humanCollisions(ArrayList<Enemy> enemyList, ArrayList<Barrel> barrelList, ArrayList<Ammunition> projectileList, GamePanel gp) {
+	public void humanCollisions(ArrayList<Enemy> enemyList, ArrayList<Barrel> barrelList, ArrayList<Ammunition> projectileList, GamePanel gp, String nameHuman) {
 		for (Enemy enemy: enemyList) {
 			if (this.collision(enemy)) {
 				this.takeDamage();
+				if (enemy instanceof RadiationOrb) {
+					gp.chat.setText(nameHuman + " was irradiated to death by monster");
+					gp.chatTimer = 0;
+				} else {
+					//gp.chatText = "Human was irradiated to death by";
+				}
 				break;
 			}
 		}
