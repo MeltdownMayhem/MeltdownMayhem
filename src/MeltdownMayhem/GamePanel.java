@@ -44,15 +44,6 @@ public class GamePanel extends JPanel{
 	public Image noCursor = Toolkit.getDefaultToolkit().createImage(new MemoryImageSource(16, 16, null, 0, 16));
 	public Cursor transparentCursor = Toolkit.getDefaultToolkit().createCustomCursor(noCursor, getLocation(), "transparentCursor");
 	
-	// Creation of Lists
-	public ArrayList<Ammunition> ammoList;
-	public ArrayList<Ammunition> projectileList; // enemyAmmoList
-	public ArrayList<Ammunition> delProjectileList; // toDeleteEnemyAmmoList
-	public ArrayList<PowerUp> powerUpList;
-	public ArrayList<Barrel> barrelList;
-	public ArrayList<Enemy> enemyList; // All different Enemy types in 1 list
-	public ArrayList<ArrayList<Enemy>> enemiesInCollision;
-	
 	// Creation of Objects
 	public Human human = new Human();
 	public Drone drone = new Drone();
@@ -62,6 +53,14 @@ public class GamePanel extends JPanel{
 	Random rng = new Random();
 	BufferedImage background1;
 	
+	// Creation of Lists
+	public ArrayList<Ammunition> ammoList;
+	public ArrayList<Ammunition> projectileList; // enemyAmmoList
+	public ArrayList<Ammunition> delProjectileList; // toDeleteEnemyAmmoList
+	public ArrayList<PowerUp> powerUpList;
+	public ArrayList<Barrel> barrelList;
+	public ArrayList<Enemy> enemyList; // All different Enemy types in 1 list
+	public ArrayList<ArrayList<Enemy>> enemiesInCollision;
 	
 	public GamePanel() {
 		// Basic Panel settings
@@ -109,7 +108,7 @@ public class GamePanel extends JPanel{
 				update();
 			} else if (phaseOfGame == Phase.PAUSE) {
 				if (drone.droneFrozen == true) { //zorgt dat drone frozen blijft na een hit, om misbruik van pauze te vermijden
-					drone.freeze(2000);
+					drone.freeze(2000); // WTF?? Veel te cheap!
 				}
 				setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
 			}
@@ -207,7 +206,10 @@ public class GamePanel extends JPanel{
 		
 		// Enemy Ammo
 		for (Enemy enemy: enemyList) {
-			enemy.shootBullet(projectileList, human);
+			if (enemy instanceof RadiationOrb) {
+				RadiationOrb orb = (RadiationOrb) enemy;
+				orb.shootBullet(projectileList, human);
+			}
 		}
 		for (Ammunition bullet: projectileList) {
 			bullet.update();
@@ -236,7 +238,9 @@ public class GamePanel extends JPanel{
 		
 		// Draw Entities
 		for (PowerUp powerUp: powerUpList) {
-			powerUp.draw(g);
+			if (powerUp.pickedUp == false) {
+				powerUp.draw(g);
+			}
 		}
 		for (Barrel barrel:barrelList) {
 			barrel.draw(g);
