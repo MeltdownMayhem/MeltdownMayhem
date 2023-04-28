@@ -19,9 +19,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.Border;
 
-@SuppressWarnings("serial")
 public class StartPanel extends JPanel implements ActionListener{
-	
 	private JButton button;
 	private JTextField humanField, droneField;
 	private JLabel humanText, droneText;
@@ -30,6 +28,7 @@ public class StartPanel extends JPanel implements ActionListener{
 	private Image buttonImage, meltdown_mayhem;
 	private Icon buttonIcon;
 	private Window window;
+	
 	
 	
 	StartPanel(Window mainWindow){
@@ -98,7 +97,7 @@ public class StartPanel extends JPanel implements ActionListener{
         	if (nameHuman.length() == 0 || nameDrone.length() == 0) {
         		JOptionPane.showMessageDialog(button, "Please enter a name for Human and Drone");
         	} else {
-        		window.switchPanel(new GamePanel());
+        		window.switchPanel(new GamePanel(window));
         	}
         }
         // https://docs.oracle.com/javase/tutorial/uiswing/events/actionlistener.html 
