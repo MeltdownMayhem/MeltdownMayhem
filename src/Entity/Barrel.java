@@ -56,7 +56,7 @@ public class Barrel extends Entity {
 		for (Ammunition bullet: ammoList) {
 			for (Barrel barrel: barrelList) {
 				if (bullet.collision(barrel)) {
-					bullet.y = -1;
+					bullet.y = -1000;
 				}
 			}
 		}
@@ -68,6 +68,9 @@ public class Barrel extends Entity {
 			gettingDamaged = false;
 			if (collision(drone) && drone.damageBarrel == true) {
 				lives--;
+				if (lives == 0) {
+					gp.score += 5;
+				}
 			} else {
 				vy = 2 * rng.nextDouble() + 3 - (3 - lives);
 				drone.barrelSlot = null;

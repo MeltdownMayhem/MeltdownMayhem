@@ -11,6 +11,8 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import javax.imageio.ImageIO;
+
+import Entity.RadiationOrb.Model;
 import MeltdownMayhem.GamePanel;
 import MeltdownMayhem.StartPanel;
 /**
@@ -40,6 +42,11 @@ public class Human extends Entity {
 	List<Integer> timeIntervalList = new ArrayList<Integer>();
 	
 	Timer timer = new Timer();
+	
+	enum deathCauses {ORBBULLET, SNIPERBULLET, RAMPAGE, ORB, SNIPER, RAGE, BARREL}
+	deathCauses killer;
+	RadiationOrb orb;
+	Rage rage;
 	
 	public Human() {
 		this.width = 90;
@@ -92,12 +99,28 @@ public class Human extends Entity {
 		}
 	}
 	
-	public void takeDamage() {
+	public void takeDamage(deathCauses d, GamePanel gp) {
 		if (shieldActive == false) {
 			lives --;
 			x = GamePanel.screenSize.width/2 - width/2;
 			y = GamePanel.BOARD_HEIGHT - height - GamePanel.BOARD_HEIGHT/15;
 			activateShield(2500);
+			if (d == deathCauses.ORB) {
+				gp.chatText.add(gp.nameHuman + " should learn about the dangers of radiation");
+			} else if (d == deathCauses.SNIPER) {
+				gp.chatText.add(gp.nameHuman + " should learn about the dangers of radiation");
+			} else if (d == deathCauses.RAGE) {
+				gp.chatText.add(gp.nameHuman + " should learn about the dangers of radiation");
+			} else if (d == deathCauses.ORBBULLET) {
+				gp.chatText.add(gp.nameHuman + " was hit by a radiation orb");
+			} else if (d == deathCauses.SNIPERBULLET) {
+				gp.chatText.add(gp.nameHuman + " was hit by a radiation sniper");
+			} else if (d == deathCauses.RAMPAGE) {
+				gp.chatText.add(gp.nameHuman + " wasn't fast enough");
+			} else if (d == deathCauses.BARREL) {
+				gp.chatText.add(gp.nameHuman + " got rolled over with a radioactive waste barrel");
+			}
+			gp.chatTimer.add(0);
 		}
 	}
 	
@@ -131,28 +154,42 @@ public class Human extends Entity {
 	}
 	
 	// Human Collisions
-	public void humanCollisions(ArrayList<Enemy> enemyList, ArrayList<Barrel> barrelList, ArrayList<Ammunition> projectileList, GamePanel gp, String nameHuman) {
+	public void humanCollisions(ArrayList<Enemy> enemyList, ArrayList<Barrel> barrelList, ArrayList<Ammunition> projectileList, GamePanel gp) {
 		for (Enemy enemy: enemyList) {
 			if (this.collision(enemy)) {
-				this.takeDamage();
 				if (enemy instanceof RadiationOrb) {
-					gp.chat.setText(nameHuman + " was irradiated to death by monster");
-					gp.chatTimer = 0;
-				} else {
-					//gp.chatText = "Human was irradiated to death by";
+					orb = (RadiationOrb) enemy;
+					if (orb.type == Model.ORB) {
+						killer = deathCauses.ORB;
+					} else {
+						killer = deathCauses.SNIPER;
+					}
+				} else if (enemy instanceof Rage){
+					rage = (Rage) enemy;
+					if (rage.rampage) {
+						killer = deathCauses.RAMPAGE;
+					} else {
+						killer = deathCauses.RAGE;
+					}
 				}
+				this.takeDamage(killer, gp);
 				break;
 			}
 		}
 		for (Barrel barrel: barrelList) {
 			if (this.collision(barrel)) {
-				this.takeDamage();
+				this.takeDamage(deathCauses.BARREL, gp);
 				break;
 			}
 		}
 		for (Ammunition bullet: projectileList) {
 			if (this.collision(bullet)) {
-				this.takeDamage();
+				if (bullet.green) {
+					killer = deathCauses.ORBBULLET;
+				} else {
+					killer = deathCauses.SNIPERBULLET;
+				}
+				this.takeDamage(killer, gp);
 				gp.delProjectileList.add(bullet);
 				break;
 			}

@@ -7,6 +7,7 @@ import java.util.ArrayList;
 
 import javax.imageio.ImageIO;
 
+import Entity.RadiationOrb.Model;
 import MeltdownMayhem.GamePanel;
 /**
  * Class that serves to create a moving Bullet on the Board.
@@ -15,6 +16,8 @@ import MeltdownMayhem.GamePanel;
 public class Ammunition extends Entity {
 
 	BufferedImage ammoImage;
+	RadiationOrb orb;
+	boolean green;
 	
 	// players ammo
 	public Ammunition(int x, int y) {
@@ -37,9 +40,15 @@ public class Ammunition extends Entity {
 	}
 	
 	// enemies ammo
-	public Ammunition(int x, int y, double vx, double vy) {
-		this.x = x;
-		this.y = y;
+	public Ammunition(RadiationOrb enemy, double vx, double vy) {
+		
+		this.x = enemy.x;
+		this.y = enemy.y;
+		
+		if (enemy.type == Model.ORB) {
+			this.x += enemy.x / Math.abs(enemy.x) * enemy.SPEED_COEFFICIENT * enemy.vx;
+		}
+		
 		this.vx = vx;
 		this.vy = vy;
 		
@@ -48,9 +57,20 @@ public class Ammunition extends Entity {
 		
 		this.hitboxRadius = 11;
 		
+		orb = (RadiationOrb) enemy;
+		if (orb.type == Model.ORB) {
+			green = true;
+		} else {
+			green = false;
+		}
+		
 		// Retrieve enemy ammo image <Credits to RyiSnow>
 		try {
-			ammoImage = ImageIO.read(getClass().getResourceAsStream("/ammo/enemyAmmo.png"));
+			if (orb.type == Model.ORB) {
+				ammoImage = ImageIO.read(getClass().getResourceAsStream("/ammo/orbAmmo.png"));
+			} else {
+				ammoImage = ImageIO.read(getClass().getResourceAsStream("/ammo/sniperAmmo.png"));
+			}
 		} catch(IOException e) {
 			e.printStackTrace();
 		}
@@ -60,7 +80,7 @@ public class Ammunition extends Entity {
 	public void ammoCollisions(ArrayList<Ammunition> ammoList, GamePanel gp) {
 		for (Ammunition bullet: ammoList) {
 			if (this.collision(bullet)) {
-				bullet.y = -1;
+				bullet.y = -1000;
 				gp.delProjectileList.add(this);
 			}
 		}

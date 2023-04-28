@@ -15,6 +15,8 @@ import java.util.TimerTask;
 
 import javax.imageio.ImageIO;
 
+import Entity.Human.deathCauses;
+import Entity.RadiationOrb.Model;
 import MeltdownMayhem.GamePanel;
 /**
  * The Drone is the second player of the Game and is controlled with the Mouse.
@@ -48,6 +50,9 @@ public class Drone extends Entity {
 	
 	BufferedImage drone1;
 	BufferedImage drone2;
+	
+	RadiationOrb orb;
+	Rage rage;
 	
 	public Drone() {
 		this.width = 65;
@@ -173,13 +178,33 @@ public class Drone extends Entity {
 		for (Enemy enemy: enemyList) {
 			if (this.collision(enemy)) {
 				lives -= 1;
-				if (gp.score > 10) {
-					gp.score -= 10;
+				if (gp.score > 20) {
+					gp.score -= 20;
 				} else {
 					gp.score = 0;
 				}
+				
+				// add death message for Drone
+				if (enemy instanceof RadiationOrb) {
+					orb = (RadiationOrb) enemy;
+					if (orb.type == Model.ORB) {
+						gp.chatText.add(gp.nameDrone + " should learn about the dangers of radiation");
+					} else {
+						gp.chatText.add(gp.nameDrone + " should learn about the dangers of radiation");
+					}
+				} else if (enemy instanceof Rage){
+					rage = (Rage) enemy;
+					if (rage.rampage) {
+						gp.chatText.add(gp.nameDrone + " wasn't fast enough");
+					} else {
+						gp.chatText.add(gp.nameDrone + " should learn about the dangers of radiation");
+					}
+				}
+				gp.chatTimer.add(0);
 			}
+
 		}
+		
 		if (lives > 0) {
 			for (Ammunition bullet: projectileList) {
 				if (this.collision(bullet)) {
@@ -190,6 +215,12 @@ public class Drone extends Entity {
 					} else {
 						gp.score = 0;
 					}
+					if (bullet.green) {
+						gp.chatText.add(gp.nameDrone + " was hit by a radiation orb");
+					} else {
+						gp.chatText.add(gp.nameDrone + " was hit by a radiation sniper");
+					}
+					gp.chatTimer.add(0);
 				}
 			}
 		}

@@ -28,7 +28,7 @@ public class RadiationOrb extends Enemy {
 	List<BufferedImage> sniperRightImageList = new ArrayList<BufferedImage>();
 	List<Integer> timeIntervalList = new ArrayList<Integer>();
 	
-	enum Model{ORB, SNIPER};
+	public enum Model{ORB, SNIPER};
 	Model type;
 	
 	private int shootingCooldown = 0;
@@ -38,12 +38,15 @@ public class RadiationOrb extends Enemy {
 	
 	public RadiationOrb(int x, boolean sniper) {
 		super(x);
-		killScore = 10;
 		getOrbImage();
 		if (sniper) {
 			this.type = Model.SNIPER;
+			this.killScore = 15;
 		} else {
 			this.type = Model.ORB;
+			this.killScore = 10;
+			this.x_speedFactor = 1.5;
+			this.vx *= x_speedFactor;
 		}
 	}
 	
@@ -121,16 +124,16 @@ public class RadiationOrb extends Enemy {
 	public void aimAndShoot(ArrayList<Ammunition> projectileList, Human human) {
 		if (this.type == RadiationOrb.Model.SNIPER) {
 			shootingAngle = rng.nextDouble() * 2 * Math.PI;
-			distanceOffTarget = rng.nextInt(300);
+			distanceOffTarget = rng.nextInt(150);
 			shootingTarget_x = (int) (human.x + distanceOffTarget * Math.cos(shootingAngle));
 			shootingTarget_y = (int) (human.y + distanceOffTarget * Math.sin(shootingAngle));
 			shootingDistance = Extra.distance(this.x, this.y, (int)(shootingTarget_x), (int)(shootingTarget_y));
-			vxbullet = (shootingTarget_x - this.x)/shootingDistance * 5;
-			vybullet = (shootingTarget_y - this.y)/shootingDistance * 5;
-			projectileList.add(new Ammunition(this.x, this.y, vxbullet, vybullet));
+			vxbullet = (shootingTarget_x - this.x)/shootingDistance * 8;
+			vybullet = (shootingTarget_y - this.y)/shootingDistance * 8;
+			projectileList.add(new Ammunition(this, vxbullet, vybullet));
 			this.shootingCooldown = 0;
 		} else {
-			projectileList.add(new Ammunition(this.x, this.y, 0, 5));
+			projectileList.add(new Ammunition(this, 0, 5));
 		}
 	}
 }

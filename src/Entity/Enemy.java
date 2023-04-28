@@ -3,6 +3,7 @@ package Entity;
 import java.awt.Graphics;
 import java.util.ArrayList;
 
+import Entity.RadiationOrb.Model;
 import MeltdownMayhem.Extra;
 import MeltdownMayhem.GamePanel;
 /**
@@ -12,10 +13,12 @@ public abstract class Enemy extends Entity {
 
 	protected static final int ENEMYBOARD_UPPERBORDER = 125;
 	protected static final double ENEMYBOARD_BOTTOMBORDER = 0.8 * GamePanel.BOARD_HEIGHT;
+	protected static final double ORB_BOTTOMBORDER = GamePanel.BOARD_HEIGHT/3;
 	public static final double COLLISION_AREA_FACTOR = 2.5;
 	
 	protected static final int SPEED_RESET_FACTOR = 200;
 	protected static final int OSCILLATION_FACTOR = 2;
+	public double x_speedFactor;
 	
 	public int enemySize, enemyRadius;
 	public static int margin = 50;
@@ -27,7 +30,15 @@ public abstract class Enemy extends Entity {
 	public boolean spawning = true;
 	public boolean rampage = false;
 	
+	private static double spawnChanceOrbLevel1 = 0.8;
+	private static double spawnChanceRageLevel2 = 0.15;
+	private static double spawnChanceOrbLevel2 = 0.7;
+	private static double spawnChanceRageLevel3 = 0.3;
+	private static double spawnChanceOrbLevel3 = 0.6;
+	
 	public int killScore;
+	
+	RadiationOrb orb;
 	
 	Enemy(int x){
 		enemySize = 85;
@@ -40,6 +51,7 @@ public abstract class Enemy extends Entity {
 		this.vy = 1 + rng.nextInt(2); // y-speed can't be negative when spawning
 		
 		this.hitboxRadius = 30;
+		this.x_speedFactor = 1;
 	}
 	
 	public abstract void update(Human human);
@@ -61,6 +73,10 @@ public abstract class Enemy extends Entity {
 		/* This function checks if the Enemies are in the playable area.
 		 * If this isn't the case, then their position and speed gets modified to get back on the Board. */
 		
+		if (this instanceof RadiationOrb) {
+			orb = (RadiationOrb) this;
+		}
+		
 		// Vertical Board borders collision
 		if (this.x > GamePanel.BOARD_END - margin) {
 			this.vx *= -1;
@@ -79,10 +95,16 @@ public abstract class Enemy extends Entity {
 				this.timeSinceReset_y = 0;
 				this.y = (int) (2 * (GamePanel.BOARD_HEIGHT - margin) - this.y);
 			}
+		} else if (this instanceof RadiationOrb && orb.type == Model.ORB){
+			if ((this.y > ORB_BOTTOMBORDER) && (vy >= 0)){
+				this.vy *= -1;
+				this.timeSinceReset_y = 0;
+			}
 		} else if ((this.y > ENEMYBOARD_BOTTOMBORDER - margin) && (vy >= 0)){
 			this.vy *= -1;
 			this.timeSinceReset_y = 0;
 		}
+		
 		// Top horizontal Board border collision
 		if (!this.appearing && this.spawning && this.y < enemyRadius) {
 			this.vy *= -1;
@@ -98,7 +120,7 @@ public abstract class Enemy extends Entity {
 	// Random speed modifications
 	public void randomSpeed() {
 		if (timeSinceReset_x / SPEED_RESET_FACTOR > rng.nextDouble()) {
-			this.vx = rng.nextInt(3) * Math.pow(-1, rng.nextInt(2));
+			this.vx = rng.nextInt(3) * Math.pow(-1, rng.nextInt(2)) * x_speedFactor;
 			this.timeSinceReset_x = 0;
 		} else {
 			this.timeSinceReset_x++;
@@ -126,23 +148,39 @@ public abstract class Enemy extends Entity {
 				}
 			}
 		} while (!enoughSpaceToSpawn);
-		if (gp.score > 100 && rng.nextDouble() > 0.85) {
-			enemyList.add(new Rage(spawning_x));
-		} else {
-			if (rng.nextDouble() < 0.5) {
-				enemyList.add(new RadiationOrb(spawning_x, true));
-			} else {
+		
+		if (gp.level == 1) {
+			if (rng.nextDouble() < spawnChanceOrbLevel1) {
 				enemyList.add(new RadiationOrb(spawning_x, false));
+			} else {
+				enemyList.add(new RadiationOrb(spawning_x, true));
+			}
+		} else if (gp.level == 2) {
+			if (rng.nextDouble() < spawnChanceRageLevel2) {
+				enemyList.add(new Rage(spawning_x));
+			} else if (rng.nextDouble() < spawnChanceOrbLevel2) {
+				enemyList.add(new RadiationOrb(spawning_x, false));
+			} else {
+				enemyList.add(new RadiationOrb(spawning_x, true));
+			}
+		} else if (gp.level == 3) {
+			if (rng.nextDouble() < spawnChanceRageLevel3) {
+				enemyList.add(new Rage(spawning_x));
+			} else if (rng.nextDouble() < spawnChanceOrbLevel3) {
+				enemyList.add(new RadiationOrb(spawning_x, false));
+			} else {
+				enemyList.add(new RadiationOrb(spawning_x, true));
 			}
 		}
 	}
+		
 	
 	// Enemy Collisions
 	public boolean enemyCollisions(ArrayList<Enemy> enemyList, ArrayList<Ammunition> ammoList, GamePanel gp) {
 		for(Ammunition bullet: ammoList) {
 			if (this.collision(bullet)) {
 				gp.score += this.killScore;
-				bullet.y = -1; // at y = -1 the bullet is automatically removed
+				bullet.y = -1000; // at y = -1 the bullet is automatically removed
 				return true;
 			}
 		}

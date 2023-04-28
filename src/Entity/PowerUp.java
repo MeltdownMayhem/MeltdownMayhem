@@ -26,7 +26,7 @@ public class PowerUp extends Entity {
 	Timer DespawnTimer = new Timer();
 	
 	// ammoDrop
-	private int ammoAmount = 25;
+	private int ammoAmount = 10;
 	private static double ammoDropChance = 0.45;
 	
 	// healthSyringe
@@ -44,7 +44,7 @@ public class PowerUp extends Entity {
 	private static double shrinkShroomDropChance = 0.20;
 	
 	// extraAmmo
-	private int extraAmmoAmount = 25;
+	private int extraAmmoAmount = 15;
 	private static int extraAmmoDropped = 0;
 	private static int max_extraAmmo = 3;
 	private static double extraAmmoDropChance = 0.08;
@@ -135,7 +135,7 @@ public class PowerUp extends Entity {
 		}
 	}
 	
-	public void update(Drone drone, ArrayList<PowerUp> powerUpList, Human human) {
+	public void update(Drone drone, Human human, GamePanel gp) {
 		// Update Movement
 		if (pickedUp == true && drone.droneFrozen == false) {
 			x = drone.x;
@@ -160,8 +160,13 @@ public class PowerUp extends Entity {
 				} else {
 					human.ammo = human.max_ammo;
 				}
-			} else if (powerUp == Power.healthSyringe && !(human.lives == human.max_lives)) {
-				human.lives += healAmount;
+			} else if (powerUp == Power.healthSyringe) {
+				if (human.lives != human.max_lives) {
+					human.lives += healAmount;
+				} else {
+					gp.score += 50;
+				}
+				
 			} else if (powerUp == Power.shield) {
 				human.activateShield(shieldDuration);
 			} else if (powerUp == Power.shrinkShroom) {
