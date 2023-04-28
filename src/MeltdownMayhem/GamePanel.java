@@ -10,22 +10,23 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import javax.imageio.ImageIO;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTextArea;
+import javax.swing.SwingConstants;
 
 import Entity.*;
 /**
- * Dit is de belangrijkste classe van het project, met het grootste deel van de mechanismen.
- * Ten eerste wordt hier de Panel aangemaakt en bewerkt.
- * Verder bevat het ook de Game-Loop (Update en Draw).
- * Ten slotte bevinden de meeste collisions zich nog in deze classe.
- * Er zijn plannen om dit aan te passen en de collisions op een 'efficientere' manier ergens bij te houden (zoals echte hitboxes gebruiken).
+ * Class for Panel creation to add to the main Frame.
+ * It contains the main Game-Loop (Update and Paint).
  */
+@SuppressWarnings("serial")
 public class GamePanel extends JPanel{
 
 	// Window settings
-	public static final Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+	public static Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 	public static final int BOARD_WIDTH = 1188; // Board refers to the playable area
-	public static final int BOARD_HEIGHT = screenSize.height - 30;
+	public static final int BOARD_HEIGHT = screenSize.height - 80;
 	public static final int BOARD_START = (screenSize.width - BOARD_WIDTH)/2;
 	public static final int BOARD_END = (screenSize.width - BOARD_WIDTH)/2 + BOARD_WIDTH;
 	
@@ -49,9 +50,10 @@ public class GamePanel extends JPanel{
 	// Creation of Objects
 	public Human human = new Human();
 	public Drone drone = new Drone();
+	public String nameHuman, nameDrone;
 	
 	GUI gui = new GUI();
-	KeyHandler keyH = new KeyHandler(human, drone);
+	KeyHandler keyH = new KeyHandler(human, drone, this);
 	Random rng = new Random();
 	BufferedImage background1;
 	
@@ -59,29 +61,56 @@ public class GamePanel extends JPanel{
 	public ArrayList<Ammunition> ammoList;
 	public ArrayList<Ammunition> projectileList; // enemyAmmoList
 	public ArrayList<Ammunition> delProjectileList; // toDeleteEnemyAmmoList
+	public ArrayList<PowerUp> powerUpList;
 	public ArrayList<Barrel> barrelList;
 	public ArrayList<Enemy> enemyList; // All different Enemy types in 1 list
 	public ArrayList<ArrayList<Enemy>> enemiesInCollision;
-	public ArrayList<AmmoDrop> ammoDropList;
 	
-	public GamePanel(Window mainWindow) {
+	public JLabel chat;
+	public int chatTimer;
+	
+	//public String chatText = "";
+	
+	public GamePanel(Window mainVenster, String nameHuman, String nameDrone) {
+		
+		this.nameHuman = nameHuman;
+		this.nameDrone = nameDrone;
+		
 		// Basic Panel settings
+		this.setLayout(null);
 		this.setPreferredSize(screenSize);
 		this.setBackground(new Color(215,215,215)); // Light-Gray
 		this.setDoubleBuffered(true);
 		this.addKeyListener(keyH);
 		this.addMouseListener(keyH);
 		this.setFocusable(true);
-		setCursor(transparentCursor);
+		this.setCursor(transparentCursor);
+		
+		chat = new JLabel("", SwingConstants.RIGHT);
+//		chat.setAlignmentX(LEFT_ALIGNMENT);
+//		chat.setAlignmentY(BOTTOM_ALIGNMENT);
+		// Credits to Sébastien for showing how to align text inside a JLabel: https://stackoverflow.com/questions/12589494/align-text-in-jlabel-to-the-right
+		chat.setBounds(BOARD_END - 510, BOARD_HEIGHT - 50, 500, 25);
+		chat.setFont(new Font("American Typewriter", Font.PLAIN, 16));
+		chat.setForeground(Color.white);
+		this.add(chat);
+		chatTimer = 0;
 		
 		// List initializations
 		ammoList = new ArrayList<Ammunition>();
 		projectileList = new ArrayList<Ammunition>();
 		delProjectileList = new ArrayList<Ammunition>();
+		powerUpList = new ArrayList<PowerUp>();
 		barrelList = new ArrayList<Barrel>();
 		enemyList = new ArrayList<Enemy>();
 		enemiesInCollision = new ArrayList<ArrayList<Enemy>>();
-		ammoDropList = new ArrayList<AmmoDrop>();
+		
+		// Drone start position
+		try {
+			drone.teleportMouse(GamePanel.screenSize.width/2 - drone.width/2 + 128, GamePanel.BOARD_HEIGHT - drone.height - GamePanel.BOARD_HEIGHT/15);
+		} catch (AWTException e1) {
+			e1.printStackTrace();
+		}
 		
 		// FPS
 		Timer t = new Timer();
@@ -98,14 +127,13 @@ public class GamePanel extends JPanel{
 	public class UpdateTimerTask extends TimerTask{
 		@Override
 		public void run() {
+			//System.out.println(chatText);
 			if (phaseOfGame == Phase.PLAY) {
-				setCursor(transparentCursor);
 				checkGameOver();
 				update();
-			}
-			else if (phaseOfGame == Phase.PAUSE) {
+			} else if (phaseOfGame == Phase.PAUSE) {
 				if (drone.droneFrozen == true) { //zorgt dat drone frozen blijft na een hit, om misbruik van pauze te vermijden
-				drone.freeze(2000);
+					drone.freeze(2000); // WTF?? Veel te cheap!
 				}
 				setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
 			}
@@ -120,6 +148,7 @@ public class GamePanel extends JPanel{
 			setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
 		}
 	}
+	
 	//-------------------------------------UPDATE-------------------------------------
 	public void update() {
 		// Entity Spawning
@@ -129,12 +158,12 @@ public class GamePanel extends JPanel{
 			Enemy.spawnEnemy(enemyList, this);
 		}
 		if (rng.nextDouble() / (1 + ((max_barrels - barrelList.size())/max_barrels)) <= barrelSpawnChance && barrelList.size() < max_barrels) {
-			barrelList.add(new Barrel());
+			barrelList.add(new Barrel(drone, this));
 		}
 		
 		// Human
 		human.update();
-		human.humanCollisions(enemyList, barrelList, projectileList, this);
+		human.humanCollisions(enemyList, barrelList, projectileList, this, nameHuman);
 		
 		// Drone
 		drone.update();	
@@ -143,13 +172,12 @@ public class GamePanel extends JPanel{
 		} catch (AWTException e) {
 			e.printStackTrace();
 		}
-		
-		if (!barrelList.isEmpty() && drone.droneDestructsBarrel == true) {
+		if (!barrelList.isEmpty() && drone.damageBarrel == true) {
 			for (Barrel barrel: barrelList) {
-				drone.destructBarrel(barrel, barrelList);
-				drone.droneDestructsBarrel = false;
+				drone.destroyBarrel(barrel, barrelList, this);
 			}
 		}
+		
 		// Enemy
 		if (!enemyList.isEmpty()) {
 			ArrayList<Enemy> killedEnemyList = new ArrayList<>();
@@ -168,8 +196,6 @@ public class GamePanel extends JPanel{
 		// Enemy collision with other Enemies
 		enemiesInCollision = Event.getEnemiesInCollision(enemyList);
 		Event.avoidEnemyCollision(enemiesInCollision);
-		/* Botsing-algoritme: Enemies in elkaars 'botsingsgebied' komen samen in een ArrayList.
-			Nadien worden de enemies weggeduuwt van hun zwaartepunt, voor elke gevormde ArrayList.*/
 		
 		// Barrel
 		for (Barrel barrel:barrelList) {
@@ -179,17 +205,20 @@ public class GamePanel extends JPanel{
 		if (!barrelList.isEmpty() && barrelList.get(0).y > BOARD_HEIGHT + 30) {
 			barrelList.remove(0);
 		}
-		// Ammo Drops
-		if (drone.spawnNewAmmoDrop == true) {
-			AmmoDrop.spawnAmmoDrop(drone.destructedBarrel, ammoDropList);
-			drone.spawnNewAmmoDrop = false;
-		}
-		for (AmmoDrop ammoDrop: ammoDropList) {
-			ammoDrop.update(drone, ammoDropList, human, score);
-			if (ammoDrop.x <= 0 && ammoDropList.size() >1) {
-				ammoDropList.remove(ammoDrop);
+		
+		// PowerUp
+		ArrayList<PowerUp> deletedPowerUpList = new ArrayList<PowerUp>();
+		for (PowerUp powerUp: powerUpList) {
+			powerUp.update(drone, powerUpList, human);
+			if (powerUp.x <= 0 && powerUpList.size() > 1) {
+				deletedPowerUpList.add(powerUp);
 			}
 		}
+		for (PowerUp powerUp: deletedPowerUpList) {
+			powerUpList.remove(powerUp);
+		}
+		deletedPowerUpList.clear();
+		
 		// Human Ammo
 		human.shootBullet(ammoList);
 		
@@ -218,6 +247,13 @@ public class GamePanel extends JPanel{
 			projectileList.remove(a);
 		}
 		delProjectileList.clear();
+		
+		// update timer chat
+		chatTimer += 1;
+		if (chatTimer > 250) {
+			chat.setText("");
+			chatTimer = 0;
+		}
 	}
 	
 	//-------------------------------------PAINT-------------------------------------
@@ -233,24 +269,30 @@ public class GamePanel extends JPanel{
 		g.drawImage(background1, BOARD_START + 1092, 553, 547, 555, null);
 		
 		// Draw Entities
-		for (Ammunition ammo:ammoList) {
-			ammo.draw(g);
-        }
-		human.draw(g);
-		
-		for (AmmoDrop ammoDrop: ammoDropList) {
-			ammoDrop.draw(g);
+		for (PowerUp powerUp: powerUpList) {
+			if (powerUp.pickedUp == false) {
+				powerUp.draw(g);
+			}
 		}
 		for (Barrel barrel:barrelList) {
 			barrel.draw(g);
         }
+		for (PowerUp powerUp: powerUpList) {
+			if (powerUp.pickedUp == true) {
+				powerUp.draw(g);
+			}
+		}
+		for (Ammunition ammo:ammoList) {
+			ammo.draw(g);
+		}
+		human.draw(g);
+		
 		for (Ammunition p:projectileList) {
 			p.draw(g);
 		}
 		for (Enemy enemy: enemyList) {
 			enemy.draw(g);
 		}
-		
 		drone.draw(g);
 		
 		// GUI
@@ -261,9 +303,6 @@ public class GamePanel extends JPanel{
      	g.fillRect(0, 0, BOARD_START, screenSize.height);
      	g.fillRect(BOARD_END, 0, screenSize.width, screenSize.height);
      	g.fillRect(BOARD_START, BOARD_HEIGHT, BOARD_END, screenSize.height);
-     	
-     	// Disposal of the Graphics (Performance-related)
-     	g.dispose();
 	}
 	
 	@Override
