@@ -34,14 +34,16 @@ public class GamePanel extends JPanel{
 	static enum Phase{START, PLAY, PAUSE, GAMEOVER};
 	static Phase phaseOfGame = Phase.PLAY;
 	
+	public int level = 1;
+	
 	// Basic Game variables
-	public int score = 0;
-	public int max_enemies = 13;
-	public int max_barrels = 5;
+	public int score = 2000;
+	public int max_enemies = 8;
+	public int max_barrels = 3;
 	
 	// Technical variables
 	private double enemySpawnChance = 0.005;
-	private double barrelSpawnChance = 0.005;
+	private double barrelSpawnChance = 0.004;
 	
 	// Hiding the Cursor <Credits to 'Réal Gagnon'>
 	public Image noCursor = Toolkit.getDefaultToolkit().createImage(new MemoryImageSource(16, 16, null, 0, 16));
@@ -66,8 +68,10 @@ public class GamePanel extends JPanel{
 	public ArrayList<Enemy> enemyList; // All different Enemy types in 1 list
 	public ArrayList<ArrayList<Enemy>> enemiesInCollision;
 	
-	public JLabel chat;
-	public int chatTimer;
+	public JTextArea chat;
+	protected String chatString;
+	public ArrayList<String> chatText;
+	public ArrayList<Integer> chatTimer;
 	
 	//public String chatText = "";
 	
@@ -86,15 +90,16 @@ public class GamePanel extends JPanel{
 		this.setFocusable(true);
 		this.setCursor(transparentCursor);
 		
-		chat = new JLabel("", SwingConstants.RIGHT);
-//		chat.setAlignmentX(LEFT_ALIGNMENT);
-//		chat.setAlignmentY(BOTTOM_ALIGNMENT);
-		// Credits to Sébastien for showing how to align text inside a JLabel: https://stackoverflow.com/questions/12589494/align-text-in-jlabel-to-the-right
-		chat.setBounds(BOARD_END - 510, BOARD_HEIGHT - 50, 500, 25);
+		// Create chat
+		chat = new JTextArea("");
+		chat.setLayout(null);
+		chat.setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);
+		// Credits to Craig Wood for explaining how to align text inside a JTextArea: https://coderanch.com/t/339752/java/Textarea-Text-Alignment
+		chat.setOpaque(false);
+		chat.setBounds(BOARD_END - 510, BOARD_HEIGHT - 185, 500, 160);
 		chat.setFont(new Font("American Typewriter", Font.PLAIN, 16));
 		chat.setForeground(Color.white);
 		this.add(chat);
-		chatTimer = 0;
 		
 		// List initializations
 		ammoList = new ArrayList<Ammunition>();
@@ -104,6 +109,8 @@ public class GamePanel extends JPanel{
 		barrelList = new ArrayList<Barrel>();
 		enemyList = new ArrayList<Enemy>();
 		enemiesInCollision = new ArrayList<ArrayList<Enemy>>();
+		chatText = new ArrayList<String>();
+		chatTimer = new ArrayList<Integer>();
 		
 		// Drone start position
 		try {
@@ -151,19 +158,61 @@ public class GamePanel extends JPanel{
 	
 	//-------------------------------------UPDATE-------------------------------------
 	public void update() {
+		///////////////////////////////
+		if (score > 2000) {
+			level = 3;
+			max_barrels = 5;
+			max_enemies = 14;
+		} else if(score > 1000) {
+			level = 2;
+			max_barrels = 4;
+			max_enemies = 11;
+		}
+		
+		/////////////////////
+		
 		// Entity Spawning
 		if (enemyList.size() == 0) {
 			Enemy.spawnEnemy(enemyList, this);
-		} else if (enemyList.size() < max_enemies && rng.nextDouble() / (1 + ((max_enemies - enemyList.size())/max_enemies)) <= enemySpawnChance) {
-			Enemy.spawnEnemy(enemyList, this);
+		} else if(enemyList.size() < max_enemies){
+			if (level == 1) {
+				if (rng.nextDouble() / (1 + ((max_enemies - enemyList.size())/max_enemies)) <= enemySpawnChance + score / 150000) {
+					Enemy.spawnEnemy(enemyList, this);
+				}
+			} else if(level == 2) {
+				if (rng.nextDouble() / (1 + ((max_enemies - enemyList.size())/max_enemies)) <= enemySpawnChance + (score-500) / 100000) {
+					Enemy.spawnEnemy(enemyList, this);
+				}
+			} else {
+				if (rng.nextDouble() / (1 + ((max_enemies - enemyList.size())/max_enemies)) <= enemySpawnChance + (Math.log10((score-2000)/100 + 1))/150) {
+					Enemy.spawnEnemy(enemyList, this);
+				}
+			}
 		}
-		if (rng.nextDouble() / (1 + ((max_barrels - barrelList.size())/max_barrels)) <= barrelSpawnChance && barrelList.size() < max_barrels) {
-			barrelList.add(new Barrel(drone, this));
+		
+		if (barrelList.size() < max_barrels) {
+			if (level == 1) {
+				if (rng.nextDouble() / (1 + ((max_barrels - barrelList.size())/max_barrels)) <= barrelSpawnChance + score/300000) {
+					barrelList.add(new Barrel(drone, this));
+				}
+			} else if(level == 2){ 
+				if (rng.nextDouble() / (1 + ((max_barrels - barrelList.size())/max_barrels)) <= barrelSpawnChance + (score-500) / 200000) {
+					barrelList.add(new Barrel(drone, this));
+				}
+			} else	{
+				if (rng.nextDouble() / (1 + ((max_barrels - barrelList.size())/max_barrels)) <= barrelSpawnChance + (1 + Math.log10((score-2000)/100 + 1))/300) {
+					barrelList.add(new Barrel(drone, this));
+				}
+			}
 		}
+
+//		if (rng.nextDouble() / (1 + ((max_barrels - barrelList.size())/max_barrels)) <= barrelSpawnChance && barrelList.size() < max_barrels) {
+//			barrelList.add(new Barrel(drone, this));
+//		}
 		
 		// Human
 		human.update();
-		human.humanCollisions(enemyList, barrelList, projectileList, this, nameHuman);
+		human.humanCollisions(enemyList, barrelList, projectileList, this);
 		
 		// Drone
 		drone.update();	
@@ -209,7 +258,7 @@ public class GamePanel extends JPanel{
 		// PowerUp
 		ArrayList<PowerUp> deletedPowerUpList = new ArrayList<PowerUp>();
 		for (PowerUp powerUp: powerUpList) {
-			powerUp.update(drone, powerUpList, human);
+			powerUp.update(drone, human, this);
 			if (powerUp.x <= 0 && powerUpList.size() > 1) {
 				deletedPowerUpList.add(powerUp);
 			}
@@ -249,12 +298,22 @@ public class GamePanel extends JPanel{
 		delProjectileList.clear();
 		
 		// update timer chat
-		chatTimer += 1;
-		if (chatTimer > 250) {
-			chat.setText("");
-			chatTimer = 0;
+		if (chatTimer.size() > 0 && chatTimer.get(0) > 250) {
+			chatTimer.remove(0);
+			chatText.remove(0);
 		}
-	}
+		for (int i = 0; i < chatTimer.size(); i++) {
+			chatTimer.set(i, chatTimer.get(i) + 1);
+		}
+		chatString = "";
+		for (int i = 0; i < 8 - chatText.size(); i++) {
+			chatString += "\n";
+		}
+		for (String s: chatText) {
+			chatString += "\n" + s;
+		}
+		chat.setText(chatString);
+	}	
 	
 	//-------------------------------------PAINT-------------------------------------
 	public void paintComponent(Graphics g) { // Order of drawing is important for overlapping

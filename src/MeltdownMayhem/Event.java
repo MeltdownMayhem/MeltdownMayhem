@@ -76,7 +76,7 @@ public class Event {
 						E.vx = E.x - center_x;
 						E.vx /= Extra.distance(E.x, E.y, center_x, center_y);
 						speedAfterCollision = 1 + rng.nextInt(4);
-						E.vx *= speedAfterCollision;
+						E.vx *= speedAfterCollision * E.x_speedFactor;
 						
 						E.vy = 1 + rng.nextInt(3);
 						
@@ -90,7 +90,7 @@ public class Event {
 						
 						// snelheid wordt nu vermenigvuldigd met een getal tussen 1 en 4;
 						speedAfterCollision = 1 + rng.nextInt(4);
-						E.vx *= speedAfterCollision;
+						E.vx *= speedAfterCollision * E.x_speedFactor;
 						E.vy *= speedAfterCollision;
 					}
 				}
