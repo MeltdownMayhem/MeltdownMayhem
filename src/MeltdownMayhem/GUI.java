@@ -48,8 +48,6 @@ public class GUI {
 			bulletBar = ImageIO.read(getClass().getResourceAsStream("/gui/bulletBar.png"));
 			ammoBar = ImageIO.read(getClass().getResourceAsStream("/gui/ammoBar.png"));
 			
-			gamePaused = ImageIO.read(getClass().getResourceAsStream("/gui/gamePaused.png"));
-			
 			score = ImageIO.read(getClass().getResourceAsStream("/gui/score.png"));
 			number0 = ImageIO.read(getClass().getResourceAsStream("/gui/number0.png"));
 			number1 = ImageIO.read(getClass().getResourceAsStream("/gui/number1.png"));
@@ -82,10 +80,6 @@ public class GUI {
 		for (int i = 0; i < human.ammo; i++) {
 			g.drawImage(bulletBar, GamePanel.BOARD_START + i*5, GamePanel.BOARD_HEIGHT - 10, 6, 14, null);
 		}
-		// Game Paused display
-		if (GamePanel.phaseOfGame == Phase.PAUSE) {
-			g.drawImage(gamePaused, GamePanel.BOARD_START + GamePanel.BOARD_WIDTH/2 - 300, GamePanel.BOARD_HEIGHT/2 - 90, 600, 90, null);
-		} 
 		// Score-display
 		g.drawImage(score, GamePanel.BOARD_START + 20, 20, 200, 40, null);
 		String scoreString = Integer.toString(gp.score);

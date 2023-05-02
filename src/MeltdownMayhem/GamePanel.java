@@ -1,6 +1,8 @@
 package MeltdownMayhem;
 
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.awt.image.MemoryImageSource;
 import java.io.IOException;
@@ -10,10 +12,12 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import javax.imageio.ImageIO;
+import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
-import javax.swing.SwingConstants;
 
 import Entity.*;
 /**
@@ -21,7 +25,7 @@ import Entity.*;
  * It contains the main Game-Loop (Update and Paint).
  */
 @SuppressWarnings("serial")
-public class GamePanel extends JPanel{
+public class GamePanel extends JPanel implements ActionListener{
 
 	// Window settings
 	public static Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
@@ -37,7 +41,7 @@ public class GamePanel extends JPanel{
 	public int level = 1;
 	
 	// Basic Game variables
-	public int score = 2000;
+	public int score = 0;
 	public int max_enemies = 8;
 	public int max_barrels = 3;
 	
@@ -57,7 +61,8 @@ public class GamePanel extends JPanel{
 	GUI gui = new GUI();
 	KeyHandler keyH = new KeyHandler(human, drone, this);
 	Random rng = new Random();
-	BufferedImage background1;
+	BufferedImage background1, background_end;
+	BufferedImage game_paused, gameover;
 	
 	// Creation of Lists
 	public ArrayList<Ammunition> ammoList;
@@ -68,15 +73,24 @@ public class GamePanel extends JPanel{
 	public ArrayList<Enemy> enemyList; // All different Enemy types in 1 list
 	public ArrayList<ArrayList<Enemy>> enemiesInCollision;
 	
+	private JLabel ESC, endScore;
 	public JTextArea chat;
 	protected String chatString;
 	public ArrayList<String> chatText;
 	public ArrayList<Integer> chatTimer;
 	
+	public JButton resumeButton, ragequitButton, backToMenuButton;
+	
+	private ImageIcon resumeIcon, ragequitIcon, backToMenuIcon;
+	
+	private Window mainWindow;
+	private JPanel StartPanel;
+	
 	//public String chatText = "";
 	
-	public GamePanel(Window mainVenster, String nameHuman, String nameDrone) {
-		
+	public GamePanel(Window mainWindow, String nameHuman, String nameDrone, JPanel StartPanel) {
+		this.mainWindow = mainWindow;
+		this.StartPanel = StartPanel;
 		this.nameHuman = nameHuman;
 		this.nameDrone = nameDrone;
 		
@@ -90,16 +104,59 @@ public class GamePanel extends JPanel{
 		this.setFocusable(true);
 		this.setCursor(transparentCursor);
 		
+		// Text "Press ESC to pause"
+		ESC = new JLabel ("Press ESC to pause");
+		ESC.setBounds(BOARD_END - 235, 5, 235, 25);
+		ESC.setFont(new Font("American TypeWriter", Font.PLAIN, 25));
+		ESC.setForeground(Color.white);
+		this.add(ESC);
+		
+		endScore = new JLabel ();
+		endScore.setBounds(screenSize.width / 2 - 200, 370, 400, 40);
+		endScore.setHorizontalAlignment(JLabel.CENTER);
+		endScore.setFont(new Font("Times New Roman", Font.BOLD, 40));
+		endScore.setForeground(Color.white);
+		endScore.setVisible(false);
+		this.add(endScore);
+		
 		// Create chat
 		chat = new JTextArea("");
 		chat.setLayout(null);
 		chat.setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);
 		// Credits to Craig Wood for explaining how to align text inside a JTextArea: https://coderanch.com/t/339752/java/Textarea-Text-Alignment
 		chat.setOpaque(false);
+		chat.setFocusable(false);
 		chat.setBounds(BOARD_END - 510, BOARD_HEIGHT - 185, 500, 160);
 		chat.setFont(new Font("American Typewriter", Font.PLAIN, 16));
 		chat.setForeground(Color.white);
 		this.add(chat);
+		
+		resumeIcon = new ImageIcon(new ImageIcon(this.getClass().getResource("/button/resume.png")).getImage().getScaledInstance(400, 80, ABORT));
+		
+		resumeButton = new JButton(resumeIcon);
+		resumeButton.setBounds(GamePanel.screenSize.width / 2 - 200, 400, 400, 80);
+		resumeButton.setBorder(BorderFactory.createEmptyBorder());
+		resumeButton.addActionListener(this);
+		resumeButton.setVisible(false);
+		this.add(resumeButton);
+		
+		backToMenuIcon = new ImageIcon(new ImageIcon(this.getClass().getResource("/button/backToMenu.png")).getImage().getScaledInstance(400, 80, ABORT));
+		
+		backToMenuButton = new JButton(backToMenuIcon);
+		backToMenuButton.setBounds(GamePanel.screenSize.width / 2 - 200, 500, 400, 80);
+		backToMenuButton.setBorder(BorderFactory.createEmptyBorder());
+		backToMenuButton.addActionListener(this);
+		backToMenuButton.setVisible(false);
+		this.add(backToMenuButton);
+		
+		ragequitIcon = new ImageIcon(new ImageIcon(this.getClass().getResource("/button/ragequit.png")).getImage().getScaledInstance(400, 80, ABORT));
+		
+		ragequitButton = new JButton(ragequitIcon);
+		ragequitButton.setBounds(GamePanel.screenSize.width / 2 - 200, 600, 400, 80);
+		ragequitButton.setBorder(BorderFactory.createEmptyBorder());
+		ragequitButton.addActionListener(this);
+		ragequitButton.setVisible(false);
+		this.add(ragequitButton);
 		
 		// List initializations
 		ammoList = new ArrayList<Ammunition>();
@@ -126,9 +183,37 @@ public class GamePanel extends JPanel{
 		// Retrieving the background image
 		try {
 			background1 = ImageIO.read(getClass().getResourceAsStream("/background/background1.png"));
+			background_end = ImageIO.read(getClass().getResourceAsStream("/background/background_end.png"));
+			game_paused = ImageIO.read(getClass().getResourceAsStream("/gui/game_paused.png"));
+			gameover = ImageIO.read(getClass().getResourceAsStream("/gui/gameover.png"));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+	
+// Credits to Bro Code to explain how to use JButtons: https://www.youtube.com/watch?v=-IMys4PCkIA
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		if (e.getSource() == resumeButton) {
+        	phaseOfGame = Phase.PLAY;
+        	resumeButton.setVisible(false);
+        	ragequitButton.setVisible(false);
+        	backToMenuButton.setVisible(false);
+        	setCursor(transparentCursor);
+			try {
+				drone.teleportMouse(drone.x, drone.y);
+			} catch (AWTException e1) {
+				e1.printStackTrace();
+			}
+        } else if (e.getSource() == ragequitButton) {
+        	System.exit(0);
+        	// Credits to JavaGuides for showing how to close an application: https://www.javaguides.net/2019/06/java-swing-exit-button.html
+        } else if(e.getSource() == backToMenuButton) {
+        	phaseOfGame = Phase.PAUSE;
+        	mainWindow.switchPanel(StartPanel);
+        }
+        // Credits to docs.oracle for showing how to use an actionListener: https://docs.oracle.com/javase/tutorial/uiswing/events/actionlistener.html 
+		
 	}
 	
 	public class UpdateTimerTask extends TimerTask{
@@ -151,6 +236,10 @@ public class GamePanel extends JPanel{
 	public void checkGameOver() {
 		if (human.lives == 0) {
 			phaseOfGame = Phase.GAMEOVER;
+			ragequitButton.setVisible(true);
+			backToMenuButton.setVisible(true);
+			endScore.setText("YOUR SCORE: " + score);
+			endScore.setVisible(true);
 			System.out.println("GAME OVER!");
 			setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
 		}
@@ -362,6 +451,14 @@ public class GamePanel extends JPanel{
      	g.fillRect(0, 0, BOARD_START, screenSize.height);
      	g.fillRect(BOARD_END, 0, screenSize.width, screenSize.height);
      	g.fillRect(BOARD_START, BOARD_HEIGHT, BOARD_END, screenSize.height);
+     	
+     	if (phaseOfGame == Phase.PAUSE) {
+     		g.drawImage(background_end, screenSize.width / 2 - 300, 75, 600, 900, null);
+     		g.drawImage(game_paused, screenSize.width / 2 - 240, 250, 480, 60, null);
+     	} else if (phaseOfGame == Phase.GAMEOVER) {
+     		g.drawImage(background_end, screenSize.width / 2 - 300, 75, 600, 900, null);
+     		g.drawImage(gameover, screenSize.width / 2 - 240, 250, 480, 60, null);
+     	}
 	}
 	
 	@Override

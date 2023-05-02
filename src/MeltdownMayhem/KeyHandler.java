@@ -55,8 +55,14 @@ public class KeyHandler implements KeyListener, MouseListener{
 		if (e.getKeyCode() == 27) {
 			if (GamePanel.phaseOfGame == Phase.PLAY) {
 				GamePanel.phaseOfGame = Phase.PAUSE;
+				gp.resumeButton.setVisible(true);
+				gp.ragequitButton.setVisible(true);
+				gp.backToMenuButton.setVisible(true);
 			} else if(GamePanel.phaseOfGame == Phase.PAUSE) {
 				GamePanel.phaseOfGame = Phase.PLAY;
+				gp.resumeButton.setVisible(false);
+				gp.ragequitButton.setVisible(false);
+				gp.backToMenuButton.setVisible(false);
 				gp.setCursor(gp.transparentCursor);
 				try {
 					drone.teleportMouse(drone.x, drone.y);

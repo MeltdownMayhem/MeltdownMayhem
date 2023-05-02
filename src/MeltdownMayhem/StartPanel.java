@@ -19,6 +19,8 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.Border;
 
+import MeltdownMayhem.GamePanel.Phase;
+
 @SuppressWarnings("serial")
 public class StartPanel extends JPanel implements ActionListener{
 	
@@ -29,11 +31,11 @@ public class StartPanel extends JPanel implements ActionListener{
 	private Border blackBorder;
 	private Image buttonImage, meltdown_mayhem;
 	private Icon buttonIcon;
-	private Window window;
+	private Window mainWindow;
 	
 	
 	StartPanel(Window mainWindow){
-		window = mainWindow;
+		this.mainWindow = mainWindow;
 		
 		// Basic Panel Settings
 		this.setPreferredSize(GamePanel.screenSize);
@@ -72,7 +74,7 @@ public class StartPanel extends JPanel implements ActionListener{
 		this.add(droneField);
 		
 		
-		buttonImage = new ImageIcon(this.getClass().getResource("/gui/playButton.png")).getImage().getScaledInstance(600, 100, ABORT);
+		buttonImage = new ImageIcon(this.getClass().getResource("/button/play.png")).getImage().getScaledInstance(600, 100, ABORT);
 		buttonIcon = new ImageIcon(buttonImage);
 		
 		button = new JButton(buttonIcon);
@@ -98,10 +100,11 @@ public class StartPanel extends JPanel implements ActionListener{
         	if (nameHuman.length() == 0 || nameDrone.length() == 0) {
         		JOptionPane.showMessageDialog(button, "Please enter a name for Human and Drone");
         	} else {
-        		window.switchPanel(new GamePanel(window, nameHuman, nameDrone));
+        		mainWindow.switchPanel(new GamePanel(mainWindow, nameHuman, nameDrone, this));
+        		GamePanel.phaseOfGame = Phase.PLAY;
         	}
         }
-        // https://docs.oracle.com/javase/tutorial/uiswing/events/actionlistener.html 
+        // Credits to docs.oracle for showing how to use an actionListener: https://docs.oracle.com/javase/tutorial/uiswing/events/actionlistener.html 
 		
 	}
 	
