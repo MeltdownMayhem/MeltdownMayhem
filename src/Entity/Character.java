@@ -1,7 +1,6 @@
 package Entity;
 
 import java.util.Timer;
-import MeltdownMayhem.GamePanel;
 
 public 	abstract class Character extends Entity{
 	

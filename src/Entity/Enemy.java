@@ -6,14 +6,15 @@ import java.util.ArrayList;
 import Entity.RadiationOrb.Model;
 import MeltdownMayhem.Extra;
 import MeltdownMayhem.GamePanel;
+import MeltdownMayhem.Window;
 /**
  * De Enemy class is een Subclass van de Entity class en een Superclass voor de RadiationOrb en Rage class.
  */
 public abstract class Enemy extends Entity {
 
 	protected static final int ENEMYBOARD_UPPERBORDER = 125;
-	protected static final double ENEMYBOARD_BOTTOMBORDER = 0.8 * GamePanel.BOARD_HEIGHT;
-	protected static final double ORB_BOTTOMBORDER = GamePanel.BOARD_HEIGHT/3;
+	protected static final double ENEMYBOARD_BOTTOMBORDER = 0.8 * Window.BOARD_HEIGHT;
+	protected static final double ORB_BOTTOMBORDER = Window.BOARD_HEIGHT/3;
 	public static final double COLLISION_AREA_FACTOR = 2.5;
 	
 	protected static final int SPEED_RESET_FACTOR = 200;
@@ -78,22 +79,22 @@ public abstract class Enemy extends Entity {
 		}
 		
 		// Vertical Board borders collision
-		if (this.x > GamePanel.BOARD_END - margin) {
+		if (this.x > Window.BOARD_END - margin) {
 			this.vx *= -1;
 			this.timeSinceReset_x = 0;
-			this.x = 2 * (GamePanel.BOARD_END - margin) - this.x;
-		} else if(this.x < GamePanel.BOARD_START + margin) {
+			this.x = 2 * (Window.BOARD_END - margin) - this.x;
+		} else if(this.x < Window.BOARD_START + margin) {
 			this.vx *= -1;
 			this.timeSinceReset_x = 0;
-			this.x = 2 * (GamePanel.BOARD_START + margin) - this.x;
+			this.x = 2 * (Window.BOARD_START + margin) - this.x;
 		}
 		
 		// Bottom horizontal Board border collision
 		if (this.rampage == true) {
-			if (this.y > GamePanel.BOARD_HEIGHT - margin) {
+			if (this.y > Window.BOARD_HEIGHT - margin) {
 				this.vy *= -1;
 				this.timeSinceReset_y = 0;
-				this.y = (int) (2 * (GamePanel.BOARD_HEIGHT - margin) - this.y);
+				this.y = (int) (2 * (Window.BOARD_HEIGHT - margin) - this.y);
 			}
 		} else if (this instanceof RadiationOrb && orb.type == Model.ORB){
 			if ((this.y > ORB_BOTTOMBORDER) && (vy >= 0)){
@@ -134,13 +135,13 @@ public abstract class Enemy extends Entity {
 	}
 	
 	// Enemy Spawning
-	public static void spawnEnemy(ArrayList<Enemy> enemyList, GamePanel gp) {
+	public static ArrayList<Enemy> spawnEnemy(ArrayList<Enemy> enemyList, int level) {
 		boolean enoughSpaceToSpawn = true;
 		int spawning_x = 0;
 			
 		do {
 			enoughSpaceToSpawn = true;
-			spawning_x = 2 * margin + rng.nextInt(GamePanel.BOARD_WIDTH - 4 * margin) + GamePanel.BOARD_START;
+			spawning_x = 2 * margin + rng.nextInt(Window.BOARD_WIDTH - 4 * margin) + Window.BOARD_START;
 			for (Enemy E: enemyList) {
 				if (Extra.distance(spawning_x, -20, E.x, E.y) < 4 * E.enemyRadius) {
 					enoughSpaceToSpawn = false;
@@ -149,13 +150,13 @@ public abstract class Enemy extends Entity {
 			}
 		} while (!enoughSpaceToSpawn);
 		
-		if (gp.level == 1) {
+		if (level == 1) {
 			if (rng.nextDouble() < spawnChanceOrbLevel1) {
 				enemyList.add(new RadiationOrb(spawning_x, false));
 			} else {
 				enemyList.add(new RadiationOrb(spawning_x, true));
 			}
-		} else if (gp.level == 2) {
+		} else if (level == 2) {
 			if (rng.nextDouble() < spawnChanceRageLevel2) {
 				enemyList.add(new Rage(spawning_x));
 			} else if (rng.nextDouble() < spawnChanceOrbLevel2) {
@@ -163,7 +164,7 @@ public abstract class Enemy extends Entity {
 			} else {
 				enemyList.add(new RadiationOrb(spawning_x, true));
 			}
-		} else if (gp.level == 3) {
+		} else if (level == 3) {
 			if (rng.nextDouble() < spawnChanceRageLevel3) {
 				enemyList.add(new Rage(spawning_x));
 			} else if (rng.nextDouble() < spawnChanceOrbLevel3) {
@@ -172,6 +173,7 @@ public abstract class Enemy extends Entity {
 				enemyList.add(new RadiationOrb(spawning_x, true));
 			}
 		}
+		return enemyList;
 	}
 		
 	

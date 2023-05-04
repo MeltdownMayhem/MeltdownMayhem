@@ -1,6 +1,5 @@
 package Entity;
 
-import java.awt.AWTException;
 import java.awt.Graphics;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
@@ -12,8 +11,6 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import javax.imageio.ImageIO;
-
-import MeltdownMayhem.GamePanel;
 
 public class AmmoDrop extends Entity {
 	List<BufferedImage> imageList = new ArrayList<BufferedImage>();

@@ -11,6 +11,8 @@ import java.util.TimerTask;
 
 import javax.imageio.ImageIO;
 
+import Entity.PowerUp.Despawn;
+import Entity.PowerUp.Power;
 import MeltdownMayhem.GamePanel;
 /**
  * Class to make PowerUp Drop on the Board.
@@ -27,32 +29,40 @@ public class PowerUp extends Entity {
 	
 	// ammoDrop
 	private int ammoAmount = 10;
-	private static double ammoDropChance = 0.45;
+	//private static double ammoDropChance = 0.45;
+	private static double ammoDropChance = 0.60;
 	
 	// healthSyringe
 	private int healAmount = 1;
-	private static double syringeDropChance = 0.15;
+	//private static double syringeDropChance = 0.15;
+	private static double syringeDropChance = 0.05;
 	
 	// shield
 	private int shieldDuration = 8000;
-	private static double shieldDropChance = 0.20;
+	//private static double shieldDropChance = 0.20;
+	private static double shieldDropChance = 0.15;
 	
 	// shrinkShroom
 	private int shrinkDuration = 10000;
 	private double shrinkFactor = 1.8;
 	private double speedFactor = 1.3;
-	private static double shrinkShroomDropChance = 0.20;
+	//private static double shrinkShroomDropChance = 0.20;
+	private static double shrinkShroomDropChance = 0.15;
 	
 	// extraAmmo
 	private int extraAmmoAmount = 15;
 	private static int extraAmmoDropped = 0;
 	private static int max_extraAmmo = 3;
-	private static double extraAmmoDropChance = 0.08;
+	//private static double extraAmmoDropChance = 0.08;
+	private static double extraAmmoDropChance = 0.03;
 	
 	// extraHeart
 	private static int extraHeartsDropped = 0;
 	private static int max_extraHearts = 2;
-	private static double extraHeartDropChance = 0.05;
+	//private static double extraHeartDropChance = 0.05;
+	private static double extraHeartDropChance = 0.02;
+	
+	private static double chance;
 	
 	// images
 	BufferedImage ammoDrop1;
@@ -99,30 +109,59 @@ public class PowerUp extends Entity {
 	}
 	
 	public static void spawnPowerUp(Barrel barrel, GamePanel gp) {
-		if (rng.nextDouble() > 1 - ammoDropChance) {
-			PowerUp ammoDrop = new PowerUp(barrel, Power.ammoDrop);
-			gp.powerUpList.add(ammoDrop);
-			ammoDrop.DespawnTimer.schedule(ammoDrop.new Despawn(), 15000);
-		} else if (rng.nextDouble() > 1 - syringeDropChance) {
-			PowerUp syringe = new PowerUp(barrel, Power.healthSyringe);
-			gp.powerUpList.add(syringe);
-			syringe.DespawnTimer.schedule(syringe.new Despawn(), 15000);
-		} else if (rng.nextDouble() > 1 - shieldDropChance) {
-			PowerUp shield = new PowerUp(barrel, Power.shield);
-			gp.powerUpList.add(shield);
-			shield.DespawnTimer.schedule(shield.new Despawn(), 15000);
-		} else if (rng.nextDouble() > 1 - shrinkShroomDropChance) {
-			PowerUp shroom = new PowerUp(barrel, Power.shrinkShroom);
-			gp.powerUpList.add(shroom);
-			shroom.DespawnTimer.schedule(shroom.new Despawn(), 15000);
-		} else if (rng.nextDouble() > 1 - extraAmmoDropChance && extraAmmoDropped < max_extraAmmo) {
-			PowerUp ammo = new PowerUp(barrel, Power.extraAmmo);
-			gp.powerUpList.add(ammo);
-			extraAmmoDropped++;
-		} else if (rng.nextDouble() > 1 - extraHeartDropChance && extraHeartsDropped < max_extraHearts) {
-			PowerUp heart = new PowerUp(barrel, Power.extraHeart);
-			gp.powerUpList.add(heart);
-			extraHeartsDropped++;
+//		if (rng.nextDouble() > 1 - ammoDropChance) {
+//			PowerUp ammoDrop = new PowerUp(barrel, Power.ammoDrop);
+//			gp.powerUpList.add(ammoDrop);
+//			ammoDrop.DespawnTimer.schedule(ammoDrop.new Despawn(), 15000);
+//		} else if (rng.nextDouble() > 1 - syringeDropChance) {
+//			PowerUp syringe = new PowerUp(barrel, Power.healthSyringe);
+//			gp.powerUpList.add(syringe);
+//			syringe.DespawnTimer.schedule(syringe.new Despawn(), 15000);
+//		} else if (rng.nextDouble() > 1 - shieldDropChance) {
+//			PowerUp shield = new PowerUp(barrel, Power.shield);
+//			gp.powerUpList.add(shield);
+//			shield.DespawnTimer.schedule(shield.new Despawn(), 15000);
+//		} else if (rng.nextDouble() > 1 - shrinkShroomDropChance) {
+//			PowerUp shroom = new PowerUp(barrel, Power.shrinkShroom);
+//			gp.powerUpList.add(shroom);
+//			shroom.DespawnTimer.schedule(shroom.new Despawn(), 15000);
+//		} else if (rng.nextDouble() > 1 - extraAmmoDropChance && extraAmmoDropped < max_extraAmmo) {
+//			PowerUp ammo = new PowerUp(barrel, Power.extraAmmo);
+//			gp.powerUpList.add(ammo);
+//			extraAmmoDropped++;
+//		} else if (rng.nextDouble() > 1 - extraHeartDropChance && extraHeartsDropped < max_extraHearts) {
+//			PowerUp heart = new PowerUp(barrel, Power.extraHeart);
+//			gp.powerUpList.add(heart);
+//			extraHeartsDropped++;
+//		}
+		
+		if (rng.nextDouble() > 0.4) {
+			chance = rng.nextDouble();
+			if (chance > 1 - ammoDropChance) {
+				PowerUp ammoDrop = new PowerUp(barrel, Power.ammoDrop);
+				gp.powerUpList.add(ammoDrop);
+				ammoDrop.DespawnTimer.schedule(ammoDrop.new Despawn(), 15000);
+			} else if (chance > 1 - ammoDropChance - syringeDropChance) {
+				PowerUp syringe = new PowerUp(barrel, Power.healthSyringe);
+				gp.powerUpList.add(syringe);
+				syringe.DespawnTimer.schedule(syringe.new Despawn(), 15000);
+			} else if (chance > 1 - ammoDropChance - syringeDropChance - shieldDropChance) {
+				PowerUp shield = new PowerUp(barrel, Power.shield);
+				gp.powerUpList.add(shield);
+				shield.DespawnTimer.schedule(shield.new Despawn(), 15000);
+			} else if (chance > 1 - ammoDropChance - syringeDropChance - shieldDropChance - shrinkShroomDropChance) {
+				PowerUp shroom = new PowerUp(barrel, Power.shrinkShroom);
+				gp.powerUpList.add(shroom);
+				shroom.DespawnTimer.schedule(shroom.new Despawn(), 15000);
+			} else if (chance > 1 - ammoDropChance - syringeDropChance - shieldDropChance - shrinkShroomDropChance - extraAmmoDropChance && extraAmmoDropped < max_extraAmmo) {
+				PowerUp ammo = new PowerUp(barrel, Power.extraAmmo);
+				gp.powerUpList.add(ammo);
+				extraAmmoDropped++;
+			} else if (chance > 1 - ammoDropChance - syringeDropChance - shieldDropChance - shrinkShroomDropChance - extraAmmoDropChance - extraHeartDropChance && extraHeartsDropped < max_extraHearts) {
+				PowerUp heart = new PowerUp(barrel, Power.extraHeart);
+				gp.powerUpList.add(heart);
+				extraHeartsDropped++;
+			}
 		}
 	}
 	

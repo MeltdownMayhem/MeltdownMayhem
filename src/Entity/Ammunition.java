@@ -9,6 +9,7 @@ import javax.imageio.ImageIO;
 
 import Entity.RadiationOrb.Model;
 import MeltdownMayhem.GamePanel;
+import MeltdownMayhem.Window;
 /**
  * Class that serves to create a moving Bullet on the Board.
  * It is possible to create both Human Bullets and Enemy Projectiles.
@@ -87,7 +88,7 @@ public class Ammunition extends Entity {
 	}
 	
 	public boolean isOutBoard() {
-		if (this.x < GamePanel.BOARD_START || this.y < 0 || this.x > GamePanel.BOARD_START + GamePanel.BOARD_WIDTH || this.y > GamePanel.BOARD_HEIGHT) {
+		if (this.x < Window.BOARD_START || this.y < 0 || this.x > Window.BOARD_START + Window.BOARD_WIDTH || this.y > Window.BOARD_HEIGHT) {
 			return true;
 		}
 		return false;

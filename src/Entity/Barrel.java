@@ -10,6 +10,7 @@ import java.util.TimerTask;
 import javax.imageio.ImageIO;
 
 import MeltdownMayhem.GamePanel;
+import MeltdownMayhem.Window;
 /**
  * Class to create a moving Barrel on the Board.
  * Serves as an obstacle to the Human and can be destroyed by the Drone.
@@ -30,7 +31,7 @@ public class Barrel extends Entity {
 		this.width = 140;
 		this.height = 75;
 		
-		this.x = rng.nextInt(GamePanel.BOARD_START, GamePanel.BOARD_END - width);
+		this.x = rng.nextInt(Window.BOARD_START, Window.BOARD_END - width);
 		this.y = -height;
 		this.vx = 0;
 		this.vy = 2 * rng.nextDouble() + 3;
@@ -85,7 +86,7 @@ public class Barrel extends Entity {
 		
 		if (lives == 0) {
 			PowerUp.spawnPowerUp(this, gp);
-			y = GamePanel.BOARD_HEIGHT + 100;
+			y = Window.BOARD_HEIGHT + 100;
 		}
 		
 		if (hitboxRadius == 0) {

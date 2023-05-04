@@ -11,10 +11,8 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import javax.imageio.ImageIO;
-
 import Entity.RadiationOrb.Model;
-import MeltdownMayhem.GamePanel;
-import MeltdownMayhem.StartPanel;
+import MeltdownMayhem.Window;
 /**
  * De Human is de belangrijkste speler van dit spel.
  * Wordt gecontroleerd volgens de pijljtes en kan plasma schieten met de space_bar.
@@ -52,8 +50,8 @@ public class Human extends Entity {
 		this.width = 90;
 		this.height = 165;
 		
-		this.x = GamePanel.screenSize.width/2 - this.width/2 - 128;
-		this.y = GamePanel.BOARD_HEIGHT - this.height - GamePanel.BOARD_HEIGHT/15;
+		this.x = Window.screenSize.width/2 - this.width/2 - 128;
+		this.y = Window.BOARD_HEIGHT - this.height - Window.BOARD_HEIGHT/15;
 		this.vx = 4;
 		this.vy = 4.3;
 		
@@ -99,28 +97,28 @@ public class Human extends Entity {
 		}
 	}
 	
-	public void takeDamage(deathCauses d, GamePanel gp) {
+	public void takeDamage(deathCauses d, String nameHuman, ArrayList<String> chatText, ArrayList<Integer> chatTimer) {
 		if (shieldActive == false) {
 			lives --;
-			x = GamePanel.screenSize.width/2 - width/2;
-			y = GamePanel.BOARD_HEIGHT - height - GamePanel.BOARD_HEIGHT/15;
+			x = Window.screenSize.width/2 - width/2;
+			y = Window.BOARD_HEIGHT - height - Window.BOARD_HEIGHT/15;
 			activateShield(2500);
 			if (d == deathCauses.ORB) {
-				gp.chatText.add(gp.nameHuman + " should learn about the dangers of radiation");
+				chatText.add(nameHuman + " should learn about the dangers of radiation");
 			} else if (d == deathCauses.SNIPER) {
-				gp.chatText.add(gp.nameHuman + " should learn about the dangers of radiation");
+				chatText.add(nameHuman + " should learn about the dangers of radiation");
 			} else if (d == deathCauses.RAGE) {
-				gp.chatText.add(gp.nameHuman + " should learn about the dangers of radiation");
+				chatText.add(nameHuman + " should learn about the dangers of radiation");
 			} else if (d == deathCauses.ORBBULLET) {
-				gp.chatText.add(gp.nameHuman + " was hit by a radiation orb");
+				chatText.add(nameHuman + " was hit by a radiation orb");
 			} else if (d == deathCauses.SNIPERBULLET) {
-				gp.chatText.add(gp.nameHuman + " was hit by a radiation sniper");
+				chatText.add(nameHuman + " was hit by a radiation sniper");
 			} else if (d == deathCauses.RAMPAGE) {
-				gp.chatText.add(gp.nameHuman + " wasn't fast enough");
+				chatText.add(nameHuman + " wasn't fast enough");
 			} else if (d == deathCauses.BARREL) {
-				gp.chatText.add(gp.nameHuman + " got rolled over with a radioactive waste barrel");
+				chatText.add(nameHuman + " got rolled over with a radioactive waste barrel");
 			}
-			gp.chatTimer.add(0);
+			chatTimer.add(0);
 		}
 	}
 	
@@ -154,7 +152,7 @@ public class Human extends Entity {
 	}
 	
 	// Human Collisions
-	public void humanCollisions(ArrayList<Enemy> enemyList, ArrayList<Barrel> barrelList, ArrayList<Ammunition> projectileList, GamePanel gp) {
+	public ArrayList<Ammunition> humanCollisions(String nameHuman, ArrayList<String> chatText, ArrayList<Integer> chatTimer, ArrayList<Enemy> enemyList, ArrayList<Barrel> barrelList, ArrayList<Ammunition> projectileList, ArrayList<Ammunition> delProjectileList) {
 		for (Enemy enemy: enemyList) {
 			if (this.collision(enemy)) {
 				if (enemy instanceof RadiationOrb) {
@@ -172,13 +170,13 @@ public class Human extends Entity {
 						killer = deathCauses.RAGE;
 					}
 				}
-				this.takeDamage(killer, gp);
+				this.takeDamage(killer, nameHuman, chatText, chatTimer);
 				break;
 			}
 		}
 		for (Barrel barrel: barrelList) {
 			if (this.collision(barrel)) {
-				this.takeDamage(deathCauses.BARREL, gp);
+				this.takeDamage(deathCauses.BARREL, nameHuman, chatText, chatTimer);
 				break;
 			}
 		}
@@ -189,25 +187,26 @@ public class Human extends Entity {
 				} else {
 					killer = deathCauses.SNIPERBULLET;
 				}
-				this.takeDamage(killer, gp);
-				gp.delProjectileList.add(bullet);
+				this.takeDamage(killer, nameHuman, chatText, chatTimer);
+				delProjectileList.add(bullet);
 				break;
 			}
 		}
+		return delProjectileList;
 	}
 	
 	@Override
 	public void update() {
-		if (this.moveRight==true && x < GamePanel.BOARD_END - width - 2) { // 2-pixel draw accuracy
+		if (this.moveRight==true && x < Window.BOARD_END - width - 2) { // 2-pixel draw accuracy
 			x += vx;
 		}
-		if (this.moveLeft==true && x > GamePanel.BOARD_START) {
+		if (this.moveLeft==true && x > Window.BOARD_START) {
 			x -= vx;
 		}
 		if (this.moveUp==true && y > 0) {
 			y -= vy;
 		}
-		if (this.moveDown==true && y < GamePanel.BOARD_HEIGHT - height) {
+		if (this.moveDown==true && y < Window.BOARD_HEIGHT - height) {
 			y += vy + 1;
 		}
 		hitbox.x = x + 5;

@@ -15,9 +15,9 @@ import java.util.TimerTask;
 
 import javax.imageio.ImageIO;
 
-import Entity.Human.deathCauses;
 import Entity.RadiationOrb.Model;
 import MeltdownMayhem.GamePanel;
+import MeltdownMayhem.Window;
 /**
  * The Drone is the second player of the Game and is controlled with the Mouse.
  * Skill: Destroy Barrels with Left-Click and move Ammo to the Human.
@@ -27,8 +27,8 @@ public class Drone extends Entity {
 
 	public Point2D MousePos;
 	
-	private final int DroneRespawnX = GamePanel.screenSize.width/2 - width/2 + 128;
-	private final int DroneRespawnY = GamePanel.BOARD_HEIGHT - height - GamePanel.BOARD_HEIGHT/15;
+	private final int DroneRespawnX = Window.screenSize.width/2 - width/2 + 128;
+	private final int DroneRespawnY = Window.BOARD_HEIGHT - height - Window.BOARD_HEIGHT/15;
 	
 	private int MouseX = DroneRespawnX;
 	private int MouseY = DroneRespawnY;
@@ -58,8 +58,8 @@ public class Drone extends Entity {
 		this.width = 65;
 		this.height = 65;
 		
-		this.x = GamePanel.screenSize.width/2 - this.width/2 + 128;
-		this.y = GamePanel.BOARD_HEIGHT - this.height - GamePanel.BOARD_HEIGHT/15;
+		this.x = Window.screenSize.width/2 - this.width/2 + 128;
+		this.y = Window.BOARD_HEIGHT - this.height - Window.BOARD_HEIGHT/15;
 		
 		this.lives = 1;
 		
@@ -110,27 +110,27 @@ public class Drone extends Entity {
 	}
 	
 	public void checkInBounds() { // Check if drone is in Board
-		if (MouseX < GamePanel.BOARD_START + width/2 || MouseX > GamePanel.BOARD_END - width/2) {
+		if (MouseX < Window.BOARD_START + width/2 || MouseX > Window.BOARD_END - width/2) {
 			xOutOfBounds = true;
 			// if statements to push drone back into boundaries in case mouse was moving too fast
-			if (x < GamePanel.BOARD_START + width/2) {
-				x = GamePanel.BOARD_START + width/2;
+			if (x < Window.BOARD_START + width/2) {
+				x = Window.BOARD_START + width/2;
 			}
-			if (x > GamePanel.BOARD_END - width/2) {
-				x = GamePanel.BOARD_END - width/2;
+			if (x > Window.BOARD_END - width/2) {
+				x = Window.BOARD_END - width/2;
 			}
 		}
 		else {
 			xOutOfBounds = false;
 		}
-		if (MouseY < height/2 || MouseY > GamePanel.BOARD_HEIGHT - height/2) {
+		if (MouseY < height/2 || MouseY > Window.BOARD_HEIGHT - height/2) {
 			yOutOfBounds = true;
 			// if statements push drone hitbox back into boundaries in case mouse was moving too fast
 			if (y < height/2) {
 				y = height/2;
 			}
-			if (y > GamePanel.BOARD_HEIGHT - height/2) {
-				y = GamePanel.BOARD_HEIGHT - height/2;
+			if (y > Window.BOARD_HEIGHT - height/2) {
+				y = Window.BOARD_HEIGHT - height/2;
 			}
 		}
 		else {
@@ -188,16 +188,16 @@ public class Drone extends Entity {
 				if (enemy instanceof RadiationOrb) {
 					orb = (RadiationOrb) enemy;
 					if (orb.type == Model.ORB) {
-						gp.chatText.add(gp.nameDrone + " should learn about the dangers of radiation");
+						gp.chatList.add(gp.nameDrone + " should learn about the dangers of radiation");
 					} else {
-						gp.chatText.add(gp.nameDrone + " should learn about the dangers of radiation");
+						gp.chatList.add(gp.nameDrone + " should learn about the dangers of radiation");
 					}
 				} else if (enemy instanceof Rage){
 					rage = (Rage) enemy;
 					if (rage.rampage) {
-						gp.chatText.add(gp.nameDrone + " wasn't fast enough");
+						gp.chatList.add(gp.nameDrone + " wasn't fast enough");
 					} else {
-						gp.chatText.add(gp.nameDrone + " should learn about the dangers of radiation");
+						gp.chatList.add(gp.nameDrone + " should learn about the dangers of radiation");
 					}
 				}
 				gp.chatTimer.add(0);
@@ -216,9 +216,9 @@ public class Drone extends Entity {
 						gp.score = 0;
 					}
 					if (bullet.green) {
-						gp.chatText.add(gp.nameDrone + " was hit by a radiation orb");
+						gp.chatList.add(gp.nameDrone + " was hit by a radiation orb");
 					} else {
-						gp.chatText.add(gp.nameDrone + " was hit by a radiation sniper");
+						gp.chatList.add(gp.nameDrone + " was hit by a radiation sniper");
 					}
 					gp.chatTimer.add(0);
 				}
