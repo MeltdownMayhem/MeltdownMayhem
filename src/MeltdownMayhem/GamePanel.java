@@ -37,6 +37,7 @@ public class GamePanel extends JPanel implements ActionListener{
 	// Game State
 	static enum Phase{START, PLAY, PAUSE, GAMEOVER};
 	static Phase phaseOfGame = Phase.PLAY;
+	int dontSpawnThesePortals = 0;
 	
 	public int level = 1;
 	
@@ -56,12 +57,13 @@ public class GamePanel extends JPanel implements ActionListener{
 	// Creation of Objects
 	public Human human = new Human();
 	public Drone drone = new Drone();
+	
 	public String nameHuman, nameDrone;
 	
 	GUI gui = new GUI();
 	KeyHandler keyH = new KeyHandler(human, drone, this);
 	Random rng = new Random();
-	BufferedImage background1, background_end;
+	BufferedImage cave, city, powerplant, background_end;
 	BufferedImage game_paused, gameover;
 	
 	// Creation of Lists
@@ -72,6 +74,7 @@ public class GamePanel extends JPanel implements ActionListener{
 	public ArrayList<Barrel> barrelList;
 	public ArrayList<Enemy> enemyList; // All different Enemy types in 1 list
 	public ArrayList<ArrayList<Enemy>> enemiesInCollision;
+	public ArrayList<Portal> portalList;
 	
 	private JLabel ESC, endScore;
 	public JTextArea chat;
@@ -168,6 +171,7 @@ public class GamePanel extends JPanel implements ActionListener{
 		enemiesInCollision = new ArrayList<ArrayList<Enemy>>();
 		chatText = new ArrayList<String>();
 		chatTimer = new ArrayList<Integer>();
+		portalList = new ArrayList<Portal>();
 		
 		// Drone start position
 		try {
@@ -175,14 +179,15 @@ public class GamePanel extends JPanel implements ActionListener{
 		} catch (AWTException e1) {
 			e1.printStackTrace();
 		}
-		
 		// FPS
 		Timer t = new Timer();
 		t.scheduleAtFixedRate(new UpdateTimerTask(), 0, 20);
 		
 		// Retrieving the background image
 		try {
-			background1 = ImageIO.read(getClass().getResourceAsStream("/background/background1.png"));
+			cave = ImageIO.read(getClass().getResourceAsStream("/background/cave.png"));
+			city = ImageIO.read(getClass().getResourceAsStream("/background/city.png"));
+			powerplant = ImageIO.read(getClass().getResourceAsStream("/background/powerplant.png"));
 			background_end = ImageIO.read(getClass().getResourceAsStream("/background/background_end.png"));
 			game_paused = ImageIO.read(getClass().getResourceAsStream("/gui/game_paused.png"));
 			gameover = ImageIO.read(getClass().getResourceAsStream("/gui/gameover.png"));
@@ -232,6 +237,21 @@ public class GamePanel extends JPanel implements ActionListener{
 			repaint();
 		}
 	}
+	public void removeEnemies(ArrayList<Enemy> EnemyList) {
+		EnemyList.clear();
+		/*
+		 *ArrayList<Enemy> killedEnemyList = new ArrayList<>();
+		for (Enemy enemy: EnemyList) {
+		
+		killedEnemyList.add(enemy);
+		}
+		for (Enemy enemy: killedEnemyList) {
+			enemyList.remove(enemy);
+		}
+		killedEnemyList.clear();
+		}
+		*/	
+	}
 	
 	public void checkGameOver() {
 		if (human.lives == 0) {
@@ -247,13 +267,35 @@ public class GamePanel extends JPanel implements ActionListener{
 	
 	//-------------------------------------UPDATE-------------------------------------
 	public void update() {
+		//spawn first portal
+		if (score > 20 && portalList.isEmpty() && dontSpawnThesePortals < 1) {
+			Portal portal = new Portal();
+			portalList.add(portal);
+		}
+		//spawn second portal
+		if (score > 40 && portalList.isEmpty() && dontSpawnThesePortals < 2) {
+			Portal portal = new Portal();
+			portalList.add(portal);
+		}
+		//portal interactions
+		if (!portalList.isEmpty()) {
+			for (Portal portal: portalList) {
+				portal.portalCollision(human);
+				if (portal.resetSpawns) {
+					removeEnemies(enemyList);
+					portal.resetSpawns = false;
+					portalList.clear();
+					dontSpawnThesePortals += 1;
+					level ++;
+					break;
+				}
+			}
+		}
 		///////////////////////////////
-		if (score > 2000) {
-			level = 3;
+		if (level == 3) {
 			max_barrels = 5;
 			max_enemies = 14;
-		} else if(score > 1000) {
-			level = 2;
+		} else if(level == 2) {
 			max_barrels = 4;
 			max_enemies = 11;
 		}
@@ -401,22 +443,33 @@ public class GamePanel extends JPanel implements ActionListener{
 		for (String s: chatText) {
 			chatString += "\n" + s;
 		}
-		chat.setText(chatString);
-	}	
+		chat.setText(chatString);	}	
 	
 	//-------------------------------------PAINT-------------------------------------
 	public void paintComponent(Graphics g) { // Order of drawing is important for overlapping
 		super.paintComponent(g);
-		
 		// Background (Very Temporary)
+		/*
 		g.drawImage(background1, BOARD_START, 0, 547, 555, null);
 		g.drawImage(background1, BOARD_START + 546, 0, 547, 555, null);
 		g.drawImage(background1, BOARD_START + 1092, 0, 547, 555, null);
 		g.drawImage(background1, BOARD_START, 553, 547, 555, null);
 		g.drawImage(background1, BOARD_START + 546, 553, 547, 555, null);
 		g.drawImage(background1, BOARD_START + 1092, 553, 547, 555, null);
-		
+		*/
+		if (level == 1) {
+			g.drawImage(cave, BOARD_START, 0, 1198, BOARD_HEIGHT, null);
+		}
+		if (level == 2) {
+			g.drawImage(city, BOARD_START, 0, 1198, BOARD_HEIGHT, null);
+		}
+		if (level == 3) {
+			g.drawImage(powerplant, BOARD_START, 0, 1198, BOARD_HEIGHT, null);
+		}
 		// Draw Entities
+		for (Portal portal: portalList) {
+			portal.draw(g);
+		}
 		for (PowerUp powerUp: powerUpList) {
 			if (powerUp.pickedUp == false) {
 				powerUp.draw(g);

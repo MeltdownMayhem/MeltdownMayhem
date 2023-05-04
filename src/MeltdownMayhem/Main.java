@@ -7,8 +7,8 @@ import javax.swing.JFrame;
 public class Main {
 	
 	public static void main(String args[]) {
-		//new Window();
-		
+		new Window();
+		/*
 		// Frame creation
 		JFrame f = new JFrame();
 		f.setTitle("Meltdown Mayhem");
@@ -22,6 +22,6 @@ public class Main {
 		f.pack();
 		f.setLocation(-8,0);
 		f.setVisible(true);
-		
+		*/
 	}
 }
