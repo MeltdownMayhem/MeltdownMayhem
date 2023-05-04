@@ -1,42 +1,43 @@
 package MeltdownMayhem;
 
-import java.awt.Image;
+import java.awt.Dimension;
 import java.awt.Toolkit;
 
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 @SuppressWarnings("serial")
 public class Window extends JFrame {
-	private JPanel activePanel;
-	private Image imageApplication;
-	private Icon iconApplication;
+	protected static JPanel gamePanel, startPanel;
+	protected static Window window;
+	
+	// Window settings
+	public static Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+	public static final int BOARD_WIDTH = 1188; // Board refers to the playable area
+	public static final int BOARD_HEIGHT = Window.screenSize.height - 80;
+	public static final int BOARD_START = (Window.screenSize.width - BOARD_WIDTH)/2;
+	public static final int BOARD_END = (Window.screenSize.width - BOARD_WIDTH)/2 + BOARD_WIDTH;
 	
 	Window(){
 		this.setTitle("Meltdown Mayhem");
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setResizable(false);
-		this.setBounds(0,0, GamePanel.screenSize.width, GamePanel.screenSize.height);
-		activePanel = new StartPanel(this);
-		this.add(activePanel);
-		
-		imageApplication = new ImageIcon(this.getClass().getResource("/gui/number0.png")).getImage().getScaledInstance(600, 100, ABORT);
-		iconApplication = new ImageIcon(imageApplication);
-		
-		this.setIconImage(imageApplication);
-		this.setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/gui/number0.png")));
+		this.setBounds(0,0, screenSize.width, screenSize.height);
+		startPanel = new StartPanel();
+		this.add(startPanel);
 		this.setVisible(true);
 	}
 	
 	// Credits to Jan Lemaire for the example code to switch between different panels 
-	public void switchPanel(JPanel toActivate) {
-		this.remove(activePanel);
-		activePanel = toActivate;
-		this.add(activePanel);
+	public void switchPanel(JPanel toActivate, JPanel toRemove) {
+		this.remove(toRemove);
+		this.add(toActivate);
 		
 		validate();
 		repaint();
+	}
+	
+	public static void main(String args[]) {
+		window = new Window();
 	}
 }

@@ -8,7 +8,7 @@ import java.awt.event.MouseListener;
 
 import Entity.Drone;
 import Entity.Human;
-import MeltdownMayhem.GamePanel.Phase;
+import MeltdownMayhem.GamePanel.State;
 /**
  * Class that 'handles' the actions of whatever 'key' is pressed/released.
  */
@@ -53,13 +53,13 @@ public class KeyHandler implements KeyListener, MouseListener{
 		
 		// escape_key - pause game
 		if (e.getKeyCode() == 27) {
-			if (GamePanel.phaseOfGame == Phase.PLAY) {
-				GamePanel.phaseOfGame = Phase.PAUSE;
+			if (GamePanel.gameState == State.PLAY) {
+				GamePanel.gameState = State.PAUSE;
 				gp.resumeButton.setVisible(true);
 				gp.ragequitButton.setVisible(true);
 				gp.backToMenuButton.setVisible(true);
-			} else if(GamePanel.phaseOfGame == Phase.PAUSE) {
-				GamePanel.phaseOfGame = Phase.PLAY;
+			} else if(GamePanel.gameState == State.PAUSE) {
+				GamePanel.gameState = State.PLAY;
 				gp.resumeButton.setVisible(false);
 				gp.ragequitButton.setVisible(false);
 				gp.backToMenuButton.setVisible(false);

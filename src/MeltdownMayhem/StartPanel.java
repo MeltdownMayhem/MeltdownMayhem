@@ -19,7 +19,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.Border;
 
-import MeltdownMayhem.GamePanel.Phase;
+import MeltdownMayhem.GamePanel.State;
 
 @SuppressWarnings("serial")
 public class StartPanel extends JPanel implements ActionListener{
@@ -31,14 +31,12 @@ public class StartPanel extends JPanel implements ActionListener{
 	private Border blackBorder;
 	private Image buttonImage, meltdown_mayhem;
 	private Icon buttonIcon;
-	private Window mainWindow;
 	
 	
-	StartPanel(Window mainWindow){
-		this.mainWindow = mainWindow;
+	StartPanel(){
 		
 		// Basic Panel Settings
-		this.setPreferredSize(GamePanel.screenSize);
+		this.setPreferredSize(Window.screenSize);
 		this.setBackground(Color.black);
 		this.setDoubleBuffered(true);
 		this.setFocusable(true);
@@ -47,13 +45,13 @@ public class StartPanel extends JPanel implements ActionListener{
 		
 		// Text for entering a name for Human
 		humanText = new JLabel("Enter a name for Human:");
-		humanText.setBounds(GamePanel.screenSize.width / 2 - 275, 250, 300, 25);
+		humanText.setBounds(Window.screenSize.width / 2 - 275, 250, 300, 25);
 		humanText.setFont(new Font("Bradley Hand", Font.PLAIN, 25));
 		this.add(humanText);
 		
 		// Text for entering a name for Drone
 		droneText = new JLabel ("Enter a name for Drone:");
-		droneText.setBounds(GamePanel.screenSize.width / 2 - 275, 300, 300, 25);
+		droneText.setBounds(Window.screenSize.width / 2 - 275, 300, 300, 25);
 		droneText.setFont(new Font("Bradley Hand", Font.PLAIN, 25));
 		this.add(droneText);
 		
@@ -63,14 +61,14 @@ public class StartPanel extends JPanel implements ActionListener{
 		humanField = new JTextField();
 		humanField.setFont(new Font("American Typewriter", Font.PLAIN, 20));
 		humanField.setBorder(blackBorder);
-		humanField.setBounds(GamePanel.screenSize.width / 2 + 75, 250, 200, 25);
+		humanField.setBounds(Window.screenSize.width / 2 + 75, 250, 200, 25);
 		this.add(humanField);
 		
 		// TextField for entering name Drone
 		droneField = new JTextField();
 		droneField.setFont(new Font("American Typewriter", Font.PLAIN, 20));
 		droneField.setBorder(blackBorder);
-		droneField.setBounds(GamePanel.screenSize.width / 2 + 75, 300, 200, 25);
+		droneField.setBounds(Window.screenSize.width / 2 + 75, 300, 200, 25);
 		this.add(droneField);
 		
 		
@@ -78,7 +76,7 @@ public class StartPanel extends JPanel implements ActionListener{
 		buttonIcon = new ImageIcon(buttonImage);
 		
 		button = new JButton(buttonIcon);
-		button.setBounds(GamePanel.screenSize.width / 2 - 300, 375, 600, 100);
+		button.setBounds(Window.screenSize.width / 2 - 300, 375, 600, 100);
 		button.setBorder(BorderFactory.createEmptyBorder());
 		button.addActionListener(this);
 		this.add(button);
@@ -100,8 +98,12 @@ public class StartPanel extends JPanel implements ActionListener{
         	if (nameHuman.length() == 0 || nameDrone.length() == 0) {
         		JOptionPane.showMessageDialog(button, "Please enter a name for Human and Drone");
         	} else {
-        		mainWindow.switchPanel(new GamePanel(mainWindow, nameHuman, nameDrone, this));
-        		GamePanel.phaseOfGame = Phase.PLAY;
+        		System.out.println("Initializing new GamePanel");
+        		Window.gamePanel = null;
+        		Window.gamePanel = new GamePanel(nameHuman, nameDrone);
+        		System.out.println("New GamePanel initialized");
+        		Window.window.switchPanel(Window.gamePanel, Window.startPanel);
+        		GamePanel.gameState = State.PLAY;
         	}
         }
         // Credits to docs.oracle for showing how to use an actionListener: https://docs.oracle.com/javase/tutorial/uiswing/events/actionlistener.html 
@@ -112,8 +114,8 @@ public class StartPanel extends JPanel implements ActionListener{
 		super.paintComponent(g);
 		
 		g.setColor(Color.LIGHT_GRAY);
-		g.fillRect(GamePanel.BOARD_START, 0, GamePanel.BOARD_WIDTH, GamePanel.BOARD_HEIGHT);
-		g.drawImage(meltdown_mayhem, GamePanel.screenSize.width/2 - 415, 100, null);
+		g.fillRect(Window.BOARD_START, 0, Window.BOARD_WIDTH, Window.BOARD_HEIGHT);
+		g.drawImage(meltdown_mayhem, Window.screenSize.width/2 - 415, 100, null);
 	}
 
 }

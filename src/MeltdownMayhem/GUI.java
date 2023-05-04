@@ -10,7 +10,6 @@ import java.util.List;
 import javax.imageio.ImageIO;
 
 import Entity.Human;
-import MeltdownMayhem.GamePanel.Phase;
 /**
  * De GUI class zorgt voor de UI-Elements van de Board.
  * Het zorgt momenteel voor de Health-bar en de Ammo-bar, maar later ook de score_display, respawn_time, etc.
@@ -70,23 +69,23 @@ public class GUI {
 	public void draw(Graphics g, Human human, GamePanel gp) {
 		// Health-bar
 		for (int i = 0; i < human.lives; i++) {
-			g.drawImage(heart1, GamePanel.BOARD_START + 20 + i*70, GamePanel.BOARD_HEIGHT - 75, 50, 50, null);
+			g.drawImage(heart1, Window.BOARD_START + 20 + i*70, Window.BOARD_HEIGHT - 75, 50, 50, null);
 		}
 		for (int i = human.lives; i < human.max_lives; i++) {
-			g.drawImage(heart2, GamePanel.BOARD_START + 20 + i*70, GamePanel.BOARD_HEIGHT - 75, 50, 50, null);
+			g.drawImage(heart2, Window.BOARD_START + 20 + i*70, Window.BOARD_HEIGHT - 75, 50, 50, null);
 		}
 		// Ammo-bar
-		g.drawImage(ammoBar, GamePanel.BOARD_START, GamePanel.BOARD_HEIGHT - 10, 5*human.max_ammo, 14, null);
+		g.drawImage(ammoBar, Window.BOARD_START, Window.BOARD_HEIGHT - 10, 5*human.max_ammo, 14, null);
 		for (int i = 0; i < human.ammo; i++) {
-			g.drawImage(bulletBar, GamePanel.BOARD_START + i*5, GamePanel.BOARD_HEIGHT - 10, 6, 14, null);
+			g.drawImage(bulletBar, Window.BOARD_START + i*5, Window.BOARD_HEIGHT - 10, 6, 14, null);
 		}
 		// Score-display
-		g.drawImage(score, GamePanel.BOARD_START + 20, 20, 200, 40, null);
+		g.drawImage(score, Window.BOARD_START + 20, 20, 200, 40, null);
 		String scoreString = Integer.toString(gp.score);
 		int index = 0;
 		for (String a: scoreString.split("")) {
 			int number = Integer.parseInt(a);
-			g.drawImage(numberList.get(number), GamePanel.BOARD_START + 240 + index*45, 20, numberList.get(number).getWidth()*8, 40, null);
+			g.drawImage(numberList.get(number), Window.BOARD_START + 240 + index*45, 20, numberList.get(number).getWidth()*8, 40, null);
 			index++;
 		}
 	}

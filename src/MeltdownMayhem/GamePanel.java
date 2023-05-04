@@ -26,20 +26,14 @@ import Entity.*;
  */
 @SuppressWarnings("serial")
 public class GamePanel extends JPanel implements ActionListener{
-
-	// Window settings
-	public static Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-	public static final int BOARD_WIDTH = 1188; // Board refers to the playable area
-	public static final int BOARD_HEIGHT = screenSize.height - 80;
-	public static final int BOARD_START = (screenSize.width - BOARD_WIDTH)/2;
-	public static final int BOARD_END = (screenSize.width - BOARD_WIDTH)/2 + BOARD_WIDTH;
 	
 	// Game State
-	static enum Phase{START, PLAY, PAUSE, GAMEOVER};
-	static Phase phaseOfGame = Phase.PLAY;
-	int dontSpawnThesePortals = 0;
+	enum State{PLAY, PAUSE, GAMEOVER};
+	static State gameState = State.PLAY;
 	
 	public int level = 1;
+	final int scoreLevel1 = 1000;
+	final int scoreLevel2 = 2000;
 	
 	// Basic Game variables
 	public int score = 0;
@@ -55,13 +49,14 @@ public class GamePanel extends JPanel implements ActionListener{
 	public Cursor transparentCursor = Toolkit.getDefaultToolkit().createCustomCursor(noCursor, getLocation(), "transparentCursor");
 	
 	// Creation of Objects
-	public Human human = new Human();
-	public Drone drone = new Drone();
+	Human human;
+	Drone drone;
+	Portal portal;
+	GUI gui;
+	KeyHandler keyH;
 	
 	public String nameHuman, nameDrone;
 	
-	GUI gui = new GUI();
-	KeyHandler keyH = new KeyHandler(human, drone, this);
 	Random rng = new Random();
 	BufferedImage cave, city, powerplant, background_end;
 	BufferedImage game_paused, gameover;
@@ -74,48 +69,46 @@ public class GamePanel extends JPanel implements ActionListener{
 	public ArrayList<Barrel> barrelList;
 	public ArrayList<Enemy> enemyList; // All different Enemy types in 1 list
 	public ArrayList<ArrayList<Enemy>> enemiesInCollision;
-	public ArrayList<Portal> portalList;
 	
 	private JLabel ESC, endScore;
 	public JTextArea chat;
-	protected String chatString;
-	public ArrayList<String> chatText;
+	protected String chatText;
+	public ArrayList<String> chatList;
 	public ArrayList<Integer> chatTimer;
 	
 	public JButton resumeButton, ragequitButton, backToMenuButton;
-	
 	private ImageIcon resumeIcon, ragequitIcon, backToMenuIcon;
 	
-	private Window mainWindow;
-	private JPanel StartPanel;
+	UpdateTimerTask updateTimerTask;
 	
-	//public String chatText = "";
-	
-	public GamePanel(Window mainWindow, String nameHuman, String nameDrone, JPanel StartPanel) {
-		this.mainWindow = mainWindow;
-		this.StartPanel = StartPanel;
+	GamePanel(String nameHuman, String nameDrone) {
 		this.nameHuman = nameHuman;
 		this.nameDrone = nameDrone;
 		
+		human = new Human();
+		drone = new Drone();
+		gui = new GUI();
+		keyH = new KeyHandler(human, drone, this);
+		
 		// Basic Panel settings
 		this.setLayout(null);
-		this.setPreferredSize(screenSize);
+		this.setPreferredSize(Window.screenSize);
 		this.setBackground(new Color(215,215,215)); // Light-Gray
 		this.setDoubleBuffered(true);
 		this.addKeyListener(keyH);
 		this.addMouseListener(keyH);
 		this.setFocusable(true);
-		this.setCursor(transparentCursor);
+		this.setCursor(transparentCursor); // !!!!!!!!!!!!!!!! cursor
 		
 		// Text "Press ESC to pause"
 		ESC = new JLabel ("Press ESC to pause");
-		ESC.setBounds(BOARD_END - 235, 5, 235, 25);
+		ESC.setBounds(Window.BOARD_END - 235, 5, 235, 25);
 		ESC.setFont(new Font("American TypeWriter", Font.PLAIN, 25));
 		ESC.setForeground(Color.white);
 		this.add(ESC);
 		
 		endScore = new JLabel ();
-		endScore.setBounds(screenSize.width / 2 - 200, 370, 400, 40);
+		endScore.setBounds(Window.screenSize.width / 2 - 200, 370, 400, 40);
 		endScore.setHorizontalAlignment(JLabel.CENTER);
 		endScore.setFont(new Font("Times New Roman", Font.BOLD, 40));
 		endScore.setForeground(Color.white);
@@ -129,7 +122,7 @@ public class GamePanel extends JPanel implements ActionListener{
 		// Credits to Craig Wood for explaining how to align text inside a JTextArea: https://coderanch.com/t/339752/java/Textarea-Text-Alignment
 		chat.setOpaque(false);
 		chat.setFocusable(false);
-		chat.setBounds(BOARD_END - 510, BOARD_HEIGHT - 185, 500, 160);
+		chat.setBounds(Window.BOARD_END - 510, Window.BOARD_HEIGHT - 195, 500, 170);
 		chat.setFont(new Font("American Typewriter", Font.PLAIN, 16));
 		chat.setForeground(Color.white);
 		this.add(chat);
@@ -137,7 +130,7 @@ public class GamePanel extends JPanel implements ActionListener{
 		resumeIcon = new ImageIcon(new ImageIcon(this.getClass().getResource("/button/resume.png")).getImage().getScaledInstance(400, 80, ABORT));
 		
 		resumeButton = new JButton(resumeIcon);
-		resumeButton.setBounds(GamePanel.screenSize.width / 2 - 200, 400, 400, 80);
+		resumeButton.setBounds(Window.screenSize.width / 2 - 200, 400, 400, 80);
 		resumeButton.setBorder(BorderFactory.createEmptyBorder());
 		resumeButton.addActionListener(this);
 		resumeButton.setVisible(false);
@@ -146,7 +139,7 @@ public class GamePanel extends JPanel implements ActionListener{
 		backToMenuIcon = new ImageIcon(new ImageIcon(this.getClass().getResource("/button/backToMenu.png")).getImage().getScaledInstance(400, 80, ABORT));
 		
 		backToMenuButton = new JButton(backToMenuIcon);
-		backToMenuButton.setBounds(GamePanel.screenSize.width / 2 - 200, 500, 400, 80);
+		backToMenuButton.setBounds(Window.screenSize.width / 2 - 200, 500, 400, 80);
 		backToMenuButton.setBorder(BorderFactory.createEmptyBorder());
 		backToMenuButton.addActionListener(this);
 		backToMenuButton.setVisible(false);
@@ -155,7 +148,7 @@ public class GamePanel extends JPanel implements ActionListener{
 		ragequitIcon = new ImageIcon(new ImageIcon(this.getClass().getResource("/button/ragequit.png")).getImage().getScaledInstance(400, 80, ABORT));
 		
 		ragequitButton = new JButton(ragequitIcon);
-		ragequitButton.setBounds(GamePanel.screenSize.width / 2 - 200, 600, 400, 80);
+		ragequitButton.setBounds(Window.screenSize.width / 2 - 200, 600, 400, 80);
 		ragequitButton.setBorder(BorderFactory.createEmptyBorder());
 		ragequitButton.addActionListener(this);
 		ragequitButton.setVisible(false);
@@ -169,19 +162,19 @@ public class GamePanel extends JPanel implements ActionListener{
 		barrelList = new ArrayList<Barrel>();
 		enemyList = new ArrayList<Enemy>();
 		enemiesInCollision = new ArrayList<ArrayList<Enemy>>();
-		chatText = new ArrayList<String>();
+		chatList = new ArrayList<String>();
 		chatTimer = new ArrayList<Integer>();
-		portalList = new ArrayList<Portal>();
 		
 		// Drone start position
 		try {
-			drone.teleportMouse(GamePanel.screenSize.width/2 - drone.width/2 + 128, GamePanel.BOARD_HEIGHT - drone.height - GamePanel.BOARD_HEIGHT/15);
+			drone.teleportMouse(Window.screenSize.width/2 - drone.width/2 + 128, Window.BOARD_HEIGHT - drone.height - Window.BOARD_HEIGHT/15);
 		} catch (AWTException e1) {
 			e1.printStackTrace();
 		}
 		// FPS
 		Timer t = new Timer();
-		t.scheduleAtFixedRate(new UpdateTimerTask(), 0, 20);
+		updateTimerTask = new UpdateTimerTask();
+		t.scheduleAtFixedRate(updateTimerTask, 0, 20);
 		
 		// Retrieving the background image
 		try {
@@ -200,7 +193,7 @@ public class GamePanel extends JPanel implements ActionListener{
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == resumeButton) {
-        	phaseOfGame = Phase.PLAY;
+        	gameState = State.PLAY;
         	resumeButton.setVisible(false);
         	ragequitButton.setVisible(false);
         	backToMenuButton.setVisible(false);
@@ -214,8 +207,11 @@ public class GamePanel extends JPanel implements ActionListener{
         	System.exit(0);
         	// Credits to JavaGuides for showing how to close an application: https://www.javaguides.net/2019/06/java-swing-exit-button.html
         } else if(e.getSource() == backToMenuButton) {
-        	phaseOfGame = Phase.PAUSE;
-        	mainWindow.switchPanel(StartPanel);
+        	gameState = State.PAUSE;
+        	Window.window.switchPanel(Window.startPanel, Window.gamePanel);
+        	Window.gamePanel.removeAll();
+        	System.out.println("GamePanel cleared");
+        	updateTimerTask.cancel(); // Temporary fix !!!!!!!!!!!!!!!!!!!!!!!!!
         }
         // Credits to docs.oracle for showing how to use an actionListener: https://docs.oracle.com/javase/tutorial/uiswing/events/actionlistener.html 
 		
@@ -224,11 +220,11 @@ public class GamePanel extends JPanel implements ActionListener{
 	public class UpdateTimerTask extends TimerTask{
 		@Override
 		public void run() {
-			//System.out.println(chatText);
-			if (phaseOfGame == Phase.PLAY) {
+			System.out.println(human.lives);
+			if (gameState == State.PLAY) {
 				checkGameOver();
 				update();
-			} else if (phaseOfGame == Phase.PAUSE) {
+			} else if (gameState == State.PAUSE) {
 				if (drone.droneFrozen == true) { //zorgt dat drone frozen blijft na een hit, om misbruik van pauze te vermijden
 					drone.freeze(2000); // WTF?? Veel te cheap!
 				}
@@ -237,25 +233,10 @@ public class GamePanel extends JPanel implements ActionListener{
 			repaint();
 		}
 	}
-	public void removeEnemies(ArrayList<Enemy> EnemyList) {
-		EnemyList.clear();
-		/*
-		 *ArrayList<Enemy> killedEnemyList = new ArrayList<>();
-		for (Enemy enemy: EnemyList) {
-		
-		killedEnemyList.add(enemy);
-		}
-		for (Enemy enemy: killedEnemyList) {
-			enemyList.remove(enemy);
-		}
-		killedEnemyList.clear();
-		}
-		*/	
-	}
 	
 	public void checkGameOver() {
 		if (human.lives == 0) {
-			phaseOfGame = Phase.GAMEOVER;
+			gameState = State.GAMEOVER;
 			ragequitButton.setVisible(true);
 			backToMenuButton.setVisible(true);
 			endScore.setText("YOUR SCORE: " + score);
@@ -267,83 +248,79 @@ public class GamePanel extends JPanel implements ActionListener{
 	
 	//-------------------------------------UPDATE-------------------------------------
 	public void update() {
-		//spawn first portal
-		if (score > 20 && portalList.isEmpty() && dontSpawnThesePortals < 1) {
-			Portal portal = new Portal();
-			portalList.add(portal);
+		//Portals
+		if (score >= scoreLevel1 && portal == null && level == 1) {
+			portal = new Portal();
+			chatList.add("Pass through the portal to reach Level 2!");
+			chatTimer.add(0);
+		} else if (score >= scoreLevel2 && portal == null && level == 2) {
+			portal = new Portal();
+			chatList.add("Pass through the portal to reach Level 3!");
+			chatTimer.add(0);
 		}
-		//spawn second portal
-		if (score > 40 && portalList.isEmpty() && dontSpawnThesePortals < 2) {
-			Portal portal = new Portal();
-			portalList.add(portal);
-		}
-		//portal interactions
-		if (!portalList.isEmpty()) {
-			for (Portal portal: portalList) {
-				portal.portalCollision(human);
-				if (portal.resetSpawns) {
-					removeEnemies(enemyList);
-					portal.resetSpawns = false;
-					portalList.clear();
-					dontSpawnThesePortals += 1;
-					level ++;
-					break;
+		
+		if (portal != null) {
+			if (portal.portalCollision(human)) {
+				enemyList.clear();
+				barrelList.clear();
+				projectileList.clear();
+				level ++;
+				portal = null;
+				chatTimer.add(0);
+				human.x = Window.screenSize.width/2 - human.width/2 - 128;
+				human.y = Window.BOARD_HEIGHT - human.height - Window.BOARD_HEIGHT/15;
+				if (level == 2) {
+					chatList.add("You reached Level 2 !");
+					max_barrels = 4;
+					max_enemies = 11;
+				} else if (level == 3) {
+					chatList.add("You reached Level 3 !");
+					max_barrels = 5;
+					max_enemies = 14;
 				}
 			}
 		}
-		///////////////////////////////
-		if (level == 3) {
-			max_barrels = 5;
-			max_enemies = 14;
-		} else if(level == 2) {
-			max_barrels = 4;
-			max_enemies = 11;
-		}
-		
-		/////////////////////
 		
 		// Entity Spawning
-		if (enemyList.size() == 0) {
-			Enemy.spawnEnemy(enemyList, this);
-		} else if(enemyList.size() < max_enemies){
-			if (level == 1) {
-				if (rng.nextDouble() / (1 + ((max_enemies - enemyList.size())/max_enemies)) <= enemySpawnChance + score / 150000) {
-					Enemy.spawnEnemy(enemyList, this);
+		
+		if (portal == null) {
+			if (enemyList.size() == 0) {
+				enemyList = Enemy.spawnEnemy(enemyList, level);
+			} else if(enemyList.size() < max_enemies){
+				if (level == 1) {
+					if (rng.nextDouble() / (1 + ((max_enemies - enemyList.size())/max_enemies)) <= enemySpawnChance + score / 150000) {
+						enemyList = Enemy.spawnEnemy(enemyList, level);
+					}
+				} else if(level == 2) {
+					if (rng.nextDouble() / (1 + ((max_enemies - enemyList.size())/max_enemies)) <= enemySpawnChance + (score-500) / 100000) {
+						enemyList = Enemy.spawnEnemy(enemyList, level);
+					}
+				} else {
+					if (rng.nextDouble() / (1 + ((max_enemies - enemyList.size())/max_enemies)) <= enemySpawnChance + (Math.log10((score-2000)/100 + 1))/150) {
+						enemyList = Enemy.spawnEnemy(enemyList, level);
+					}
 				}
-			} else if(level == 2) {
-				if (rng.nextDouble() / (1 + ((max_enemies - enemyList.size())/max_enemies)) <= enemySpawnChance + (score-500) / 100000) {
-					Enemy.spawnEnemy(enemyList, this);
-				}
-			} else {
-				if (rng.nextDouble() / (1 + ((max_enemies - enemyList.size())/max_enemies)) <= enemySpawnChance + (Math.log10((score-2000)/100 + 1))/150) {
-					Enemy.spawnEnemy(enemyList, this);
+			}
+			
+			if (barrelList.size() < max_barrels) {
+				if (level == 1) {
+					if (rng.nextDouble() / (1 + ((max_barrels - barrelList.size())/max_barrels)) <= barrelSpawnChance + score/300000) {
+						barrelList.add(new Barrel(drone, this));
+					}
+				} else if(level == 2){ 
+					if (rng.nextDouble() / (1 + ((max_barrels - barrelList.size())/max_barrels)) <= barrelSpawnChance + (score-500) / 200000) {
+						barrelList.add(new Barrel(drone, this));
+					}
+				} else	{
+					if (rng.nextDouble() / (1 + ((max_barrels - barrelList.size())/max_barrels)) <= barrelSpawnChance + (1 + Math.log10((score-2000)/100 + 1))/300) {
+						barrelList.add(new Barrel(drone, this));
+					}
 				}
 			}
 		}
-		
-		if (barrelList.size() < max_barrels) {
-			if (level == 1) {
-				if (rng.nextDouble() / (1 + ((max_barrels - barrelList.size())/max_barrels)) <= barrelSpawnChance + score/300000) {
-					barrelList.add(new Barrel(drone, this));
-				}
-			} else if(level == 2){ 
-				if (rng.nextDouble() / (1 + ((max_barrels - barrelList.size())/max_barrels)) <= barrelSpawnChance + (score-500) / 200000) {
-					barrelList.add(new Barrel(drone, this));
-				}
-			} else	{
-				if (rng.nextDouble() / (1 + ((max_barrels - barrelList.size())/max_barrels)) <= barrelSpawnChance + (1 + Math.log10((score-2000)/100 + 1))/300) {
-					barrelList.add(new Barrel(drone, this));
-				}
-			}
-		}
-
-//		if (rng.nextDouble() / (1 + ((max_barrels - barrelList.size())/max_barrels)) <= barrelSpawnChance && barrelList.size() < max_barrels) {
-//			barrelList.add(new Barrel(drone, this));
-//		}
-		
 		// Human
 		human.update();
-		human.humanCollisions(enemyList, barrelList, projectileList, this);
+		delProjectileList = human.humanCollisions(nameHuman, chatList, chatTimer, enemyList, barrelList, projectileList, delProjectileList);
 		
 		// Drone
 		drone.update();	
@@ -382,7 +359,7 @@ public class GamePanel extends JPanel implements ActionListener{
 			barrel.update();
 			barrel.barrelCollisions(barrelList, ammoList);
 		}
-		if (!barrelList.isEmpty() && barrelList.get(0).y > BOARD_HEIGHT + 30) {
+		if (!barrelList.isEmpty() && barrelList.get(0).y > Window.BOARD_HEIGHT + 30) {
 			barrelList.remove(0);
 		}
 		
@@ -431,45 +408,51 @@ public class GamePanel extends JPanel implements ActionListener{
 		// update timer chat
 		if (chatTimer.size() > 0 && chatTimer.get(0) > 250) {
 			chatTimer.remove(0);
-			chatText.remove(0);
+			chatList.remove(0);
 		}
 		for (int i = 0; i < chatTimer.size(); i++) {
 			chatTimer.set(i, chatTimer.get(i) + 1);
 		}
-		chatString = "";
-		for (int i = 0; i < 8 - chatText.size(); i++) {
-			chatString += "\n";
+		chatText = "";
+		for (int i = 0; i < 8 - chatList.size(); i++) {
+			chatText += "\n";
 		}
-		for (String s: chatText) {
-			chatString += "\n" + s;
+		for (String s: chatList) {
+			chatText += "\n" + s;
 		}
-		chat.setText(chatString);	}	
+		chat.setText(chatText);
+		
+		//Block score until in new Level
+		if (score != scoreLevel1 && portal != null && level == 1) {
+			score = scoreLevel1;
+		} else if (score != scoreLevel2 && portal != null && level == 2) {
+			score = scoreLevel2;
+		} else if (level == 2 && score < scoreLevel1) {
+			score = scoreLevel1;
+		} else if (level == 3 && score < scoreLevel2) {
+			score = scoreLevel2;
+		}
+	}
+	
 	
 	//-------------------------------------PAINT-------------------------------------
 	public void paintComponent(Graphics g) { // Order of drawing is important for overlapping
 		super.paintComponent(g);
-		// Background (Very Temporary)
-		/*
-		g.drawImage(background1, BOARD_START, 0, 547, 555, null);
-		g.drawImage(background1, BOARD_START + 546, 0, 547, 555, null);
-		g.drawImage(background1, BOARD_START + 1092, 0, 547, 555, null);
-		g.drawImage(background1, BOARD_START, 553, 547, 555, null);
-		g.drawImage(background1, BOARD_START + 546, 553, 547, 555, null);
-		g.drawImage(background1, BOARD_START + 1092, 553, 547, 555, null);
-		*/
 		if (level == 1) {
-			g.drawImage(cave, BOARD_START, 0, 1198, BOARD_HEIGHT, null);
+			g.drawImage(cave, Window.BOARD_START, 0, 1198, Window.BOARD_HEIGHT, null);
 		}
 		if (level == 2) {
-			g.drawImage(city, BOARD_START, 0, 1198, BOARD_HEIGHT, null);
+			g.drawImage(city, Window.BOARD_START, 0, 1198, Window.BOARD_HEIGHT, null);
 		}
 		if (level == 3) {
-			g.drawImage(powerplant, BOARD_START, 0, 1198, BOARD_HEIGHT, null);
+			g.drawImage(powerplant, Window.BOARD_START, 0, 1198, Window.BOARD_HEIGHT, null);
 		}
-		// Draw Entities
-		for (Portal portal: portalList) {
+
+		if (portal != null) {
 			portal.draw(g);
 		}
+		
+		
 		for (PowerUp powerUp: powerUpList) {
 			if (powerUp.pickedUp == false) {
 				powerUp.draw(g);
@@ -501,16 +484,16 @@ public class GamePanel extends JPanel implements ActionListener{
 		
         // Board border lines (To hide barrels, bullets etc. when out of GameBoard)
      	g.setColor(Color.black);
-     	g.fillRect(0, 0, BOARD_START, screenSize.height);
-     	g.fillRect(BOARD_END, 0, screenSize.width, screenSize.height);
-     	g.fillRect(BOARD_START, BOARD_HEIGHT, BOARD_END, screenSize.height);
+     	g.fillRect(0, 0, Window.BOARD_START, Window.screenSize.height);
+     	g.fillRect(Window.BOARD_END, 0, Window.screenSize.width, Window.screenSize.height);
+     	g.fillRect(Window.BOARD_START, Window.BOARD_HEIGHT, Window.BOARD_END, Window.screenSize.height);
      	
-     	if (phaseOfGame == Phase.PAUSE) {
-     		g.drawImage(background_end, screenSize.width / 2 - 300, 75, 600, 900, null);
-     		g.drawImage(game_paused, screenSize.width / 2 - 240, 250, 480, 60, null);
-     	} else if (phaseOfGame == Phase.GAMEOVER) {
-     		g.drawImage(background_end, screenSize.width / 2 - 300, 75, 600, 900, null);
-     		g.drawImage(gameover, screenSize.width / 2 - 240, 250, 480, 60, null);
+     	if (gameState == State.PAUSE) {
+     		g.drawImage(background_end, Window.screenSize.width / 2 - 300, 75, 600, 900, null);
+     		g.drawImage(game_paused, Window.screenSize.width / 2 - 240, 250, 480, 60, null);
+     	} else if (gameState == State.GAMEOVER) {
+     		g.drawImage(background_end, Window.screenSize.width / 2 - 300, 75, 600, 900, null);
+     		g.drawImage(gameover, Window.screenSize.width / 2 - 240, 250, 480, 60, null);
      	}
 	}
 	
