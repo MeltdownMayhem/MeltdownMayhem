@@ -31,20 +31,20 @@ public class Human extends Entity {
 	public int shootingCooldown = 0; // Starts at 0, for instant shooting when tapping key
 	public boolean isShooting = false;
 	
-	BufferedImage hazmat;
-	BufferedImage hazmatForward1;
-	BufferedImage hazmatForward2;
-	BufferedImage shieldBubble;
+	private BufferedImage hazmat;
+	private BufferedImage hazmatForward1;
+	private BufferedImage hazmatForward2;
+	private BufferedImage shieldBubble;
 	
-	List<BufferedImage> horizontalImageList = new ArrayList<BufferedImage>();
-	List<Integer> timeIntervalList = new ArrayList<Integer>();
+	private List<BufferedImage> horizontalImageList = new ArrayList<BufferedImage>();
+	private List<Integer> timeIntervalList = new ArrayList<Integer>();
 	
-	Timer timer = new Timer();
+	private Timer timer = new Timer();
 	
-	enum deathCauses {ORBBULLET, SNIPERBULLET, RAMPAGE, ORB, SNIPER, RAGE, BARREL}
-	deathCauses killer;
-	RadiationOrb orb;
-	Rage rage;
+	private enum deathCauses {ORBBULLET, SNIPERBULLET, RAMPAGE, ORB, SNIPER, RAGE, BARREL}
+	private deathCauses killer;
+	private RadiationOrb orb;
+	private Rage rage;
 	
 	public Human() {
 		this.width = 90;
@@ -56,7 +56,6 @@ public class Human extends Entity {
 		this.vy = 4.3;
 		
 		this.lives = 3; // Starting amount of lives
-		
 		this.hitbox = new Rectangle(x + 5, y + 45, width - 10, height - 60);
 		
 		getHumanImage();

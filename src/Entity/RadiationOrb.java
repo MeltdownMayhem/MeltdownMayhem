@@ -84,10 +84,6 @@ public class RadiationOrb extends Enemy {
 		spawnPriority();
 		stayInField();
 		randomSpeed();
-		
-		// These 2 lines makes the Enemies oscillate
-		//this.x += OSCILLATION_FACTOR * rng.nextDouble() * Math.pow(-1, rng.nextInt(2));
-		//this.y += OSCILLATION_FACTOR * rng.nextDouble() * Math.pow(-1, rng.nextInt(2));
 	}
 	
 	public void draw(Graphics g) {

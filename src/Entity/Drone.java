@@ -18,6 +18,7 @@ import javax.imageio.ImageIO;
 import Entity.RadiationOrb.Model;
 import MeltdownMayhem.GamePanel;
 import MeltdownMayhem.Window;
+import MeltdownMayhem.GamePanel.droneKiller;
 /**
  * The Drone is the second player of the Game and is controlled with the Mouse.
  * Skill: Destroy Barrels with Left-Click and move Ammo to the Human.
@@ -42,28 +43,32 @@ public class Drone extends Entity {
 	public PowerUp invSlot = null;
 	public Barrel barrelSlot = null;
 	
-	private Timer respawnTimer = new Timer();
-	private Timer destructionTimer = new Timer();
+	private Timer respawnTimer, destructionTimer;
 	
-	List<BufferedImage> imageList = new ArrayList<BufferedImage>();
-	List<Integer> timeIntervalList = new ArrayList<Integer>();
+	List<BufferedImage> imageList;
+	List<Integer> timeIntervalList;
 	
-	BufferedImage drone1;
-	BufferedImage drone2;
+	BufferedImage drone1, drone2;
 	
 	RadiationOrb orb;
 	Rage rage;
 	
+	private GamePanel.droneKiller deathDrone;
+	
 	public Drone() {
+		this.x = Window.screenSize.width/2 - this.width/2 + 128;
+		this.y = Window.BOARD_HEIGHT - this.height - Window.BOARD_HEIGHT/15;
 		this.width = 65;
 		this.height = 65;
 		
-		this.x = Window.screenSize.width/2 - this.width/2 + 128;
-		this.y = Window.BOARD_HEIGHT - this.height - Window.BOARD_HEIGHT/15;
-		
 		this.lives = 1;
-		
 		this.hitboxRadius = 30;
+		
+		respawnTimer = new Timer();
+		destructionTimer = new Timer();
+		
+		imageList = new ArrayList<BufferedImage>();
+		timeIntervalList = new ArrayList<Integer>();
 		
 		getDroneImage();
 	}
@@ -174,63 +179,53 @@ public class Drone extends Entity {
 	}
 	
 	// Collision
-	public void droneCollisions(ArrayList<Enemy> enemyList, ArrayList<Ammunition> projectileList, GamePanel gp) throws AWTException { // needed for Robot class
+	public droneKiller droneCollisions(String nameDrone, ArrayList<Enemy> enemyList, ArrayList<Ammunition> projectileList, int score) throws AWTException { // needed for Robot class
+		this.deathDrone = null;
 		for (Enemy enemy: enemyList) {
 			if (this.collision(enemy)) {
 				lives -= 1;
-				if (gp.score > 20) {
-					gp.score -= 20;
-				} else {
-					gp.score = 0;
-				}
 				
 				// add death message for Drone
 				if (enemy instanceof RadiationOrb) {
 					orb = (RadiationOrb) enemy;
 					if (orb.type == Model.ORB) {
-						gp.chatList.add(gp.nameDrone + " should learn about the dangers of radiation");
+						this.deathDrone = GamePanel.droneKiller.ORB;
 					} else {
-						gp.chatList.add(gp.nameDrone + " should learn about the dangers of radiation");
+						this.deathDrone = GamePanel.droneKiller.SNIPER;
 					}
 				} else if (enemy instanceof Rage){
 					rage = (Rage) enemy;
 					if (rage.rampage) {
-						gp.chatList.add(gp.nameDrone + " wasn't fast enough");
+						this.deathDrone = GamePanel.droneKiller.RAMPAGE;
 					} else {
-						gp.chatList.add(gp.nameDrone + " should learn about the dangers of radiation");
+						this.deathDrone = GamePanel.droneKiller.RAGE;
 					}
 				}
-				gp.chatTimer.add(0);
+				break;
 			}
 
 		}
-		
 		if (lives > 0) {
 			for (Ammunition bullet: projectileList) {
 				if (this.collision(bullet)) {
 					lives -= 1;
-					bullet.y = -1;
-					if (gp.score > 10) {
-						gp.score -= 10;
-					} else {
-						gp.score = 0;
-					}
+					bullet.y = -100;
 					if (bullet.green) {
-						gp.chatList.add(gp.nameDrone + " was hit by a radiation orb");
+						this.deathDrone = GamePanel.droneKiller.ORBBULLET;
 					} else {
-						gp.chatList.add(gp.nameDrone + " was hit by a radiation sniper");
+						this.deathDrone = GamePanel.droneKiller.SNIPERBULLET;
 					}
-					gp.chatTimer.add(0);
 				}
 			}
 		}
 		if (lives == 0) {
 			respawn();
-		}	
+		}
+		return this.deathDrone;
 	}
 	
 	// destroy Barrel skill
-	public void destroyBarrel(Barrel barrel, ArrayList<Barrel> barrelList, GamePanel gp) {
+	public void destroyBarrel(Barrel barrel, ArrayList<Barrel> barrelList) {
 		if (this.collision(barrel) && invSlot == null && (barrelSlot == null || barrelSlot == barrel)) {
 			if (barrel.gettingDamaged == false) {
 				barrelSlot = barrel;

@@ -99,7 +99,6 @@ public class Rage extends Enemy {
 		if (rampage == false) {
 			
 			rampageCounter++;
-			
 			randomSpeed();
 			
 			// Rampage skill activation
