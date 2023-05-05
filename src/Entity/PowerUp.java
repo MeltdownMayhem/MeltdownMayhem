@@ -10,9 +10,6 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import javax.imageio.ImageIO;
-
-import Entity.PowerUp.Despawn;
-import Entity.PowerUp.Power;
 import MeltdownMayhem.GamePanel;
 /**
  * Class to make PowerUp Drop on the Board.
@@ -28,14 +25,14 @@ public class PowerUp extends Entity {
 	Timer DespawnTimer = new Timer();
 	
 	// ammoDrop
-	private int ammoAmount = 10;
+	public int ammoAmount = 10;
 	//private static double ammoDropChance = 0.45;
-	private static double ammoDropChance = 0.60;
+	private static double ammoDropChance = 0.55;
 	
 	// healthSyringe
 	private int healAmount = 1;
 	//private static double syringeDropChance = 0.15;
-	private static double syringeDropChance = 0.05;
+	private static double syringeDropChance = 0.10;
 	
 	// shield
 	private int shieldDuration = 8000;
@@ -62,7 +59,7 @@ public class PowerUp extends Entity {
 	//private static double extraHeartDropChance = 0.05;
 	private static double extraHeartDropChance = 0.02;
 	
-	private static double chance;
+	public static double dropChance = 0.60;
 	
 	// images
 	BufferedImage ammoDrop1;
@@ -134,30 +131,35 @@ public class PowerUp extends Entity {
 //			gp.powerUpList.add(heart);
 //			extraHeartsDropped++;
 //		}
-		
-		if (rng.nextDouble() > 0.4) {
+		double chance;
+		if (gp.score >= 1500) {
+			dropChance = 0.75;
+		} else {
+			dropChance = 0.6;
+		}
+		if (rng.nextDouble() < dropChance) {
 			chance = rng.nextDouble();
-			if (chance > 1 - ammoDropChance) {
+			if (chance < ammoDropChance) {
 				PowerUp ammoDrop = new PowerUp(barrel, Power.ammoDrop);
 				gp.powerUpList.add(ammoDrop);
 				ammoDrop.DespawnTimer.schedule(ammoDrop.new Despawn(), 15000);
-			} else if (chance > 1 - ammoDropChance - syringeDropChance) {
+			} else if (chance < ammoDropChance + syringeDropChance) {
 				PowerUp syringe = new PowerUp(barrel, Power.healthSyringe);
 				gp.powerUpList.add(syringe);
 				syringe.DespawnTimer.schedule(syringe.new Despawn(), 15000);
-			} else if (chance > 1 - ammoDropChance - syringeDropChance - shieldDropChance) {
+			} else if (chance < ammoDropChance + syringeDropChance + shieldDropChance) {
 				PowerUp shield = new PowerUp(barrel, Power.shield);
 				gp.powerUpList.add(shield);
 				shield.DespawnTimer.schedule(shield.new Despawn(), 15000);
-			} else if (chance > 1 - ammoDropChance - syringeDropChance - shieldDropChance - shrinkShroomDropChance) {
+			} else if (chance < ammoDropChance + syringeDropChance + shieldDropChance + shrinkShroomDropChance) {
 				PowerUp shroom = new PowerUp(barrel, Power.shrinkShroom);
 				gp.powerUpList.add(shroom);
 				shroom.DespawnTimer.schedule(shroom.new Despawn(), 15000);
-			} else if (chance > 1 - ammoDropChance - syringeDropChance - shieldDropChance - shrinkShroomDropChance - extraAmmoDropChance && extraAmmoDropped < max_extraAmmo) {
+			} else if (chance < ammoDropChance + syringeDropChance + shieldDropChance + shrinkShroomDropChance + extraAmmoDropChance && extraAmmoDropped < max_extraAmmo) {
 				PowerUp ammo = new PowerUp(barrel, Power.extraAmmo);
 				gp.powerUpList.add(ammo);
 				extraAmmoDropped++;
-			} else if (chance > 1 - ammoDropChance - syringeDropChance - shieldDropChance - shrinkShroomDropChance - extraAmmoDropChance - extraHeartDropChance && extraHeartsDropped < max_extraHearts) {
+			} else if (chance < ammoDropChance + syringeDropChance + shieldDropChance + shrinkShroomDropChance + extraAmmoDropChance + extraHeartDropChance && extraHeartsDropped < max_extraHearts) {
 				PowerUp heart = new PowerUp(barrel, Power.extraHeart);
 				gp.powerUpList.add(heart);
 				extraHeartsDropped++;
@@ -196,6 +198,10 @@ public class PowerUp extends Entity {
 			if (powerUp == Power.ammoDrop) {
 				if (human.ammo + ammoAmount <= human.max_ammo) {
 					human.ammo += ammoAmount;
+					if (gp.level == 3) {
+						human.ammo += 5;
+						// more ammo in level 3
+					}
 				} else {
 					human.ammo = human.max_ammo;
 				}

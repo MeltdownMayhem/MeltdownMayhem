@@ -44,7 +44,7 @@ public class Rage extends Enemy {
 	
 	public Rage(int x) {
 		super(x);
-		killScore = 15;
+		killScore = 20;
 		rampage = false;
 		getRageImage();
 	}

@@ -250,6 +250,8 @@ public class Drone extends Entity {
 	public void draw(Graphics g) {
 		BufferedImage image = this.getImage(imageList,timeIntervalList);
 		g.drawImage(image, x - width/2, y - height/2, width, height, null);
+		
+		// Show hitbox
 		//g.drawOval(x - hitboxRadius, y - hitboxRadius, hitboxRadius*2, hitboxRadius*2);
 	}
 }
