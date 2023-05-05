@@ -32,12 +32,12 @@ public class GamePanel extends JPanel implements ActionListener{
 	static State gameState = State.PLAY;
 	
 	public int level = 1;
-	final int scoreLevel1 = 1000;
-	final int scoreLevel2 = 2000;
+	final int scoreLevel1 = 500;
+	final int scoreLevel2 = 1500;
 	
 	// Basic Game variables
 	public int score = 0;
-	public int max_enemies = 8;
+	public int max_enemies = 7;
 	public int max_barrels = 3;
 	
 	// Technical variables
@@ -45,8 +45,8 @@ public class GamePanel extends JPanel implements ActionListener{
 	private double barrelSpawnChance = 0.004;
 	
 	// Hiding the Cursor <Credits to 'Réal Gagnon'>
-	public Image noCursor = Toolkit.getDefaultToolkit().createImage(new MemoryImageSource(16, 16, null, 0, 16));
-	public Cursor transparentCursor = Toolkit.getDefaultToolkit().createCustomCursor(noCursor, getLocation(), "transparentCursor");
+	public Image noCursor;
+	public Cursor transparentCursor;
 	
 	// Creation of Objects
 	Human human;
@@ -79,17 +79,23 @@ public class GamePanel extends JPanel implements ActionListener{
 	public JButton resumeButton, ragequitButton, backToMenuButton;
 	private ImageIcon resumeIcon, ragequitIcon, backToMenuIcon;
 	
-	UpdateTimerTask updateTimerTask;
+	private UpdateTimerTask updateTimerTask;
+	private Window window;
 	
-	GamePanel(String nameHuman, String nameDrone) {
+	GamePanel(String nameHuman, String nameDrone, Window window) {
 		this.nameHuman = nameHuman;
 		this.nameDrone = nameDrone;
+		this.window = window;
 		
 		human = new Human();
 		drone = new Drone();
 		gui = new GUI();
 		keyH = new KeyHandler(human, drone, this);
 		
+		// Hiding the Cursor <Credits to 'Réal Gagnon'>
+		noCursor = Toolkit.getDefaultToolkit().createImage(new MemoryImageSource(16, 16, null, 0, 16));
+		transparentCursor = Toolkit.getDefaultToolkit().createCustomCursor(noCursor, getLocation(), "transparentCursor");
+		System.out.println("Initializing gamepanel");
 		// Basic Panel settings
 		this.setLayout(null);
 		this.setPreferredSize(Window.screenSize);
@@ -122,9 +128,12 @@ public class GamePanel extends JPanel implements ActionListener{
 		// Credits to Craig Wood for explaining how to align text inside a JTextArea: https://coderanch.com/t/339752/java/Textarea-Text-Alignment
 		chat.setOpaque(false);
 		chat.setFocusable(false);
+		//chat.setEnabled(false);
 		chat.setBounds(Window.BOARD_END - 510, Window.BOARD_HEIGHT - 195, 500, 170);
 		chat.setFont(new Font("American Typewriter", Font.PLAIN, 16));
 		chat.setForeground(Color.white);
+		//chat.getCaret().setVisible(false);
+		chat.setEditable(false);
 		this.add(chat);
 		
 		resumeIcon = new ImageIcon(new ImageIcon(this.getClass().getResource("/button/resume.png")).getImage().getScaledInstance(400, 80, ABORT));
@@ -181,7 +190,7 @@ public class GamePanel extends JPanel implements ActionListener{
 			cave = ImageIO.read(getClass().getResourceAsStream("/background/cave.png"));
 			city = ImageIO.read(getClass().getResourceAsStream("/background/city.png"));
 			powerplant = ImageIO.read(getClass().getResourceAsStream("/background/powerplant.png"));
-			background_end = ImageIO.read(getClass().getResourceAsStream("/background/background_end.png"));
+			background_end = ImageIO.read(getClass().getResourceAsStream("/background/paperBackground_vertical.png"));
 			game_paused = ImageIO.read(getClass().getResourceAsStream("/gui/game_paused.png"));
 			gameover = ImageIO.read(getClass().getResourceAsStream("/gui/gameover.png"));
 		} catch (IOException e) {
@@ -197,7 +206,7 @@ public class GamePanel extends JPanel implements ActionListener{
         	resumeButton.setVisible(false);
         	ragequitButton.setVisible(false);
         	backToMenuButton.setVisible(false);
-        	setCursor(transparentCursor);
+        	this.setCursor(transparentCursor);
 			try {
 				drone.teleportMouse(drone.x, drone.y);
 			} catch (AWTException e1) {
@@ -208,9 +217,9 @@ public class GamePanel extends JPanel implements ActionListener{
         	// Credits to JavaGuides for showing how to close an application: https://www.javaguides.net/2019/06/java-swing-exit-button.html
         } else if(e.getSource() == backToMenuButton) {
         	gameState = State.PAUSE;
-        	Window.window.switchPanel(Window.startPanel, Window.gamePanel);
-        	Window.gamePanel.removeAll();
-        	System.out.println("GamePanel cleared");
+        	window.switchPanel(window.startPanel, window.gamePanel);
+        	window.gamePanel.removeAll();
+        	//System.out.println("GamePanel cleared");
         	updateTimerTask.cancel(); // Temporary fix !!!!!!!!!!!!!!!!!!!!!!!!!
         }
         // Credits to docs.oracle for showing how to use an actionListener: https://docs.oracle.com/javase/tutorial/uiswing/events/actionlistener.html 
@@ -220,7 +229,7 @@ public class GamePanel extends JPanel implements ActionListener{
 	public class UpdateTimerTask extends TimerTask{
 		@Override
 		public void run() {
-			System.out.println(human.lives);
+			//System.out.println(human.lives);
 			if (gameState == State.PLAY) {
 				checkGameOver();
 				update();
@@ -248,6 +257,9 @@ public class GamePanel extends JPanel implements ActionListener{
 	
 	//-------------------------------------UPDATE-------------------------------------
 	public void update() {
+		if (gameState == State.PLAY) {
+			this.setCursor(transparentCursor);
+		}
 		//Portals
 		if (score >= scoreLevel1 && portal == null && level == 1) {
 			portal = new Portal();
@@ -272,31 +284,35 @@ public class GamePanel extends JPanel implements ActionListener{
 				if (level == 2) {
 					chatList.add("You reached Level 2 !");
 					max_barrels = 4;
-					max_enemies = 11;
+					max_enemies = 9;
 				} else if (level == 3) {
 					chatList.add("You reached Level 3 !");
 					max_barrels = 5;
-					max_enemies = 14;
+					max_enemies = 11;
 				}
+				drone.barrelSlot = null;
 			}
 		}
 		
 		// Entity Spawning
 		
 		if (portal == null) {
-			if (enemyList.size() == 0) {
+			if (enemyList.size() == 0 || (enemyList.size() == 1 && level == 3)) {
 				enemyList = Enemy.spawnEnemy(enemyList, level);
 			} else if(enemyList.size() < max_enemies){
 				if (level == 1) {
-					if (rng.nextDouble() / (1 + ((max_enemies - enemyList.size())/max_enemies)) <= enemySpawnChance + score / 150000) {
+					if (rng.nextDouble() / (1 + ((max_enemies - enemyList.size())/max_enemies)) <= enemySpawnChance + score / 125000) {
+						// get spawnchance from 0.005 to 0.009 (score 0 -> 500)
 						enemyList = Enemy.spawnEnemy(enemyList, level);
 					}
 				} else if(level == 2) {
-					if (rng.nextDouble() / (1 + ((max_enemies - enemyList.size())/max_enemies)) <= enemySpawnChance + (score-500) / 100000) {
+					// get spawnchance from 0.0075 to 0.0175 (score 500 -> 1500)
+					if (rng.nextDouble() / (1 + ((max_enemies - enemyList.size())/max_enemies)) <= enemySpawnChance + (score-250) / 100000) {
 						enemyList = Enemy.spawnEnemy(enemyList, level);
 					}
 				} else {
-					if (rng.nextDouble() / (1 + ((max_enemies - enemyList.size())/max_enemies)) <= enemySpawnChance + (Math.log10((score-2000)/100 + 1))/150) {
+					if (rng.nextDouble() / (1 + ((max_enemies - enemyList.size())/max_enemies)) <= enemySpawnChance + (Math.log10((score-1500)/100 + 1))/150) {
+						// get spawnchance from 0.017 to 0.019 (score 1500 -> 2500)
 						enemyList = Enemy.spawnEnemy(enemyList, level);
 					}
 				}
@@ -304,15 +320,16 @@ public class GamePanel extends JPanel implements ActionListener{
 			
 			if (barrelList.size() < max_barrels) {
 				if (level == 1) {
-					if (rng.nextDouble() / (1 + ((max_barrels - barrelList.size())/max_barrels)) <= barrelSpawnChance + score/300000) {
+					if (rng.nextDouble() / (1 + ((max_barrels - barrelList.size())/max_barrels)) <= barrelSpawnChance + score/200000) {
 						barrelList.add(new Barrel(drone, this));
 					}
 				} else if(level == 2){ 
-					if (rng.nextDouble() / (1 + ((max_barrels - barrelList.size())/max_barrels)) <= barrelSpawnChance + (score-500) / 200000) {
+					if (rng.nextDouble() / (1 + ((max_barrels - barrelList.size())/max_barrels)) <= barrelSpawnChance + (score-250) / 200000) {
 						barrelList.add(new Barrel(drone, this));
 					}
 				} else	{
-					if (rng.nextDouble() / (1 + ((max_barrels - barrelList.size())/max_barrels)) <= barrelSpawnChance + (1 + Math.log10((score-2000)/100 + 1))/300) {
+					if (rng.nextDouble() / (1 + ((max_barrels - barrelList.size())/max_barrels/1.5))<= barrelSpawnChance + Math.log10((score-1500)/100 + 1)/300) {
+						// / (1 + ((max_barrels - barrelList.size())/max_barrels/2))
 						barrelList.add(new Barrel(drone, this));
 					}
 				}

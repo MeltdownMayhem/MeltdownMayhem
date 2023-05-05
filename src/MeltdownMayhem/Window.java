@@ -8,8 +8,8 @@ import javax.swing.JPanel;
 
 @SuppressWarnings("serial")
 public class Window extends JFrame {
-	protected static JPanel gamePanel, startPanel;
-	protected static Window window;
+	protected JPanel gamePanel, startPanel;
+	//protected static Window window;
 	
 	// Window settings
 	public static Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
@@ -23,7 +23,7 @@ public class Window extends JFrame {
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setResizable(false);
 		this.setBounds(0,0, screenSize.width, screenSize.height);
-		startPanel = new StartPanel();
+		startPanel = new StartPanel(this);
 		this.add(startPanel);
 		this.setVisible(true);
 	}
@@ -38,6 +38,6 @@ public class Window extends JFrame {
 	}
 	
 	public static void main(String args[]) {
-		window = new Window();
+		Window window = new Window();
 	}
 }

@@ -42,6 +42,9 @@ public class KeyHandler implements KeyListener, MouseListener{
 		}
 		if (key == 90 || key == 38) {
 			human.moveUp = true;
+//			if (GamePanel.gameState == State.PLAY) {
+//				gp.setCursor(gp.transparentCursor);
+//			}
 		}
 		if (key == 83 || key == 40) {
 			human.moveDown = true;
@@ -109,15 +112,15 @@ public class KeyHandler implements KeyListener, MouseListener{
 
 	@Override
 	public void mouseClicked(MouseEvent e) {
-		int mouseButton = e.getButton();
-		if (mouseButton == 3) {
-			drone.pickUp(gp);
-		}
+		// TODO Auto-generated method stub
 	}
 
 	@Override
 	public void mousePressed(MouseEvent e) {
 		int mouseButton = e.getButton();
+		if (mouseButton == 3) {
+			drone.pickUp(gp);
+		}
 		if (mouseButton == MouseEvent.BUTTON1) {
 			drone.damageBarrel = true;
 		}

@@ -24,21 +24,24 @@ public class GUI {
 	
 	BufferedImage gamePaused;
 	
-	BufferedImage score;
-	BufferedImage number0;
-	BufferedImage number1;
-	BufferedImage number2;
-	BufferedImage number3;
-	BufferedImage number4;
-	BufferedImage number5;
-	BufferedImage number6;
-	BufferedImage number7;
-	BufferedImage number8;
-	BufferedImage number9;
+	BufferedImage score_blue, score_orange;
+	BufferedImage number0_blue, number0_orange;
+	BufferedImage number1_blue, number1_orange;
+	BufferedImage number2_blue, number2_orange;
+	BufferedImage number3_blue, number3_orange;
+	BufferedImage number4_blue, number4_orange;
+	BufferedImage number5_blue, number5_orange;
+	BufferedImage number6_blue, number6_orange;
+	BufferedImage number7_blue, number7_orange;
+	BufferedImage number8_blue, number8_orange;
+	BufferedImage number9_blue, number9_orange;
 	
-	List<BufferedImage> numberList = new ArrayList<BufferedImage>();
+	List<BufferedImage> numberList_blue, numberList_orange;
 	
 	public GUI() {
+		numberList_blue = new ArrayList<BufferedImage>();
+		numberList_orange = new ArrayList<BufferedImage>();
+		
 		try {
 			// Retrieve the images for the GUI <Credits to RyiSnow | https://www.youtube.com/@RyiSnow>
 			heart1 = ImageIO.read(getClass().getResourceAsStream("/gui/heart1.png"));
@@ -47,19 +50,34 @@ public class GUI {
 			bulletBar = ImageIO.read(getClass().getResourceAsStream("/gui/bulletBar.png"));
 			ammoBar = ImageIO.read(getClass().getResourceAsStream("/gui/ammoBar.png"));
 			
-			score = ImageIO.read(getClass().getResourceAsStream("/gui/score.png"));
-			number0 = ImageIO.read(getClass().getResourceAsStream("/gui/number0.png"));
-			number1 = ImageIO.read(getClass().getResourceAsStream("/gui/number1.png"));
-			number2 = ImageIO.read(getClass().getResourceAsStream("/gui/number2.png"));
-			number3 = ImageIO.read(getClass().getResourceAsStream("/gui/number3.png"));
-			number4 = ImageIO.read(getClass().getResourceAsStream("/gui/number4.png"));
-			number5 = ImageIO.read(getClass().getResourceAsStream("/gui/number5.png"));
-			number6 = ImageIO.read(getClass().getResourceAsStream("/gui/number6.png"));
-			number7 = ImageIO.read(getClass().getResourceAsStream("/gui/number7.png"));
-			number8 = ImageIO.read(getClass().getResourceAsStream("/gui/number8.png"));
-			number9 = ImageIO.read(getClass().getResourceAsStream("/gui/number9.png"));
+			score_blue = ImageIO.read(getClass().getResourceAsStream("/gui/score_blue.png"));
+			score_orange = ImageIO.read(getClass().getResourceAsStream("/gui/score_orange.png"));
+			number0_blue = ImageIO.read(getClass().getResourceAsStream("/number/number0_blue.png"));
+			number1_blue = ImageIO.read(getClass().getResourceAsStream("/number/number1_blue.png"));
+			number2_blue = ImageIO.read(getClass().getResourceAsStream("/number/number2_blue.png"));
+			number3_blue = ImageIO.read(getClass().getResourceAsStream("/number/number3_blue.png"));
+			number4_blue = ImageIO.read(getClass().getResourceAsStream("/number/number4_blue.png"));
+			number5_blue = ImageIO.read(getClass().getResourceAsStream("/number/number5_blue.png"));
+			number6_blue = ImageIO.read(getClass().getResourceAsStream("/number/number6_blue.png"));
+			number7_blue = ImageIO.read(getClass().getResourceAsStream("/number/number7_blue.png"));
+			number8_blue = ImageIO.read(getClass().getResourceAsStream("/number/number8_blue.png"));
+			number9_blue = ImageIO.read(getClass().getResourceAsStream("/number/number9_blue.png"));
 			
-			numberList = Arrays.asList(number0,number1,number2,number3,number4,number5,number6,number7,number8,number9);
+			numberList_blue = Arrays.asList(number0_blue,number1_blue,number2_blue,number3_blue,number4_blue,number5_blue,number6_blue,number7_blue,number8_blue,number9_blue);
+			
+			number0_orange = ImageIO.read(getClass().getResourceAsStream("/number/number0_orange.png"));
+			number1_orange = ImageIO.read(getClass().getResourceAsStream("/number/number1_orange.png"));
+			number2_orange = ImageIO.read(getClass().getResourceAsStream("/number/number2_orange.png"));
+			number3_orange = ImageIO.read(getClass().getResourceAsStream("/number/number3_orange.png"));
+			number4_orange = ImageIO.read(getClass().getResourceAsStream("/number/number4_orange.png"));
+			number5_orange = ImageIO.read(getClass().getResourceAsStream("/number/number5_orange.png"));
+			number6_orange = ImageIO.read(getClass().getResourceAsStream("/number/number6_orange.png"));
+			number7_orange = ImageIO.read(getClass().getResourceAsStream("/number/number7_orange.png"));
+			number8_orange = ImageIO.read(getClass().getResourceAsStream("/number/number8_orange.png"));
+			number9_orange = ImageIO.read(getClass().getResourceAsStream("/number/number9_orange.png"));
+			
+			numberList_orange = Arrays.asList(number0_orange,number1_orange,number2_orange,number3_orange,number4_orange,number5_orange,number6_orange,number7_orange,number8_orange,number9_orange);
+
 			
 		} catch(IOException e) {
 			e.printStackTrace();
@@ -80,13 +98,24 @@ public class GUI {
 			g.drawImage(bulletBar, Window.BOARD_START + i*5, Window.BOARD_HEIGHT - 10, 6, 14, null);
 		}
 		// Score-display
-		g.drawImage(score, Window.BOARD_START + 20, 20, 200, 40, null);
+		//g.drawImage(score_blue, Window.BOARD_START + 20, 20, 200, 40, null);
+		//g.drawImage(score_blue, Window.BOARD_START + 50, 25, 200, 40, null);
 		String scoreString = Integer.toString(gp.score);
 		int index = 0;
-		for (String a: scoreString.split("")) {
-			int number = Integer.parseInt(a);
-			g.drawImage(numberList.get(number), Window.BOARD_START + 240 + index*45, 20, numberList.get(number).getWidth()*8, 40, null);
-			index++;
+		if (gp.level == 1) {
+			g.drawImage(score_blue, Window.BOARD_START + 20, 20, 200, 40, null);
+			for (String a: scoreString.split("")) {
+				int number = Integer.parseInt(a);
+				g.drawImage(numberList_blue.get(number), Window.BOARD_START + 250 + index*45, 20, numberList_blue.get(number).getWidth()*8, 40, null);
+				index++;
+			}
+		} else {
+			g.drawImage(score_orange, Window.BOARD_START + 20, 20, 200, 40, null);
+			for (String a: scoreString.split("")) {
+				int number = Integer.parseInt(a);
+				g.drawImage(numberList_orange.get(number), Window.BOARD_START + 250 + index*45, 20, numberList_orange.get(number).getWidth()*8, 40, null);
+				index++;
+			}
 		}
 	}
 }

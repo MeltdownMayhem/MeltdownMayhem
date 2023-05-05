@@ -17,8 +17,8 @@ public class Portal extends Entity{
 	
 	public Portal(){
 		rng = new Random();
-		this.x = Window.BOARD_START + rng.nextInt(Window.BOARD_WIDTH - 100);
-		this.y = rng.nextInt (Window.BOARD_HEIGHT - 150);
+		this.x = Window.BOARD_START + 50 + rng.nextInt(Window.BOARD_WIDTH - 100);
+		this.y = rng.nextInt (Window.BOARD_HEIGHT - 150) + 75;
 		this.vx = 0;
 		this.vy = 0;
 		this.width = 74;
@@ -39,6 +39,6 @@ public class Portal extends Entity{
 	}
 
 	public void draw(Graphics g) {
-		g.drawImage(portalImage, x - width/2 + 50, y - height/2 + 75, width, height, null);
+		g.drawImage(portalImage, x - width/2, y - height/2, width, height, null);
 	}
 }
