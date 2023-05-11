@@ -20,14 +20,11 @@ public class Barrel extends Entity {
 
 	public boolean gettingDamaged = false;
 	
-	GamePanel gp;
-	Drone drone;
-	
 	BufferedImage barrel1;
 	BufferedImage barrel2;
 	BufferedImage barrel3;
 	
-	public Barrel(Drone ron, GamePanel panel) {
+	public Barrel() {
 		this.width = 140;
 		this.height = 75;
 		
@@ -37,8 +34,7 @@ public class Barrel extends Entity {
 		this.vy = 2 * rng.nextDouble() + 3;
 		
 		this.lives = 3;
-		gp = panel;
-		drone = ron;
+
 		
 		this.hitbox = new Rectangle(x, y + 5, width, height - 10);
 		
@@ -64,6 +60,16 @@ public class Barrel extends Entity {
 	}
 	
 	public class DestroyBarrelTimerTask extends TimerTask {
+		Barrel barrel;
+		Drone drone;
+		GamePanel gp;
+		
+		DestroyBarrelTimerTask(Barrel bar, Drone ron, GamePanel panel) {
+			barrel = bar;
+			drone = ron;
+			gp = panel;
+		}
+		
 		@Override
 		public void run() {
 			gettingDamaged = false;
@@ -76,6 +82,12 @@ public class Barrel extends Entity {
 				vy = 2 * rng.nextDouble() + 3 - (3 - lives);
 				drone.barrelSlot = null;
 			}
+			
+			if (lives == 0) {
+				PowerUp.spawnPowerUp(barrel, gp);
+				y = Window.BOARD_HEIGHT + 100;
+			}
+			
 		}
 	}
 	
@@ -83,11 +95,6 @@ public class Barrel extends Entity {
 	public void update() {
 		this.x += (int)(SPEED_COEFFICIENT * vx);
 		this.y += (int)(SPEED_COEFFICIENT * vy);
-		
-		if (lives == 0) {
-			PowerUp.spawnPowerUp(this, gp);
-			y = Window.BOARD_HEIGHT + 100;
-		}
 		
 		if (hitboxRadius == 0) {
 			hitbox.x = x;

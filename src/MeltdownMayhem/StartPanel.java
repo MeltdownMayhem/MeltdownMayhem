@@ -65,12 +65,14 @@ public class StartPanel extends JPanel implements ActionListener{
 		playBut.setBounds(Window.screenSize.width / 2 - 300, 375, 600, 120);
 		playBut.setBorder(BorderFactory.createEmptyBorder());
 		playBut.addActionListener(this);
+		playBut.setContentAreaFilled(false);
 		this.add(playBut);
 		
 		storyBut = new JButton(storyButIcon);
 		storyBut.setBounds(Window.screenSize.width / 2 - 300, 500, 600, 120);
 		storyBut.setBorder(BorderFactory.createEmptyBorder());
 		storyBut.addActionListener(this);
+		storyBut.setContentAreaFilled(false);
 		this.add(storyBut);
 		
 		backToMenuBut = new JButton(backToMenuIcon);
@@ -78,6 +80,7 @@ public class StartPanel extends JPanel implements ActionListener{
 		backToMenuBut.setBorder(BorderFactory.createEmptyBorder());
 		backToMenuBut.addActionListener(this);
 		backToMenuBut.setVisible(false);
+		backToMenuBut.setContentAreaFilled(false);
 		this.add(backToMenuBut);
 		
 		// JTextFields (to enter the name for Human and Drone)

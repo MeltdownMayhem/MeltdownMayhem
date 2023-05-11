@@ -74,16 +74,6 @@ public class KeyHandler implements KeyListener, MouseListener{
 				}
 			}
 		}
-		
-		// DEVELOPER'S CHEATING KEYS //
-		// 'r' - refill ammo
-		if (e.getKeyCode() == 82) {
-			human.ammo = human.max_ammo;
-		}
-		// 'h' - heal human
-		if (e.getKeyCode() == 72) {
-			human.lives = human.max_lives;
-		}
 	}
 
 	@Override

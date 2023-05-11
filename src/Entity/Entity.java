@@ -40,7 +40,7 @@ public abstract class Entity {
 	// Give it a list of images and a list of time-intervals, and it will return you the image that needs to be drawn
 	public BufferedImage getImage(List<BufferedImage> imageList, List<Integer> timeIntervalList) {
 		spriteCounter++;
-
+		
 		if (spriteCounter >= timeIntervalList.get(spriteNum)) {
 			spriteNum++;
 			spriteCounter = 0;

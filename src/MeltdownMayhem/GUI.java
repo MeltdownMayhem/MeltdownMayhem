@@ -18,11 +18,10 @@ public class GUI {
 
 	BufferedImage heart1;
 	BufferedImage heart2;
+	BufferedImage absorptionHeart;
 	
 	BufferedImage bulletBar;
 	BufferedImage ammoBar;
-	
-	BufferedImage gamePaused;
 	
 	BufferedImage score_blue, score_orange;
 	BufferedImage number0_blue, number0_orange;
@@ -46,6 +45,7 @@ public class GUI {
 			// Retrieve the images for the GUI <Credits to RyiSnow | https://www.youtube.com/@RyiSnow>
 			heart1 = ImageIO.read(getClass().getResourceAsStream("/gui/heart1.png"));
 			heart2 = ImageIO.read(getClass().getResourceAsStream("/gui/heart2.png"));
+			absorptionHeart = ImageIO.read(getClass().getResourceAsStream("/power_up/absorptionHeart.png"));
 			
 			bulletBar = ImageIO.read(getClass().getResourceAsStream("/gui/bulletBar.png"));
 			ammoBar = ImageIO.read(getClass().getResourceAsStream("/gui/ammoBar.png"));
@@ -89,7 +89,10 @@ public class GUI {
 		for (int i = 0; i < human.lives; i++) {
 			g.drawImage(heart1, Window.BOARD_START + 20 + i*70, Window.BOARD_HEIGHT - 75, 50, 50, null);
 		}
-		for (int i = human.lives; i < human.max_lives; i++) {
+		for (int i = human.lives; i < human.lives + human.absorptionLives; i++) {
+			g.drawImage(absorptionHeart, Window.BOARD_START + 20 + i*70, Window.BOARD_HEIGHT - 75, 50, 50, null);
+		}
+		for (int i = human.lives + human.absorptionLives; i < human.max_lives; i++) {
 			g.drawImage(heart2, Window.BOARD_START + 20 + i*70, Window.BOARD_HEIGHT - 75, 50, 50, null);
 		}
 		// Ammo-bar

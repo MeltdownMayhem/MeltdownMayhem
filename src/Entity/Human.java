@@ -23,6 +23,7 @@ public class Human extends Entity {
 
 	public boolean moveRight, moveLeft, moveUp, moveDown;
 	public int max_lives = 3;
+	public int absorptionLives = 0;
 	boolean shieldActive;
 	boolean isTiny;
 	
@@ -39,7 +40,7 @@ public class Human extends Entity {
 	private List<BufferedImage> horizontalImageList = new ArrayList<BufferedImage>();
 	private List<Integer> timeIntervalList = new ArrayList<Integer>();
 	
-	private Timer timer = new Timer();
+	public Timer timer = new Timer();
 	
 	private enum deathCauses {ORBBULLET, SNIPERBULLET, RAMPAGE, ORB, SNIPER, RAGE, BARREL}
 	private deathCauses killer;
@@ -77,28 +78,40 @@ public class Human extends Entity {
 	}
 	
 	public class ShieldTimerTask extends TimerTask {
+		static int shieldNumber;
 		@Override
 		public void run() {
-			shieldActive = false;
+			shieldNumber--;
+			if (shieldNumber == 0) {
+				shieldActive = false;
+			}
 		}
 	}
 	
 	public class TinyTimerTask extends TimerTask {
+		static int shrinkNumber;
 		@Override
 		public void run() {
-			width = 90;
-			height = 165;
-			hitbox.width = width - 10;
-			hitbox.height = height - 60;
-			vx = 4;
-			vy = 4.3;
-			isTiny = false;
+			shrinkNumber--;
+			if (shrinkNumber == 0) {
+				width = 90;
+				height = 165;
+				hitbox.width = width - 10;
+				hitbox.height = height - 60;
+				vx = 4;
+				vy = 4.3;
+				isTiny = false;
+			}
 		}
 	}
 	
 	public void takeDamage(deathCauses d, String nameHuman, ArrayList<String> chatText, ArrayList<Integer> chatTimer) {
 		if (shieldActive == false) {
-			lives --;
+			if (absorptionLives == 0) {
+				lives--;
+			} else {
+				absorptionLives--;
+			}
 			x = Window.screenSize.width/2 - width/2;
 			y = Window.BOARD_HEIGHT - height - Window.BOARD_HEIGHT/15;
 			activateShield(2500);
@@ -123,6 +136,7 @@ public class Human extends Entity {
 	
 	public void activateShield(int time) {
 			shieldActive = true;
+			ShieldTimerTask.shieldNumber++;
 			timer.schedule(new ShieldTimerTask(), time);
 	}
 	
@@ -135,8 +149,9 @@ public class Human extends Entity {
 			vx *= speedFactor;
 			vy *= speedFactor;
 			isTiny = true;
-			timer.schedule(new TinyTimerTask(), time);
 		}
+		TinyTimerTask.shrinkNumber++;
+		timer.schedule(new TinyTimerTask(), time);
 	}
 	
 	public void shootBullet(ArrayList<Ammunition> ammoList) {

@@ -57,10 +57,10 @@ public class RadiationOrb extends Enemy {
 			orbRight1 = ImageIO.read(getClass().getResourceAsStream("/radiation_orb/orbRight1.png"));
 			orbRight2 = ImageIO.read(getClass().getResourceAsStream("/radiation_orb/orbRight2.png"));
 			
-			sniperLeft1 = ImageIO.read(getClass().getResourceAsStream("/radiation_orb/sniperLeft1.png"));
-			sniperLeft2 = ImageIO.read(getClass().getResourceAsStream("/radiation_orb/sniperLeft2.png"));
-			sniperRight1 = ImageIO.read(getClass().getResourceAsStream("/radiation_orb/sniperRight1.png"));
-			sniperRight2 = ImageIO.read(getClass().getResourceAsStream("/radiation_orb/sniperRight2.png"));
+			sniperLeft1 = ImageIO.read(getClass().getResourceAsStream("/sniper/sniperLeft1.png"));
+			sniperLeft2 = ImageIO.read(getClass().getResourceAsStream("/sniper/sniperLeft2.png"));
+			sniperRight1 = ImageIO.read(getClass().getResourceAsStream("/sniper/sniperRight1.png"));
+			sniperRight2 = ImageIO.read(getClass().getResourceAsStream("/sniper/sniperRight2.png"));
 			
 			orbLeftImageList = Arrays.asList(orbLeft1,orbLeft2);
 			orbRightImageList = Arrays.asList(orbRight1,orbRight2);

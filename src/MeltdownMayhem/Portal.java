@@ -26,7 +26,7 @@ public class Portal extends Entity{
 		this.hitboxRadius = 35;
 		
 		try {
-			portalImage = ImageIO.read(getClass().getResourceAsStream("/Portal/portal.png"));
+			portalImage = ImageIO.read(getClass().getResourceAsStream("/portal/portal.png"));
 		} catch(IOException e) {
 			e.printStackTrace();
 		}

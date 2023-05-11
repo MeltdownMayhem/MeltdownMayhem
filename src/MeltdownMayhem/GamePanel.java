@@ -50,7 +50,7 @@ public class GamePanel extends JPanel implements ActionListener{
 	private Window window;
 	private UpdateTimerTask updateTimerTask;
 	
-	// Hiding the Cursor <Credits to 'Réal Gagnon'>
+	// Hiding the Cursor <Credits to 'Réal Gagnon' | https://www.rgagnon.com/javadetails/java-0440.html>
 	public Image noCursor;
 	public Cursor transparentCursor;
 	
@@ -79,7 +79,7 @@ public class GamePanel extends JPanel implements ActionListener{
 	private ImageIcon resumeIcon, ragequitIcon, backToMenuIcon;
 
 	private BufferedImage cave, city, powerplant, background_end;
-	private BufferedImage game_paused, gameover;
+	private BufferedImage gamePaused, gameOver;
 	
 	protected GamePanel(String nameHuman, String nameDrone, Window window) {
 		
@@ -113,7 +113,7 @@ public class GamePanel extends JPanel implements ActionListener{
 		chatList = new ArrayList<String>();
 		chatTimer = new ArrayList<Integer>();
 		
-		// Hiding the Cursor <Credits to 'Réal Gagnon'>
+		// Hiding the Cursor <Credits to 'Réal Gagnon' | https://www.rgagnon.com/javadetails/java-0440.html>
 		noCursor = Toolkit.getDefaultToolkit().createImage(new MemoryImageSource(16, 16, null, 0, 16));
 		transparentCursor = Toolkit.getDefaultToolkit().createCustomCursor(noCursor, getLocation(), "transparentCursor");
 		
@@ -122,12 +122,13 @@ public class GamePanel extends JPanel implements ActionListener{
 		backToMenuIcon = new ImageIcon(new ImageIcon(this.getClass().getResource("/button/backToMenu.png")).getImage().getScaledInstance(400, 80, ABORT));
 		ragequitIcon = new ImageIcon(new ImageIcon(this.getClass().getResource("/button/ragequit.png")).getImage().getScaledInstance(400, 80, ABORT));
 
-		// JButtons (Credits to Bro Code to explain how to use JButtons: https://www.youtube.com/watch?v=-IMys4PCkIA)
+		// JButtons <Credits to Bro Code | https://www.youtube.com/watch?v=-IMys4PCkIA>
 		resumeBut = new JButton(resumeIcon);
 		resumeBut.setBounds(Window.screenSize.width / 2 - 200, 400, 400, 80);
 		resumeBut.setBorder(BorderFactory.createEmptyBorder());
 		resumeBut.addActionListener(this);
 		resumeBut.setVisible(false);
+		resumeBut.setContentAreaFilled(false);
 		this.add(resumeBut);
 		
 		backToMenuBut = new JButton(backToMenuIcon);
@@ -135,6 +136,7 @@ public class GamePanel extends JPanel implements ActionListener{
 		backToMenuBut.setBorder(BorderFactory.createEmptyBorder());
 		backToMenuBut.addActionListener(this);
 		backToMenuBut.setVisible(false);
+		backToMenuBut.setContentAreaFilled(false);
 		this.add(backToMenuBut);
 		
 		ragequitBut = new JButton(ragequitIcon);
@@ -142,6 +144,7 @@ public class GamePanel extends JPanel implements ActionListener{
 		ragequitBut.setBorder(BorderFactory.createEmptyBorder());
 		ragequitBut.addActionListener(this);
 		ragequitBut.setVisible(false);
+		ragequitBut.setContentAreaFilled(false);
 		this.add(ragequitBut);
 		
 		// JLabels
@@ -165,7 +168,7 @@ public class GamePanel extends JPanel implements ActionListener{
 		chat.setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT); // Credits to Craig Wood for explaining how to align text inside a JTextArea: https://coderanch.com/t/339752/java/Textarea-Text-Alignment
 		chat.setOpaque(false);
 		chat.setFocusable(false);
-		chat.setBounds(Window.BOARD_END - 510, Window.BOARD_HEIGHT - 195, 500, 170);
+		chat.setBounds(Window.BOARD_END - 510, Window.BOARD_HEIGHT - 195, 500, 190);
 		chat.setFont(new Font("American Typewriter", Font.PLAIN, 16));
 		chat.setForeground(Color.CYAN);
 		chat.setEditable(false);
@@ -189,8 +192,8 @@ public class GamePanel extends JPanel implements ActionListener{
 			city = ImageIO.read(getClass().getResourceAsStream("/background/city.png"));
 			powerplant = ImageIO.read(getClass().getResourceAsStream("/background/powerplant.png"));
 			background_end = ImageIO.read(getClass().getResourceAsStream("/background/paperBackground_vertical.png"));
-			game_paused = ImageIO.read(getClass().getResourceAsStream("/gui/game_paused.png"));
-			gameover = ImageIO.read(getClass().getResourceAsStream("/gui/gameover.png"));
+			gamePaused = ImageIO.read(getClass().getResourceAsStream("/gui/gamePaused.png"));
+			gameOver = ImageIO.read(getClass().getResourceAsStream("/gui/gameOver.png"));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -199,7 +202,7 @@ public class GamePanel extends JPanel implements ActionListener{
 	
 	@Override
 	public void actionPerformed(ActionEvent e) {
-        // Credits to docs.oracle for showing how to use an actionListener: https://docs.oracle.com/javase/tutorial/uiswing/events/actionlistener.html 
+        // <Credits to docs.oracle for showing how to use an actionListener | https://docs.oracle.com/javase/tutorial/uiswing/events/actionlistener.html>
 
 		if (e.getSource() == resumeBut) {
         	gameState = State.PLAY;
@@ -215,7 +218,7 @@ public class GamePanel extends JPanel implements ActionListener{
 				e1.printStackTrace();
 			}
         } else if (e.getSource() == ragequitBut) {
-        	System.exit(0);  // Credits to JavaGuides for showing how to close an application: https://www.javaguides.net/2019/06/java-swing-exit-button.html
+        	System.exit(0);  // <Credits to JavaGuides for showing how to close an application | https://www.javaguides.net/2019/06/java-swing-exit-button.html>
         } else if(e.getSource() == backToMenuBut) {
         	gameState = State.PAUSE;
         	
@@ -233,8 +236,8 @@ public class GamePanel extends JPanel implements ActionListener{
 				checkGameOver();
 				update();
 			} else if (gameState == State.PAUSE) {
-				if (drone.droneFrozen == true) { //zorgt dat drone frozen blijft na een hit, om misbruik van pauze te vermijden
-					drone.freeze(2000); // WTF?? Veel te cheap!
+				if (drone.droneFrozen == true) { // zorgt dat drone frozen blijft na een hit, om misbruik van pauze te vermijden
+					drone.freeze(2000);
 				}
 				setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
 			}
@@ -260,7 +263,7 @@ public class GamePanel extends JPanel implements ActionListener{
 			this.setCursor(transparentCursor);
 		}
 		
-		// Spawn Portals
+		// Spawn Portal
 		if (score >= scoreLevel1 && portal == null && level == 1) {
 			portal = new Portal();
 			chatList.add("Pass through the portal to reach Level 2");
@@ -277,7 +280,8 @@ public class GamePanel extends JPanel implements ActionListener{
 				enemyList.clear();
 				barrelList.clear();
 				projectileList.clear();
-				level ++;
+				drone.barrelSlot = null;
+				level++;
 				portal = null;
 				chatTimer.add(0);
 				human.x = Window.screenSize.width/2 - human.width/2 - 128;
@@ -291,7 +295,6 @@ public class GamePanel extends JPanel implements ActionListener{
 					max_barrels = 5;
 					max_enemies = 11;
 				}
-				drone.barrelSlot = null;
 			}
 		}
 		
@@ -318,16 +321,16 @@ public class GamePanel extends JPanel implements ActionListener{
 			if (barrelList.size() < max_barrels) {
 				if (level == 1) {
 					if (rng.nextDouble() / (1 + ((max_barrels - barrelList.size())/max_barrels)) <= barrelSpawnChance + score/200000) {
-						barrelList.add(new Barrel(drone, this));
+						barrelList.add(new Barrel());
 					}
 				} else if(level == 2){ 
 					if (rng.nextDouble() / (1 + ((max_barrels - barrelList.size())/max_barrels)) <= barrelSpawnChance + (score-250) / 200000) {
-						barrelList.add(new Barrel(drone, this));
+						barrelList.add(new Barrel());
 					}
 				} else	{
 					if (rng.nextDouble() / (1 + ((max_barrels - barrelList.size())/max_barrels/1.5))<= barrelSpawnChance + Math.log10((score-1500)/100 + 1)/300) {
 						// / (1 + ((max_barrels - barrelList.size())/max_barrels/2))
-						barrelList.add(new Barrel(drone, this));
+						barrelList.add(new Barrel());
 					}
 				}
 			}
@@ -372,7 +375,7 @@ public class GamePanel extends JPanel implements ActionListener{
 		}
 		if (!barrelList.isEmpty() && drone.damageBarrel == true) {
 			for (Barrel barrel: barrelList) {
-				drone.destroyBarrel(barrel, barrelList);
+				drone.destroyBarrel(barrel, barrelList, drone, this);
 			}
 		}
 		
@@ -531,10 +534,10 @@ public class GamePanel extends JPanel implements ActionListener{
      	
      	if (gameState == State.PAUSE) {
      		g.drawImage(background_end, Window.screenSize.width / 2 - 300, 75, 600, 900, null);
-     		g.drawImage(game_paused, Window.screenSize.width / 2 - 240, 250, 480, 60, null);
+     		g.drawImage(gamePaused, Window.screenSize.width / 2 - 240, 250, 480, 60, null);
      	} else if (gameState == State.GAMEOVER) {
      		g.drawImage(background_end, Window.screenSize.width / 2 - 300, 75, 600, 900, null);
-     		g.drawImage(gameover, Window.screenSize.width / 2 - 240, 250, 480, 60, null);
+     		g.drawImage(gameOver, Window.screenSize.width / 2 - 240, 250, 480, 60, null);
      	}
 	}
 	

@@ -48,7 +48,7 @@ public class Drone extends Entity {
 	List<BufferedImage> imageList;
 	List<Integer> timeIntervalList;
 	
-	BufferedImage drone1, drone2;
+	BufferedImage drone1, drone2, drone3;
 	
 	RadiationOrb orb;
 	Rage rage;
@@ -77,9 +77,10 @@ public class Drone extends Entity {
 		try {
 			drone1 = ImageIO.read(getClass().getResourceAsStream("/drone/drone1.png"));
 			drone2 = ImageIO.read(getClass().getResourceAsStream("/drone/drone2.png"));
+			drone3 = ImageIO.read(getClass().getResourceAsStream("/drone/drone3.png"));
 			
-			imageList = Arrays.asList(drone1,drone2);
-			timeIntervalList = Arrays.asList(15,15);
+			imageList = Arrays.asList(drone1,drone2,drone3);
+			timeIntervalList = Arrays.asList(8,8,8);
 			
 		} catch(IOException e) {
 			e.printStackTrace();
@@ -225,13 +226,13 @@ public class Drone extends Entity {
 	}
 	
 	// destroy Barrel skill
-	public void destroyBarrel(Barrel barrel, ArrayList<Barrel> barrelList) {
+	public void destroyBarrel(Barrel barrel, ArrayList<Barrel> barrelList, Drone drone, GamePanel gp) {
 		if (this.collision(barrel) && invSlot == null && (barrelSlot == null || barrelSlot == barrel)) {
 			if (barrel.gettingDamaged == false) {
 				barrelSlot = barrel;
 				barrel.gettingDamaged = true;
 				barrel.vy = 0;
-				destructionTimer.schedule(barrel.new DestroyBarrelTimerTask(), 800);
+				destructionTimer.schedule(barrel.new DestroyBarrelTimerTask(barrel,drone,gp), 800);
 			}
 		}
 	}
