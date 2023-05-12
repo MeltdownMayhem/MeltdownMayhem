@@ -42,9 +42,6 @@ public class KeyHandler implements KeyListener, MouseListener{
 		}
 		if (key == 90 || key == 38) {
 			human.moveUp = true;
-//			if (GamePanel.gameState == State.PLAY) {
-//				gp.setCursor(gp.transparentCursor);
-//			}
 		}
 		if (key == 83 || key == 40) {
 			human.moveDown = true;

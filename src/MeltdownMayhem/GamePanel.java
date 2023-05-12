@@ -5,7 +5,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.awt.image.MemoryImageSource;
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
@@ -36,14 +35,12 @@ public class GamePanel extends JPanel implements ActionListener{
 	private droneKiller deathDrone;
 	
 	// Basic Game variables
-	public int score = 0;
-	public int level = 1;
+	public int score, level;
 	private final int scoreLevel1 = 500;
 	private final int scoreLevel2 = 1500;
 	private String nameHuman, nameDrone, chatText;
 	
-	private int max_enemies = 7;
-	private int max_barrels = 3;
+	private int max_enemies, max_barrels;
 	private double enemySpawnChance = 0.005;
 	private double barrelSpawnChance = 0.004;
 	private Random rng = new Random();
@@ -83,6 +80,12 @@ public class GamePanel extends JPanel implements ActionListener{
 	private BufferedImage gamePaused, gameOver;
 	
 	protected GamePanel(String nameHuman, String nameDrone, Window window) {
+		
+		// Basic Game Variables
+		this.score = 0;
+		this.level = 1;
+		this.max_enemies = 7;
+		this.max_barrels = 3;
 		
 		// Creation of Objects
 		human = new Human();
@@ -192,7 +195,7 @@ public class GamePanel extends JPanel implements ActionListener{
 			cave = ImageIO.read(getClass().getResourceAsStream("/background/cave.png"));
 			city = ImageIO.read(getClass().getResourceAsStream("/background/city.png"));
 			powerplant = ImageIO.read(getClass().getResourceAsStream("/background/powerplant.png"));
-			background_end = ImageIO.read(getClass().getResourceAsStream("/background/paperBackground_vertical.png"));
+			background_end = ImageIO.read(getClass().getResourceAsStream("/background/paperBackground.png"));
 			gamePaused = ImageIO.read(getClass().getResourceAsStream("/gui/gamePaused.png"));
 			gameOver = ImageIO.read(getClass().getResourceAsStream("/gui/gameOver.png"));
 		} catch (IOException e) {
@@ -207,7 +210,6 @@ public class GamePanel extends JPanel implements ActionListener{
 		Extra.playSound("SFX/Button.wav");
 		if (e.getSource() == resumeBut) {
         	gameState = State.PLAY;
-        	
         	resumeBut.setVisible(false);
         	ragequitBut.setVisible(false);
         	backToMenuBut.setVisible(false);
@@ -222,7 +224,6 @@ public class GamePanel extends JPanel implements ActionListener{
         	System.exit(0);  // <Credits to JavaGuides for showing how to close an application | https://www.javaguides.net/2019/06/java-swing-exit-button.html>
         } else if(e.getSource() == backToMenuBut) {
         	gameState = State.PAUSE;
-        	
         	window.switchPanel(window.startPanel, window.gamePanel);
         	window.gamePanel.removeAll();
         	updateTimerTask.cancel();
@@ -249,7 +250,7 @@ public class GamePanel extends JPanel implements ActionListener{
 	public void checkGameOver() {
 		if (human.lives == 0) {
 			gameState = State.GAMEOVER;
-			Extra.playSound("SFX/GameOver.wav");
+			Extra.playSound("SFX/GameOverVoice.wav");
 			ragequitBut.setVisible(true);
 			backToMenuBut.setVisible(true);
 			endScore.setText("YOUR SCORE: " + score);

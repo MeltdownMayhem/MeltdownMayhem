@@ -9,7 +9,6 @@ import javax.swing.JPanel;
 @SuppressWarnings("serial")
 public class Window extends JFrame {
 	protected JPanel gamePanel, startPanel;
-	//protected static Window window;
 	
 	// Window settings
 	public static Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();

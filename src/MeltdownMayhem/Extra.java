@@ -7,8 +7,6 @@ import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
 
-import javax.swing.JOptionPane;
-
 /**
  * De Extra class bevat (momenteel zeer weinig) extra methodes die regelmatig gebruikt worden doorheen de verschillende classes.
  */
