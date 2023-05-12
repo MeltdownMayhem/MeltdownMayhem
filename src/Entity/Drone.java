@@ -6,6 +6,7 @@ import java.awt.MouseInfo;
 import java.awt.Robot;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -16,6 +17,7 @@ import java.util.TimerTask;
 import javax.imageio.ImageIO;
 
 import Entity.RadiationOrb.Model;
+import MeltdownMayhem.Extra;
 import MeltdownMayhem.GamePanel;
 import MeltdownMayhem.Window;
 import MeltdownMayhem.GamePanel.droneKiller;
@@ -220,6 +222,7 @@ public class Drone extends Entity {
 			}
 		}
 		if (lives == 0) {
+			Extra.playSound("SFX/DroneDeath.wav");
 			respawn();
 		}
 		return this.deathDrone;

@@ -8,6 +8,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 
+
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
@@ -57,6 +58,7 @@ public class StartPanel extends JPanel implements ActionListener{
 		backToMenuImage = new ImageIcon(this.getClass().getResource("/button/backToMenu.png")).getImage().getScaledInstance(400, 80, ABORT);
 		backToMenuIcon = new ImageIcon(backToMenuImage);
 		
+
 		// Border
 		blackBorder = BorderFactory.createLineBorder(Color.black);
 		
@@ -76,7 +78,7 @@ public class StartPanel extends JPanel implements ActionListener{
 		this.add(storyBut);
 		
 		backToMenuBut = new JButton(backToMenuIcon);
-		backToMenuBut.setBounds(Window.screenSize.width / 2 - 95, 895, 400, 80);
+		backToMenuBut.setBounds(Window.screenSize.width / 2 +100, Window.screenSize.height -110, 400, 80);
 		backToMenuBut.setBorder(BorderFactory.createEmptyBorder());
 		backToMenuBut.addActionListener(this);
 		backToMenuBut.setVisible(false);
@@ -151,7 +153,7 @@ public class StartPanel extends JPanel implements ActionListener{
 		story1.setFocusable(false);
 		story1.setEditable(false);
 		story1.setBounds(Window.screenSize.width / 2 - 410, 190, 200, 712);
-		story1.setFont(new Font("Bradley Hand", Font.PLAIN, 24));
+		story1.setFont(new Font("Bradley Hand", Font.PLAIN, 24 * Window.screenSize.height/1000));
 		story1.setVisible(false);
 		this.add(story1);
 		
@@ -160,7 +162,7 @@ public class StartPanel extends JPanel implements ActionListener{
 		story2.setFocusable(false);
 		story2.setEditable(false);
 		story2.setBounds(Window.screenSize.width / 2 - 300, 190, 750, 712);
-		story2.setFont(new Font("Bradley Hand", Font.PLAIN, 24));
+		story2.setFont(new Font("Bradley Hand", Font.PLAIN, 24 * Window.screenSize.height/1000));
 		story2.setVisible(false);
 		this.add(story2);
 
@@ -177,7 +179,7 @@ public class StartPanel extends JPanel implements ActionListener{
 	@Override
 	public void actionPerformed(ActionEvent e) {
         // Credits to docs.oracle for showing how to use an actionListener: https://docs.oracle.com/javase/tutorial/uiswing/events/actionlistener.html 
-		
+		Extra.playSound("SFX/Button.wav");
 		if (e.getSource() == playBut) {
         	nameHuman = humanField.getText();
         	nameDrone = droneField.getText();

@@ -5,6 +5,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.awt.image.MemoryImageSource;
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
@@ -203,7 +204,7 @@ public class GamePanel extends JPanel implements ActionListener{
 	@Override
 	public void actionPerformed(ActionEvent e) {
         // <Credits to docs.oracle for showing how to use an actionListener | https://docs.oracle.com/javase/tutorial/uiswing/events/actionlistener.html>
-
+		Extra.playSound("SFX/Button.wav");
 		if (e.getSource() == resumeBut) {
         	gameState = State.PLAY;
         	
@@ -248,6 +249,7 @@ public class GamePanel extends JPanel implements ActionListener{
 	public void checkGameOver() {
 		if (human.lives == 0) {
 			gameState = State.GAMEOVER;
+			Extra.playSound("SFX/GameOver.wav");
 			ragequitBut.setVisible(true);
 			backToMenuBut.setVisible(true);
 			endScore.setText("YOUR SCORE: " + score);

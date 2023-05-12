@@ -12,6 +12,8 @@ import java.util.TimerTask;
 
 import javax.imageio.ImageIO;
 import Entity.RadiationOrb.Model;
+import MeltdownMayhem.Extra;
+import java.io.File;
 import MeltdownMayhem.Window;
 /**
  * De Human is de belangrijkste speler van dit spel.
@@ -46,6 +48,8 @@ public class Human extends Entity {
 	private deathCauses killer;
 	private RadiationOrb orb;
 	private Rage rage;
+	
+	private File DeathHuman= new File("DeathHuman.wav");
 	
 	public Human() {
 		this.width = 90;
@@ -131,6 +135,7 @@ public class Human extends Entity {
 				chatText.add(nameHuman + " got rolled over with a radioactive waste barrel");
 			}
 			chatTimer.add(0);
+			Extra.playSound("SFX/DeathHuman.wav");
 		}
 	}
 	
@@ -159,6 +164,7 @@ public class Human extends Entity {
 			shootingCooldown--;
 			if (shootingCooldown < 0) {
 				ammoList.add(new Ammunition(x + width*76/100 - 2, y));
+				Extra.playSound("SFX/Shoot.wav");
 				shootingCooldown = 15;
 				ammo --;
 			}

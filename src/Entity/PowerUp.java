@@ -10,6 +10,8 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import javax.imageio.ImageIO;
+
+import MeltdownMayhem.Extra;
 import MeltdownMayhem.GamePanel;
 /**
  * Class to make PowerUp Drop on the Board.
@@ -189,21 +191,26 @@ public class PowerUp extends Entity {
 				}
 			} else if (powerUp == Power.healthSyringe) {
 				if (human.lives < human.max_lives) {
+					Extra.playSound("SFX/Healing.wav");
 					human.lives += healAmount;
 				} else {
 					gp.score += 50;
 				}
 			} else if (powerUp == Power.shield) {
+				Extra.playSound("SFX/Shield.wav");
 				human.activateShield(shieldDuration);
 			} else if (powerUp == Power.shrinkShroom) {
+				Extra.playSound("SFX/Mushroom.wav");
 				human.shrink(shrinkDuration, shrinkFactor, speedFactor);
 			} else if (powerUp == Power.absorptionHeart) {
 				if (human.absorptionLives < max_absorptionHearts) {
+					Extra.playSound("SFX/ExtraHealth.wav");
 					human.absorptionLives++;
 				} else {
 					gp.score += 100;
 				}
 			} else if (powerUp == Power.extraAmmo) {
+				Extra.playSound("SFX/ExtraAmmo.wav");
 				human.max_ammo += extraAmmoAmount;
 				human.ammo += extraAmmoAmount;
 			} 
