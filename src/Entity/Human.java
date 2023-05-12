@@ -13,7 +13,6 @@ import java.util.TimerTask;
 import javax.imageio.ImageIO;
 import Entity.RadiationOrb.Model;
 import MeltdownMayhem.Extra;
-import java.io.File;
 import MeltdownMayhem.Window;
 /**
  * De Human is de belangrijkste speler van dit spel.
@@ -48,9 +47,7 @@ public class Human extends Entity {
 	private deathCauses killer;
 	private RadiationOrb orb;
 	private Rage rage;
-	
-	private File DeathHuman= new File("DeathHuman.wav");
-	
+		
 	public Human() {
 		this.width = 90;
 		this.height = 165;

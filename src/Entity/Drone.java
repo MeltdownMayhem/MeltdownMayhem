@@ -6,7 +6,6 @@ import java.awt.MouseInfo;
 import java.awt.Robot;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;

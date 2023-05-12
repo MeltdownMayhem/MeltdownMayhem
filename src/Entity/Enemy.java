@@ -18,7 +18,6 @@ public abstract class Enemy extends Entity {
 	public static final double COLLISION_AREA_FACTOR = 2.5;
 	
 	protected static final int SPEED_RESET_FACTOR = 200;
-	protected static final int OSCILLATION_FACTOR = 2;
 	public double x_speedFactor;
 	
 	public int enemySize, enemyRadius;
@@ -27,9 +26,7 @@ public abstract class Enemy extends Entity {
 	int timeSinceReset_x = 0;
 	int timeSinceReset_y = 0;
 	
-	boolean appearing = true;
-	public boolean spawning = true;
-	public boolean rampage = false;
+	public boolean appearing, spawning, rampage;
 	
 	private static double spawnChanceOrbLevel1 = 0.8;
 	private static double spawnChanceRageLevel2 = 0.15;
@@ -39,7 +36,7 @@ public abstract class Enemy extends Entity {
 	
 	public int killScore;
 	
-	RadiationOrb orb;
+	private RadiationOrb orb;
 	
 	Enemy(int x){
 		enemySize = 85;
@@ -53,6 +50,10 @@ public abstract class Enemy extends Entity {
 		
 		this.hitboxRadius = 30;
 		this.x_speedFactor = 1;
+		
+		this.appearing = true;
+		this.spawning = true;
+		this.rampage = false;
 	}
 	
 	public abstract void update(Human human);
