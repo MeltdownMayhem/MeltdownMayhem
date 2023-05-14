@@ -82,8 +82,8 @@ public class GamePanel extends JPanel implements ActionListener{
 	protected GamePanel(String nameHuman, String nameDrone, Window window) {
 		
 		// Basic Game Variables
-		this.score = 1490;
-		this.level = 2;
+		this.score = 0;
+		this.level = 1;
 		this.max_enemies = 7;
 		this.max_barrels = 3;
 		
@@ -207,7 +207,7 @@ public class GamePanel extends JPanel implements ActionListener{
 	@Override
 	public void actionPerformed(ActionEvent e) {
         // <Credits to docs.oracle for showing how to use an actionListener | https://docs.oracle.com/javase/tutorial/uiswing/events/actionlistener.html>
-		Extra.playSound("SFX/Button.wav");
+		Extra.playSound("/Button.wav");
 		if (e.getSource() == resumeBut) {
         	gameState = State.PLAY;
         	resumeBut.setVisible(false);
@@ -251,7 +251,7 @@ public class GamePanel extends JPanel implements ActionListener{
 	public void checkGameOver() {
 		if (human.lives == 0) {
 			gameState = State.GAMEOVER;
-			Extra.playSound("SFX/GameOverVoice.wav");
+			Extra.playSound("/GameOverVoice.wav");
 			ragequitBut.setVisible(true);
 			backToMenuBut.setVisible(true);
 			endScore.setText("YOUR SCORE: " + score);

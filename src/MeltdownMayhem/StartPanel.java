@@ -185,7 +185,7 @@ public class StartPanel extends JPanel implements ActionListener{
 	@Override
 	public void actionPerformed(ActionEvent e) {
         // Credits to docs.oracle for showing how to use an actionListener: https://docs.oracle.com/javase/tutorial/uiswing/events/actionlistener.html 
-		Extra.playSound("SFX/Button.wav");
+		Extra.playSound("/Button.wav");
 		if (e.getSource() == playBut) {
         	nameHuman = humanField.getText();
         	nameDrone = droneField.getText();

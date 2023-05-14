@@ -1,7 +1,7 @@
 package MeltdownMayhem;
 
 import java.io.File;
-
+import java.net.URL;
 
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
@@ -21,7 +21,7 @@ public class Extra {
 	// Also a special thanks to Melati Saerens who voiced some lines for us!
 	public static void playSound(String musicLocation) {
 		try {
-			File musicPath = new File(musicLocation);
+			URL musicPath = Extra.class.getResource(musicLocation);
 			AudioInputStream audioInput = AudioSystem.getAudioInputStream(musicPath);
 			Clip clip = AudioSystem.getClip();
 			clip.open(audioInput);
