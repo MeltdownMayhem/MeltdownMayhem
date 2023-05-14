@@ -82,8 +82,8 @@ public class GamePanel extends JPanel implements ActionListener{
 	protected GamePanel(String nameHuman, String nameDrone, Window window) {
 		
 		// Basic Game Variables
-		this.score = 0;
-		this.level = 1;
+		this.score = 1490;
+		this.level = 2;
 		this.max_enemies = 7;
 		this.max_barrels = 3;
 		
@@ -117,7 +117,7 @@ public class GamePanel extends JPanel implements ActionListener{
 		chatList = new ArrayList<String>();
 		chatTimer = new ArrayList<Integer>();
 		
-		// Hiding the Cursor <Credits to 'Réal Gagnon' | https://www.rgagnon.com/javadetails/java-0440.html>
+		// Hiding the Cursor <Credits to Réal Gagnon | https://www.rgagnon.com/javadetails/java-0440.html>
 		noCursor = Toolkit.getDefaultToolkit().createImage(new MemoryImageSource(16, 16, null, 0, 16));
 		transparentCursor = Toolkit.getDefaultToolkit().createCustomCursor(noCursor, getLocation(), "transparentCursor");
 		
@@ -238,7 +238,8 @@ public class GamePanel extends JPanel implements ActionListener{
 				checkGameOver();
 				update();
 			} else if (gameState == State.PAUSE) {
-				if (drone.droneFrozen == true) { // zorgt dat drone frozen blijft na een hit, om misbruik van pauze te vermijden
+				// Keeps the player from abusing Pause to unfreeze the drone.
+				if (drone.droneFrozen == true) { 
 					drone.freeze(2000);
 				}
 				setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
@@ -261,7 +262,7 @@ public class GamePanel extends JPanel implements ActionListener{
 	
 	//-------------------------------------UPDATE-------------------------------------
 	public void update() {
-		// Set Cursor again to transparent
+		// Set Cursor to transparent again
 		if (gameState == State.PLAY) {
 			this.setCursor(transparentCursor);
 		}

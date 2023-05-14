@@ -11,8 +11,9 @@ import javax.imageio.ImageIO;
 
 import MeltdownMayhem.Extra;
 /**
- * De RadiationOrb is een groene Enemy type dat willekeurig rondvliegt.
- * Ability: projectielen schieten naar de player.
+ * Radiation orb are the enemies that shoot bullets
+ * They and their bullets can harm the Humans
+ * RadiationOrb is a subclass of Enemy, and furthermore of Entity.
  */
 public class RadiationOrb extends Enemy {
 	
@@ -117,6 +118,7 @@ public class RadiationOrb extends Enemy {
 	}
 	
 	public void aimAndShoot(ArrayList<Ammunition> projectileList, Human human) {
+		//Sniper aimbot (the orange enemies)
 		if (this.type == RadiationOrb.Model.SNIPER) {
 			shootingAngle = rng.nextDouble() * 2 * Math.PI;
 			distanceOffTarget = rng.nextInt(150);
@@ -128,6 +130,7 @@ public class RadiationOrb extends Enemy {
 			projectileList.add(new Ammunition(this, vxbullet, vybullet));
 			this.shootingCooldown = 0;
 		} else {
+		// Green enemy shooting
 			projectileList.add(new Ammunition(this, 0, 5));
 		}
 	}

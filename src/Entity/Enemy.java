@@ -8,11 +8,14 @@ import MeltdownMayhem.Extra;
 import MeltdownMayhem.GamePanel;
 import MeltdownMayhem.Window;
 /**
- * De Enemy class is een Subclass van de Entity class en een Superclass voor de RadiationOrb en Rage class.
+ * Enemies are the main obstacle for the players. 
+ * Enemies give score when killed.
+ * There are 3 types of enemies, 2 of which are defined in the RadiationOrb class, the other in the Rage class.
  */
 public abstract class Enemy extends Entity {
 
 	protected static final int ENEMYBOARD_UPPERBORDER = 125;
+	//enemies can't pass below the BOTTOMBORDER
 	protected static final double ENEMYBOARD_BOTTOMBORDER = 0.8 * Window.BOARD_HEIGHT;
 	protected static final double ORB_BOTTOMBORDER = Window.BOARD_HEIGHT/3;
 	public static final double COLLISION_AREA_FACTOR = 2.5;

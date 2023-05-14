@@ -21,9 +21,10 @@ import MeltdownMayhem.GamePanel;
 import MeltdownMayhem.Window;
 import MeltdownMayhem.GamePanel.droneKiller;
 /**
- * The Drone is the second player of the Game and is controlled with the Mouse.
- * Skill: Destroy Barrels with Left-Click and move Ammo to the Human.
- * It has collision with all Entities, except Human, HumanAmmo and Barrels.
+ * The Drone is the second player of the Game and is controlled with the mouse.
+ * Skill: Destroy barrels with left-click and move ammo/power-ups to the Human.
+ * It has collision with all entities, except Human, friendly bullets and barrels.
+ * Drone is a subclass of Entity.
  */
 public class Drone extends Entity {
 
@@ -88,7 +89,8 @@ public class Drone extends Entity {
 		}
 	}
 	
-	public void freeze(int duration) { //Freeze de drone
+	//Freezes the drone + gives protection
+	public void freeze(int duration) { 
 		droneFrozen = true;
 		respawnTimer.schedule(new SpawnFreeze(), duration);
 	}
@@ -107,16 +109,17 @@ public class Drone extends Entity {
 		}
 	}
 	
-	public void respawn() throws AWTException{ // Freeze de drone + breng hem terug naar respawnpunt
-		Robot robot = new Robot();
+	// brings the drone back to its starting location and freezes it
+	public void respawn() throws AWTException{ 
 		freeze(2000);
 		lives += 1;
-		robot.mouseMove(DroneRespawnX, DroneRespawnY);
+		this.teleportMouse(DroneRespawnX, DroneRespawnY);
 		x = DroneRespawnX; // needed to move the model
 		y = DroneRespawnY;
 	}
 	
-	public void checkInBounds() { // Check if drone is in Board
+	// returns booleans that indicate if the drone is out of bounds
+	public void checkInBounds() {
 		if (MouseX < Window.BOARD_START + width/2 || MouseX > Window.BOARD_END - width/2) {
 			xOutOfBounds = true;
 			// if statements to push drone back into boundaries in case mouse was moving too fast
@@ -145,7 +148,8 @@ public class Drone extends Entity {
 		}
 	}
 	
-	public void mouseMove() { //beweegt de drone volgens de cursor, wanneer dat moet
+	//acts like a mouse listener + pushes the drone into boundaries when necessary
+	public void mouseMove() {
 		this.MousePos =  MouseInfo.getPointerInfo().getLocation();
 		MouseX = (int) MousePos.getX();
 		MouseY = (int) MousePos.getY();
@@ -159,7 +163,7 @@ public class Drone extends Entity {
 		}
 	}
 	
-	// Dit stuk vermijdt dat de drone teleporteert na pauzes/hits
+	//help function to prevent redundancy 
 	public void teleportMouse(int x, int y) throws AWTException {
 		Robot robot = new Robot();
 		robot.mouseMove(x, y);
@@ -248,8 +252,5 @@ public class Drone extends Entity {
 	public void draw(Graphics g) {
 		BufferedImage image = this.getImage(imageList,timeIntervalList);
 		g.drawImage(image, x - width/2, y - height/2, width, height, null);
-		
-		// Show hitbox
-		//g.drawOval(x - hitboxRadius, y - hitboxRadius, hitboxRadius*2, hitboxRadius*2);
 	}
 }

@@ -1,5 +1,7 @@
 package MeltdownMayhem;
-
+/*
+ * Creates the main Window in which Panels are selected and displayed.
+ */
 import java.awt.Dimension;
 import java.awt.Toolkit;
 

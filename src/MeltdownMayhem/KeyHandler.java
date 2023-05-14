@@ -11,6 +11,7 @@ import Entity.Human;
 import MeltdownMayhem.GamePanel.State;
 /**
  * Class that 'handles' the actions of whatever 'key' is pressed/released.
+ * Also handles mouse buttons.
  */
 public class KeyHandler implements KeyListener, MouseListener{
 	
@@ -24,11 +25,6 @@ public class KeyHandler implements KeyListener, MouseListener{
 		gp = panel;
 	}
 	
-	@Override
-	public void keyTyped(KeyEvent e) {
-		// TODO Auto-generated method stub
-	}
-
 	@Override
 	public void keyPressed(KeyEvent e) {
 		int key = e.getKeyCode();
@@ -97,10 +93,7 @@ public class KeyHandler implements KeyListener, MouseListener{
 		}
 	}
 
-	@Override
-	public void mouseClicked(MouseEvent e) {
-		// TODO Auto-generated method stub
-	}
+	
 
 	@Override
 	public void mousePressed(MouseEvent e) {
@@ -120,14 +113,18 @@ public class KeyHandler implements KeyListener, MouseListener{
 			drone.damageBarrel = false;
 		}
 	}
-
+// This is required to be here, but doesn't do anything functional
+	@Override
+	public void mouseClicked(MouseEvent e) {
+	}
 	@Override
 	public void mouseEntered(MouseEvent e) {
-		// TODO Auto-generated method stub
 	}
-
 	@Override
 	public void mouseExited(MouseEvent e) {
-		// TODO Auto-generated method stub
 	}
+	@Override
+	public void keyTyped(KeyEvent e) {
+	}
+
 }

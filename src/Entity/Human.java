@@ -15,10 +15,11 @@ import Entity.RadiationOrb.Model;
 import MeltdownMayhem.Extra;
 import MeltdownMayhem.Window;
 /**
- * De Human is de belangrijkste speler van dit spel.
- * Wordt gecontroleerd volgens de pijljtes en kan plasma schieten met de space_bar.
- * Wanneer hij geraakt wordt teleporteert hij terug naar zijn beginplaats, verliest het een leven en krijgt het spawn_protection.
- * Als zijn levens (3 in totaal) opzijn is het spel afgelopen.
+ * Human is controlled by the first player.
+ * Its job is to shoot enemy and gather score to progress to the next level
+ * The human can lose lives by colliding with enemies, barrels and enemy bullets
+ * If human reaches 0 lives, the game is over.
+ * Human is a subclass of Entity
  */
 public class Human extends Entity {
 
@@ -77,7 +78,7 @@ public class Human extends Entity {
 			e.printStackTrace();
 		}
 	}
-	
+	// Bunch of timers related to the power-ups for Human
 	public class ShieldTimerTask extends TimerTask {
 		static int shieldNumber;
 		@Override
@@ -105,7 +106,7 @@ public class Human extends Entity {
 			}
 		}
 	}
-	
+	// checks if Human is taking damage from any possible source
 	public void takeDamage(deathCauses d, String nameHuman, ArrayList<String> chatText, ArrayList<Integer> chatTimer) {
 		if (shieldActive == false) {
 			if (absorptionLives == 0) {
@@ -135,7 +136,7 @@ public class Human extends Entity {
 			Extra.playSound("SFX/DeathHuman.wav");
 		}
 	}
-	
+	// 2 functions related to power-ups
 	public void activateShield(int time) {
 			shieldActive = true;
 			ShieldTimerTask.shieldNumber++;
@@ -156,6 +157,7 @@ public class Human extends Entity {
 		timer.schedule(new TinyTimerTask(), time);
 	}
 	
+	// defines a cool-down period between friendly shots
 	public void shootBullet(ArrayList<Ammunition> ammoList) {
 		if (isShooting == true && ammo > 0) {
 			shootingCooldown--;
@@ -212,6 +214,7 @@ public class Human extends Entity {
 		return delProjectileList;
 	}
 	
+	//update for movement
 	@Override
 	public void update() {
 		if (this.moveRight==true && x < Window.BOARD_END - width - 2) { // 2-pixel draw accuracy
@@ -239,7 +242,6 @@ public class Human extends Entity {
 		}
 		
 		g.drawImage(image, x, y, width, height, null);
-		//g.drawRect(hitbox.x, hitbox.y, hitbox.width, hitbox.height);
 		
 		// Shield Bubble
 		if (shieldActive) {

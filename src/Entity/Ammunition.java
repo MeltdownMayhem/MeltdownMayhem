@@ -11,8 +11,10 @@ import Entity.RadiationOrb.Model;
 import MeltdownMayhem.GamePanel;
 import MeltdownMayhem.Window;
 /**
- * Class that serves to create a moving Bullet on the Board.
- * It is possible to create both Human Bullets and Enemy Projectiles.
+ * Class that defines both friendly and enemy bullets that have been fired.
+ * Enemy bullets collide with human and drone.
+ * Friendly bullets collide with enemies, enemy bullets and barrels.
+ * Ammunition is a subclass of Entity.
  */
 public class Ammunition extends Entity {
 
@@ -20,7 +22,7 @@ public class Ammunition extends Entity {
 	RadiationOrb orb;
 	boolean green;
 	
-	// players ammo
+	// Players ammo
 	public Ammunition(int x, int y) {
 		this.width = 22;
 		this.height = 32;
@@ -40,7 +42,7 @@ public class Ammunition extends Entity {
 		}
 	}
 	
-	// enemies ammo
+	// Enemies ammo
 	public Ammunition(RadiationOrb enemy, double vx, double vy) {
 		
 		this.x = enemy.x;
@@ -86,16 +88,12 @@ public class Ammunition extends Entity {
 			}
 		}
 	}
-	
+	// Checks if an object of this class has left the board; used for removal of object in GamePanel
 	public boolean isOutBoard() {
-		if (this.x < Window.BOARD_START || this.y < 0 || this.x > Window.BOARD_START + Window.BOARD_WIDTH || this.y > Window.BOARD_HEIGHT) {
-			return true;
-		}
-		return false;
+		return this.x < Window.BOARD_START || this.y < 0 || this.x > Window.BOARD_START + Window.BOARD_WIDTH || this.y > Window.BOARD_HEIGHT;
 	}
 	
 	public void draw(Graphics g) {
 		g.drawImage(ammoImage, x - width/2, y - height/2, width, height, null);
-		//g.drawOval(x - hitboxRadius, y - hitboxRadius, hitboxRadius*2, hitboxRadius*2);
 	}
 }

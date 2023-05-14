@@ -5,16 +5,16 @@ import java.util.Random;
 
 import Entity.Enemy;
 /**
- * De Event class behandeld momenteel de spawning van de Enemies en zijn Pathfinding.
- * Er is een kans dat deze classe zal verdwijnen in de toekomst.
+ * Event takes care of static events:
+ * It makes enemies evade collision with each other.
  */
 public class Event {
 
 	static Random rng = new Random();
 	
 	/** 
-	 * Botsing-algoritme: Enemies in elkaars 'botsingsgebied' komen samen in een ArrayList.
-	 * Nadien worden de enemies weggeduuwt van hun zwaartepunt, voor elke gevormde ArrayList.
+	 * Bumping mechanism: Enemies in each others bumping area get put together in an ArrayList.
+	 * Afterwards, the enemies get pushed away from their common center of gravity, for each ArrayList.
 	 */
 	public static ArrayList<ArrayList<Enemy>> getEnemiesInCollision(ArrayList<Enemy> enemyList) {
 		ArrayList <ArrayList<Enemy>> enemiesInCollision = new ArrayList<ArrayList<Enemy>>();
@@ -43,7 +43,7 @@ public class Event {
 					}
 					
 					if (!isEnemyInCollision) {
-						// Maak een nieuwe rij in de geneste ArrayList enemiesInCollision
+						// Makes a new ArrayList in the ArrayList enemiesInCollision
 						enemiesInCollision.add(new ArrayList<Enemy>());
 						enemiesInCollision.get(enemiesInCollision.size() - 1).add(enemyList.get(n));
 						enemiesInCollision.get(enemiesInCollision.size() - 1).add(enemyList.get(m));
@@ -84,11 +84,11 @@ public class Event {
 						E.vx = E.x - center_x;
 						E.vy = E.y - center_y;
 						
-						// snelheid wordt genormaliseerd
+						// speed gets normalised
 						E.vx /= Extra.distance(E.x, E.y, center_x, center_y);
 						E.vy /= Extra.distance(E.x, E.y, center_x, center_y);
 						
-						// snelheid wordt nu vermenigvuldigd met een getal tussen 1 en 4;
+						// speed gets randomised
 						speedAfterCollision = 1 + rng.nextInt(4);
 						E.vx *= speedAfterCollision * E.x_speedFactor;
 						E.vy *= speedAfterCollision;

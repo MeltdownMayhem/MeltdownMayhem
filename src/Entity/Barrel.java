@@ -12,9 +12,10 @@ import javax.imageio.ImageIO;
 import MeltdownMayhem.GamePanel;
 import MeltdownMayhem.Window;
 /**
- * Class to create a moving Barrel on the Board.
- * Serves as an obstacle to the Human and can be destroyed by the Drone.
- * When destroyed, it has a chance to drop some Ammo.
+ * Class that defines barrels on the board.
+ * Serves as an obstacle to the Human and can be destroyed by the Drone by holding the left mouse button.
+ * When destroyed, it has a chance to drop some ammo or a power-up.
+ * Barrel is a subclass of Entity.
  */
 public class Barrel extends Entity {
 
@@ -53,7 +54,7 @@ public class Barrel extends Entity {
 		for (Ammunition bullet: ammoList) {
 			for (Barrel barrel: barrelList) {
 				if (bullet.collision(barrel)) {
-					bullet.y = -1000;
+					bullet.y = -1000; //barrels outside of the board get removed in Gamepanel
 				}
 			}
 		}
@@ -91,6 +92,7 @@ public class Barrel extends Entity {
 		}
 	}
 	
+	//update causes movement
 	@Override
 	public void update() {
 		this.x += (int)(SPEED_COEFFICIENT * vx);
@@ -110,6 +112,5 @@ public class Barrel extends Entity {
 		} else {
 			g.drawImage(barrel3, x, y, width, height, null);
 		}
-		//g.drawRect(hitbox.x, hitbox.y, hitbox.width, hitbox.height);
 	}
 }

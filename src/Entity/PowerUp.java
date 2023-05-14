@@ -17,6 +17,7 @@ import MeltdownMayhem.GamePanel;
  * Class to make PowerUp Drop on the Board.
  * Power Ups gets dropped when Barrels are destroyed.
  * When it makes contact with the Human, an special effect will be given.
+ * PowerUp is a subclass of Entity.
  */
 public class PowerUp extends Entity {
 	
@@ -159,18 +160,7 @@ public class PowerUp extends Entity {
 			y = 0;
 		}
 	}
-	
-	public void update(Drone drone, Human human, GamePanel gp) {
-		// Update Movement
-		if (pickedUp == true && drone.droneFrozen == false) {
-			x = drone.x;
-			y = drone.y - 20;
-		} else if (pickedUp == true && drone.droneFrozen == true) {
-			pickedUp = false;
-			drone.invSlot = null;
-		}
-		
-		// Human Collision with Drops
+	public void powerUpCollisions(Human human, Drone drone, GamePanel gp) {
 		if (this.collision(human)) {
 			pickedUp = false;
 			if (drone.invSlot == this) {
@@ -216,6 +206,19 @@ public class PowerUp extends Entity {
 			} 
 		}
 	}
+	public void update(Drone drone, Human human, GamePanel gp) {
+		// Update Movement
+		if (pickedUp == true && drone.droneFrozen == false) {
+			x = drone.x;
+			y = drone.y - 20;
+		} else if (pickedUp == true && drone.droneFrozen == true) {
+			pickedUp = false;
+			drone.invSlot = null;
+		}
+		
+		// Collision with Drops
+		this.powerUpCollisions(human, drone, gp);
+	}
 	
 	public void draw(Graphics g) {
 		if (powerUp == Power.ammoDrop) {
@@ -236,6 +239,5 @@ public class PowerUp extends Entity {
 		} else if (powerUp == Power.extraAmmo) {
 			g.drawImage(extraAmmo, x - width/2, y - height/2, width, height, null);
 		}
-		//g.drawOval(x - hitboxRadius, y - hitboxRadius, hitboxRadius*2, hitboxRadius*2);
 	}
 }

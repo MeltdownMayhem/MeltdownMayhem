@@ -1,5 +1,8 @@
 package MeltdownMayhem;
-
+/*
+ * StartPanel creates the menu, the story and lets the players initiate the game.
+ * It of course acts like a JPanel with some JButtons.
+ */
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
@@ -47,7 +50,7 @@ public class StartPanel extends JPanel implements ActionListener{
 		this.setBackground(Color.black);
 		this.setDoubleBuffered(true);
 		this.setFocusable(true);
-		this.setLayout(null); // Dit zorgt ervoor dat er geen standaard LayoutManager wordt gebruikt, zodat de knoppen op de gewenste plaats verschijnen.
+		this.setLayout(null); // Prevents standard LayoutManager from being used, so that buttons appear where they should.
 		this.setVisible(true);
 		
 		// Images
@@ -155,7 +158,6 @@ public class StartPanel extends JPanel implements ActionListener{
 		story1.setOpaque(false);
 		story1.setFocusable(false);
 		story1.setEditable(false);
-		//story1.setBounds(Window.screenSize.width / 2 - 400, 145, 200, 540);
 		story1.setBounds(Window.screenSize.width / 2 - 400, Window.screenSize.height / 2 - 280, 200, 540);
 		story1.setFont(new Font("Courier New", Font.PLAIN, 18));
 		story1.setVisible(false);
@@ -165,7 +167,6 @@ public class StartPanel extends JPanel implements ActionListener{
 		story2.setOpaque(false);
 		story2.setFocusable(false);
 		story2.setEditable(false);
-		//story2.setBounds(Window.screenSize.width / 2 - 300, 145, 700, 540);
 		story2.setBounds(Window.screenSize.width / 2 - 300, Window.screenSize.height / 2 - 280, 700, 540);
 		story2.setFont(new Font("Courier New", Font.ITALIC, 18));
 		story2.setVisible(false);

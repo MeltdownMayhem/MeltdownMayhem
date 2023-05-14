@@ -1,5 +1,9 @@
 package MeltdownMayhem;
-
+/**
+ * Portal allows the players to go to the next level.
+ * It acts as an object that collides with the Human.
+ * Portal spawns after reaching a certain score.
+ */
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -32,10 +36,7 @@ public class Portal extends Entity{
 		}
 	}
 	public boolean portalCollision(Human human) {
-		if (human.collision(this)) {
-			return true;
-		}
-		return false;
+		return (human.collision(this));
 	}
 
 	public void draw(Graphics g) {

@@ -11,8 +11,8 @@ import javax.imageio.ImageIO;
 
 import Entity.Human;
 /**
- * De GUI class zorgt voor de UI-Elements van de Board.
- * Het zorgt momenteel voor de Health-bar en de Ammo-bar, maar later ook de score_display, respawn_time, etc.
+ * GUI class:
+ * Takes care of Health-bar, Ammo-bar, score_display, respawn_time, etc.
  */
 public class GUI {
 
@@ -77,8 +77,6 @@ public class GUI {
 			number9_orange = ImageIO.read(getClass().getResourceAsStream("/number/number9_orange.png"));
 			
 			numberList_orange = Arrays.asList(number0_orange,number1_orange,number2_orange,number3_orange,number4_orange,number5_orange,number6_orange,number7_orange,number8_orange,number9_orange);
-
-			
 		} catch(IOException e) {
 			e.printStackTrace();
 		}
@@ -101,8 +99,6 @@ public class GUI {
 			g.drawImage(bulletBar, Window.BOARD_START + i*5, Window.BOARD_HEIGHT - 10, 6, 14, null);
 		}
 		// Score-display
-		//g.drawImage(score_blue, Window.BOARD_START + 20, 20, 200, 40, null);
-		//g.drawImage(score_blue, Window.BOARD_START + 50, 25, 200, 40, null);
 		String scoreString = Integer.toString(gp.score);
 		int index = 0;
 		if (gp.level == 1) {

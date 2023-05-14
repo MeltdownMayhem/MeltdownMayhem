@@ -9,11 +9,10 @@ import java.util.List;
 
 import javax.imageio.ImageIO;
 /**
- * De Rage is een grijze en rode Enemy soort.
- * Als de Rage grijs is beweegt het willekeurig rond zoals een RadiationOrb.
- * Ability: Rampage
- * 	        Wanneer de Rage in een Rampage gaat, kleurt hij rood en vliegt het rechtstreeks naar de human's locatie.
- * 	        Op zijn weg duwt hij de andere Enemies lichtjes opzij om ongehinderd door te kunnen.
+ * Rage is an enemy that dashes towards the Human. It doesn't shoot bullets.
+ * When Rage is grey, it moves around as a RadiationOrb.
+ * When it turns red, it goes on "rampage" and makes a fash dash directly towards the Human.
+ * While dashing, Rage pushes away other enemies in its path.
  */
 public class Rage extends Enemy {
 
