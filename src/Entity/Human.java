@@ -133,7 +133,7 @@ public class Human extends Entity {
 				chatText.add(nameHuman + " got rolled over with a radioactive waste barrel");
 			}
 			chatTimer.add(0);
-			Extra.playSound("SFX/DeathHuman.wav");
+			Extra.playSound("/DeathHuman.wav");
 		}
 	}
 	// 2 functions related to power-ups
@@ -163,7 +163,7 @@ public class Human extends Entity {
 			shootingCooldown--;
 			if (shootingCooldown < 0) {
 				ammoList.add(new Ammunition(x + width*76/100 - 2, y));
-				Extra.playSound("SFX/Shoot.wav");
+				Extra.playSound("/Shoot.wav");
 				shootingCooldown = 15;
 				ammo --;
 			}

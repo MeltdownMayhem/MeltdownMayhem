@@ -181,26 +181,26 @@ public class PowerUp extends Entity {
 				}
 			} else if (powerUp == Power.healthSyringe) {
 				if (human.lives < human.max_lives) {
-					Extra.playSound("SFX/Healing.wav");
+					Extra.playSound("/Healing.wav");
 					human.lives += healAmount;
 				} else {
 					gp.score += 50;
 				}
 			} else if (powerUp == Power.shield) {
-				Extra.playSound("SFX/Shield.wav");
+				Extra.playSound("/Shield.wav");
 				human.activateShield(shieldDuration);
 			} else if (powerUp == Power.shrinkShroom) {
-				Extra.playSound("SFX/Mushroom.wav");
+				Extra.playSound("/Mushroom.wav");
 				human.shrink(shrinkDuration, shrinkFactor, speedFactor);
 			} else if (powerUp == Power.absorptionHeart) {
 				if (human.absorptionLives < max_absorptionHearts) {
-					Extra.playSound("SFX/ExtraHealth.wav");
+					Extra.playSound("/ExtraHealth.wav");
 					human.absorptionLives++;
 				} else {
 					gp.score += 100;
 				}
 			} else if (powerUp == Power.extraAmmo) {
-				Extra.playSound("SFX/ExtraAmmo.wav");
+				Extra.playSound("/ExtraAmmo.wav");
 				human.max_ammo += extraAmmoAmount;
 				human.ammo += extraAmmoAmount;
 			} 

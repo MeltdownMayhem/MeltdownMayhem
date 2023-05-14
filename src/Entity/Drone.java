@@ -225,7 +225,7 @@ public class Drone extends Entity {
 			}
 		}
 		if (lives == 0) {
-			Extra.playSound("SFX/DroneDeath.wav");
+			Extra.playSound("/DroneDeath.wav");
 			respawn();
 		}
 		return this.deathDrone;
