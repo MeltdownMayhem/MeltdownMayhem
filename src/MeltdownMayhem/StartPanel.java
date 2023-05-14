@@ -245,7 +245,7 @@ public class StartPanel extends JPanel implements ActionListener{
 		if (!storyMode) {
 			g.drawImage(meltdown_mayhem, Window.screenSize.width/2 - 415, 100, null);
 		} else {
-			g.drawImage(backgroundPaper, Window.screenSize.width/2 - 550, Window.screenSize.height / 2 - 445, 1100, 830, null);
+			g.drawImage(backgroundPaper, Window.screenSize.width/2 - 550, Window.screenSize.height / 2 - 430, 1100, 830, null);
 		}
 	}
 
