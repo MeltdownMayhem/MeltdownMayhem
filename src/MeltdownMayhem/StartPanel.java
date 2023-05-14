@@ -78,7 +78,7 @@ public class StartPanel extends JPanel implements ActionListener{
 		this.add(storyBut);
 		
 		backToMenuBut = new JButton(backToMenuIcon);
-		backToMenuBut.setBounds(Window.screenSize.width / 2 + 70, 80, 400, 80);
+		backToMenuBut.setBounds(Window.screenSize.width / 2 + 70, 55, 400, 80);
 		backToMenuBut.setBorder(BorderFactory.createEmptyBorder());
 		backToMenuBut.addActionListener(this);
 		backToMenuBut.setVisible(false);
@@ -110,14 +110,14 @@ public class StartPanel extends JPanel implements ActionListener{
 		this.add(droneText);
 		
 		storyTitle = new JLabel ("STORY");
-		storyTitle.setBounds(Window.screenSize.width / 2 - 400, 80, 300, 50);
+		storyTitle.setBounds(Window.screenSize.width / 2 - 400, 55, 300, 50);
 		storyTitle.setFont(new Font("Courier New", Font.BOLD, 70));
 		storyTitle.setForeground(Color.black);
 		storyTitle.setVisible(false);
 		this.add(storyTitle);
 		
 		storyDate = new JLabel ("August the 6th 2023");
-		storyDate.setBounds(Window.screenSize.width / 2 - 400, 130, 380, 50);
+		storyDate.setBounds(Window.screenSize.width / 2 - 400, 105, 380, 50);
 		storyDate.setFont(new Font("Courier New", Font.PLAIN, 30));
 		storyDate.setForeground(Color.black);
 		storyDate.setVisible(false);
@@ -152,7 +152,7 @@ public class StartPanel extends JPanel implements ActionListener{
 		story1.setOpaque(false);
 		story1.setFocusable(false);
 		story1.setEditable(false);
-		story1.setBounds(Window.screenSize.width / 2 - 400, 170, 200, 712);
+		story1.setBounds(Window.screenSize.width / 2 - 400, 145, 200, 712);
 		story1.setFont(new Font("Courier New", Font.PLAIN, 20));
 		//story1.setFont(new Font("Bradley Hand", Font.PLAIN, 24 * Window.screenSize.height/1000));
 		story1.setVisible(false);
@@ -162,7 +162,7 @@ public class StartPanel extends JPanel implements ActionListener{
 		story2.setOpaque(false);
 		story2.setFocusable(false);
 		story2.setEditable(false);
-		story2.setBounds(Window.screenSize.width / 2 - 290, 170, 750, 712);
+		story2.setBounds(Window.screenSize.width / 2 - 290, 145, 750, 712);
 		story2.setFont(new Font("Courier New", Font.ITALIC, 20));
 		story2.setVisible(false);
 		this.add(story2);
@@ -237,12 +237,11 @@ public class StartPanel extends JPanel implements ActionListener{
 		
 		g.setColor(Color.black);
      	g.fillRect(Window.BOARD_END, 0, Window.screenSize.width, Window.screenSize.height);
-     	g.fillRect(Window.BOARD_START, Window.BOARD_HEIGHT, Window.BOARD_END, Window.screenSize.height);
 		
 		if (!storyMode) {
 			g.drawImage(meltdown_mayhem, Window.screenSize.width/2 - 415, 100, null);
 		} else {
-			g.drawImage(backgroundPaper, Window.screenSize.width/2 - 550, 25, 1100, Window.screenSize.height - 100, null);
+			g.drawImage(backgroundPaper, Window.screenSize.width/2 - 550, 0, 1100, Window.screenSize.height - 50, null);
 		}
 	}
 
